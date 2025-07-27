@@ -5,14 +5,19 @@
 > [!IMPORTANT]
 > This integration is unofficial and not maintained by CKSource. For official CKEditor 5 documentation, visit [ckeditor.com](https://ckeditor.com/docs/ckeditor5/latest/). If you encounter any issues in editor, please report them on the [GitHub repository](https://github.com/ckeditor/ckeditor5/issues).
 
+## Psst... 👀
+
+If you're looking for similar stuff, check these out:
+
+* [ckeditor5-phoenix](https://github.com/Mati365/ckeditor5-phoenix)
+  Seamless CKEditor 5 integration for Phoenix Framework. Plug & play support for LiveView forms with dynamic content, localization, and custom builds.
+
+* [ckeditor5-rails](https://github.com/Mati365/ckeditor5-rails)
+  Smooth CKEditor 5 integration for Ruby on Rails. Works with standard forms, Turbo, and Hotwire. Easy setup, custom builds, and localization support.
+
 ## 🚧 Under Construction
 
 This project is still in development and not production-ready. Features, structure, and APIs may change.
-
-Looking for other integrations?
-
-- [ckeditor5-rails](https://github.com/Mati365/ckeditor5-rails)
-- [ckeditor5-phoenix](https://github.com/Mati365/ckeditor5-phoenix)
 
 ## Trademarks 📜
 

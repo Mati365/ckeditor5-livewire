@@ -1,0 +1,27 @@
+name: Code checks
+
+on:
+  push:
+
+jobs:
+  js_checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run ESLint
+        run: npx eslint .
+
+      - name: Build npm package
+        run: npm run npm_package:build
+
+      - name: Run TypeScript type check
+        run: npm run typecheck

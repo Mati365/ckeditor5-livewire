@@ -1,8 +1,8 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/blank-livewire-starter-kit",
+    "name": "mati365/ckeditor5-livewire-playground",
     "type": "project",
-    "description": "The official Laravel starter kit for Livewire.",
+    "description": "The playground for the CKEditor 5 Livewire package.",
     "keywords": [
         "laravel",
         "framework"

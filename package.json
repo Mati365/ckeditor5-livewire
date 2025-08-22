@@ -1,0 +1,30 @@
+{
+  "private": true,
+  "scripts": {
+    "typecheck": "npm run npm_package:build && npm run playground:typecheck",
+    "playground:typecheck": "npm run typecheck --workspace=ckeditor5-livewire",
+    "npm_package:watch": "npm run watch --workspace=ckeditor5-livewire",
+    "npm_package:build": "npm run build --workspace=ckeditor5-livewire",
+    "npm_package:test": "npm run test --workspace=ckeditor5-livewire",
+    "npm_package:test:watch": "npm run test:watch --workspace=ckeditor5-livewire"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^5.2.1",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "eslint": "^9.33.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
+    "typescript": "^5.9.2",
+    "vite": "^7.0.4"
+  },
+  "workspaces": [
+    "npm_package",
+    "playground"
+  ],
+  "lint-staged": {
+    "*.{ts,js,mjs}": [
+      "eslint --fix"
+    ]
+  }
+}

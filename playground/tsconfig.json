@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "resources/js",
+    "moduleResolution": "bundler"
+  },
+  "include": [
+    "resources/js/**/*.ts"
+  ]
+}

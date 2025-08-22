@@ -1,18 +1,18 @@
 {
-    "name": "mati365/ckeditor5-livewire",
-    "description": "CKEditor 5 integration for Laravel Livewire",
-    "type": "library",
-    "license": "MIT",
-    "autoload": {
-        "psr-4": {
-            "Mati365\\CKEditor5Livewire\\": "src/"
-        }
-    },
-    "authors": [
-        {
-            "name": "Mateusz Baginski",
-            "email": "cziken58@gmail.com"
-        }
-    ],
-    "require": {}
+  "name": "mati365/ckeditor5-livewire",
+  "description": "CKEditor 5 integration for Laravel Livewire",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Mati365\\CKEditor5Livewire\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Mateusz Baginski",
+      "email": "cziken58@gmail.com"
+    }
+  ],
+  "require": {}
 }

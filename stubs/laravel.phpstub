@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * Laravel helper functions for Psalm
+ */
+
+/**
+ * @return string
+ */
+function app(string $abstract = null)
+{
+}
+
+/**
+ * @return string
+ */
+function config_path(string $path = '')
+{
+}
+
+/**
+ * @return string
+ */
+function resource_path(string $path = '')
+{
+}
+
+/**
+ * @return \Illuminate\View\View
+ */
+function view(string $view = null, array $data = [], array $mergeData = [])
+{
+}

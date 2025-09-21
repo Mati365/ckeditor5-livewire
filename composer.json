@@ -8,11 +8,26 @@
       "Mati365\\CKEditor5Livewire\\": "src/"
     }
   },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Mati365\\CKEditor5Livewire\\CKEditor5ServiceProvider"
+      ]
+    }
+  },
   "authors": [
     {
       "name": "Mateusz Baginski",
       "email": "cziken58@gmail.com"
     }
   ],
-  "require": {}
+  "require": {
+    "php": ">=8.2",
+    "illuminate/support": "^11.0 || ^12.0",
+    "livewire/livewire": "^3.5"
+  },
+  "require-dev": {
+    "psalm/plugin-laravel": "^3.0.4",
+    "vimeo/psalm": "^6.13"
+  }
 }

@@ -12,7 +12,8 @@
     "php": "^8.2",
     "laravel/framework": "^12.0",
     "laravel/tinker": "^2.10.1",
-    "livewire/volt": "^1.7.0"
+    "livewire/volt": "^1.7.0",
+    "mati365/ckeditor5-livewire": "dev-main"
   },
   "require-dev": {
     "fakerphp/faker": "^1.23",
@@ -23,6 +24,15 @@
     "nunomaduro/collision": "^8.6",
     "pestphp/pest": "^4.0",
     "pestphp/pest-plugin-laravel": "^4.0"
+  },
+  "repositories": {
+    "ckeditor5-livewire": {
+      "type": "path",
+      "url": "../",
+      "options": {
+        "symlink": true
+      }
+    }
   },
   "autoload": {
     "psr-4": {
@@ -69,6 +79,6 @@
       "php-http/discovery": true
     }
   },
-  "minimum-stability": "stable",
+  "minimum-stability": "dev",
   "prefer-stable": true
 }

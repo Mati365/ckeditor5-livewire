@@ -25,3 +25,21 @@ jobs:
 
       - name: Run TypeScript type check
         run: npm run typecheck
+
+  php_checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Run Psalm
+        run: vendor/bin/psalm --show-info=true --output-format=github

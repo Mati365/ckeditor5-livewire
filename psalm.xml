@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<psalm
+    errorLevel="4"
+    resolveFromConfigFile="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+    findUnusedBaselineEntry="true"
+    findUnusedCode="false"
+>
+    <projectFiles>
+        <directory name="src" />
+        <ignoreFiles>
+            <directory name="vendor" />
+            <directory name="playground" />
+            <directory name="npm_package" />
+        </ignoreFiles>
+    </projectFiles>
+
+    <stubs>
+        <file name="stubs/laravel.phpstub" />
+    </stubs>
+
+    <issueHandlers>
+        <LessSpecificReturnType errorLevel="info" />
+        <MoreSpecificReturnType errorLevel="info" />
+        <MissingReturnType errorLevel="info" />
+        <MissingPropertyType errorLevel="info" />
+        <InvalidDocblock errorLevel="info" />
+        <MissingConstructor errorLevel="info" />
+        <UndefinedConstant errorLevel="info" />
+        <PropertyNotSetInConstructor errorLevel="info" />
+        <MissingOverrideAttribute errorLevel="info" />
+    </issueHandlers>
+</psalm>

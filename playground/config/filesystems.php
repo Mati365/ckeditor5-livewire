@@ -9,9 +9,9 @@ return [
             'serve' => true,
             'throw' => false,
             'report' => false,
-        ]
+        ],
     ],
     'links' => [
         public_path('storage') => storage_path('app/public'),
-    ]
+    ],
 ];

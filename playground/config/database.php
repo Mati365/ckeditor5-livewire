@@ -12,11 +12,11 @@ return [
             'busy_timeout' => null,
             'journal_mode' => null,
             'synchronous' => null,
-        ]
+        ],
 
     ],
     'migrations' => [
         'table' => 'migrations',
         'update_date_on_publish' => true,
-    ]
+    ],
 ];

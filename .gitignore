@@ -32,3 +32,4 @@ Homestead.json
 .env.production
 .phpactor.json
 auth.json
+.php-cs-fixer.cache

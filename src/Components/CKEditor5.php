@@ -4,8 +4,7 @@ namespace Mati365\CKEditor5Livewire\Components;
 
 use Livewire\Component;
 use Illuminate\View\View;
-
-use Mati365\CKEditor5Livewire\CKEditor5Config;
+use Mati365\CKEditor5Livewire\Config;
 
 /**
  * Livewire component for integrating CKEditor5.
@@ -22,7 +21,7 @@ final class CKEditor5 extends Component
      * Configuration array for CKEditor5.
      * Contains settings and options for the editor instance.
      */
-    public array $config = [];
+    public array $editorConfig = [];
 
     /**
      * Unique identifier for the editor instance.
@@ -34,17 +33,17 @@ final class CKEditor5 extends Component
      * Configuration manager instance for handling CKEditor5 settings.
      * Injected via dependency injection in the boot method.
      */
-    protected ?CKEditor5Config $configManager = null;
+    protected ?Config $configService = null;
 
     /**
      * Boot method called by Livewire to inject dependencies.
      *
-     * @param CKEditor5Config $configManager The configuration manager for CKEditor5
+     * @param Config $configService The configuration manager for CKEditor5
      * @return void
      */
-    public function boot(CKEditor5Config $configManager): void
+    public function boot(Config $configService): void
     {
-        $this->configManager = $configManager;
+        $this->configService = $configService;
     }
 
     /**
@@ -58,7 +57,7 @@ final class CKEditor5 extends Component
     public function mount(string $content = '', array $config = []): void
     {
         $this->content = $content;
-        $this->config = $this->configManager?->mergeConfig($config) ?? $config;
+        $this->editorConfig = $this->configService?->mergeConfig($config) ?? $config;
         $this->editorId = 'ckeditor-' . uniqid();
     }
 

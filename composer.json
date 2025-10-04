@@ -11,7 +11,7 @@
   "extra": {
     "laravel": {
       "providers": [
-        "Mati365\\CKEditor5Livewire\\CKEditor5ServiceProvider"
+        "Mati365\\CKEditor5Livewire\\ServiceProvider"
       ]
     }
   },
@@ -28,6 +28,7 @@
   },
   "require-dev": {
     "psalm/plugin-laravel": "^3.0.4",
-    "vimeo/psalm": "^6.13"
+    "vimeo/psalm": "^6.13",
+    "friendsofphp/php-cs-fixer": "^3.88"
   }
 }

@@ -9,7 +9,7 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  *
  * @internal
  */
-final class CKEditor5Config
+final class Config
 {
     /**
      * Holds the package configuration array.

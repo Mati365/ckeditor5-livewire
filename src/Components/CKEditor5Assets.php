@@ -1,8 +1,9 @@
 <?php
+
 namespace Mati365\CKEditor5Livewire\Components;
 
 use Illuminate\View\{View, Component, ComponentAttributeBag};
-use Mati365\CKEditor5Livewire\CKEditor5Config;
+use Mati365\CKEditor5Livewire\Config;
 
 /**
  * Blade component for including CKEditor5 assets.
@@ -12,18 +13,18 @@ final class CKEditor5Assets extends Component
     /**
      * Configuration manager instance for handling CKEditor5 settings.
      */
-    private CKEditor5Config $configManager;
+    private Config $configService;
 
     /**
      * Constructor with dependency injection.
      *
-     * @param CKEditor5Config $configManager The configuration manager for CKEditor5
+     * @param Config $configService The configuration manager for CKEditor5
      */
-    public function __construct(CKEditor5Config $configManager)
+    public function __construct(Config $configService)
     {
         $this->componentName = 'ckeditor5-assets';
         $this->attributes = new ComponentAttributeBag();
-        $this->configManager = $configManager;
+        $this->configService = $configService;
     }
 
     /**

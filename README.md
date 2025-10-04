@@ -5,9 +5,19 @@
 > [!IMPORTANT]
 > This integration is unofficial and not maintained by CKSource. For official CKEditor 5 documentation, visit [ckeditor.com](https://ckeditor.com/docs/ckeditor5/latest/). If you encounter any issues in editor, please report them on the [GitHub repository](https://github.com/ckeditor/ckeditor5/issues).
 
-## 🚧 Under Construction
+## Under Construction 🚧
 
 This project is still in development and not production-ready. Features, structure, and APIs may change.
+
+## Development ⚙️
+
+To start the development environment, run:
+
+```bash
+npm run dev
+```
+
+The playground app will be available at [http://localhost:8000](http://localhost:8000).
 
 ## Psst... 👀
 

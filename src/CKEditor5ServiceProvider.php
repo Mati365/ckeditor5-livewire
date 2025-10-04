@@ -2,9 +2,10 @@
 
 namespace Mati365\CKEditor5Livewire;
 
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Livewire\Livewire;
 
 use Mati365\CKEditor5Livewire\Components\{CKEditor5, CKEditor5Assets};
@@ -20,7 +21,7 @@ final class CKEditor5ServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'ckeditor5');
 
         $this->app->singleton(CKEditor5Config::class, function (Application $app): CKEditor5Config {
-            return new CKEditor5Config($app->make('config'));
+            return new CKEditor5Config($app->make(ConfigRepository::class));
         });
     }
 

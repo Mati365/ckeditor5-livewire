@@ -1,9 +1,7 @@
 <?php
 namespace Mati365\CKEditor5Livewire\Components;
 
-use Illuminate\View\View;
-use Illuminate\View\Component;
-
+use Illuminate\View\{View, Component, ComponentAttributeBag};
 use Mati365\CKEditor5Livewire\CKEditor5Config;
 
 /**
@@ -23,6 +21,8 @@ final class CKEditor5Assets extends Component
      */
     public function __construct(CKEditor5Config $configManager)
     {
+        $this->componentName = 'ckeditor5-assets';
+        $this->attributes = new ComponentAttributeBag();
         $this->configManager = $configManager;
     }
 

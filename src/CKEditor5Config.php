@@ -2,7 +2,7 @@
 
 namespace Mati365\CKEditor5Livewire;
 
-use Illuminate\Contracts\Config\Repository as Config;
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
 
 /**
  * CKEditor 5 configuration class. It's used internally by the package.
@@ -16,17 +16,17 @@ final class CKEditor5Config
      *
      * @var array
      */
-    protected $config;
+    protected array $config;
 
     /**
      * Constructor receives the framework config repository and
      * extracts this package's configuration.
      *
-     * @param \Illuminate\Contracts\Config\Repository $config
+     * @param ConfigRepository $config
      */
-    public function __construct(Config $config)
+    public function __construct(ConfigRepository $config)
     {
-        $this->config = $config->get('ckeditor5');
+        $this->config = (array) $config->get('ckeditor5');
     }
 
     /**
@@ -37,7 +37,7 @@ final class CKEditor5Config
      */
     public function getDefaultConfig(): array
     {
-        return $this->config['editor_config'] ?? [];
+        return (array) $this->config['editor_config'];
     }
 
     /**

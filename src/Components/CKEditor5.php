@@ -5,9 +5,12 @@ namespace Mati365\CKEditor5Livewire\Components;
 use Livewire\Component;
 use Illuminate\View\View;
 use Mati365\CKEditor5Livewire\Config;
+use Mati365\CKEditor5Livewire\Preset\{Preset, EditorType};
 
 /**
  * Livewire component for integrating CKEditor5.
+ *
+ * @psalm-suppress MissingConstructor
  */
 final class CKEditor5 extends Component
 {
@@ -18,10 +21,9 @@ final class CKEditor5 extends Component
     public string $content = '';
 
     /**
-     * Configuration array for CKEditor5.
-     * Contains settings and options for the editor instance.
+     * The preset configuration for the CKEditor5 instance.
      */
-    public array $editorConfig = [];
+    public Preset $preset;
 
     /**
      * Unique identifier for the editor instance.
@@ -33,7 +35,7 @@ final class CKEditor5 extends Component
      * Configuration manager instance for handling CKEditor5 settings.
      * Injected via dependency injection in the boot method.
      */
-    protected ?Config $configService = null;
+    protected Config $configService;
 
     /**
      * Boot method called by Livewire to inject dependencies.
@@ -51,13 +53,23 @@ final class CKEditor5 extends Component
      * Sets up the initial content, configuration, and generates a unique editor ID.
      *
      * @param string $content Initial content for the editor
-     * @param array $config Configuration array for CKEditor5
+     * @param Preset|string $preset Preset instance or preset name
+     * @param array $config Configuration array for CKEditor5. It'll override the preset config if provided.
      * @return void
      */
-    public function mount(string $content = '', array $config = []): void
-    {
+    public function mount(
+        string $content = '',
+        Preset|string $preset = 'default',
+        ?array $config = null
+    ): void {
+        $resolvedPreset = $this->configService->resolvePresetOrThrow($preset);
+
+        if (isset($config)) {
+            $resolvedPreset = $resolvedPreset->ofConfig($config);
+        }
+
         $this->content = $content;
-        $this->editorConfig = $this->configService?->mergeConfig($config) ?? $config;
+        $this->preset = $resolvedPreset;
         $this->editorId = 'ckeditor-' . uniqid();
     }
 

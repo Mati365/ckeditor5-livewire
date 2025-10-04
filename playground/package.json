@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "vite build",
-    "dev": "vite",
+    "dev": "APP_URL=http://localhost:8000 vite --host",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

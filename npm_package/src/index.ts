@@ -1,1 +1,1 @@
-export const ABC = 123;
+export const ABC = 12233;

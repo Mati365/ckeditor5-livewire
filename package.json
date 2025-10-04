@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "dev": "cd playground && composer dev",
+    "dev": "npx concurrently -c \"#00BCD4,#009688\" \"cd playground && composer dev\" \"npm run npm_package:watch\" --names playground,npm_package --kill-others",
     "typecheck": "npm run npm_package:typecheck && npm run playground:typecheck",
     "playground:typecheck": "npm run typecheck --workspace=ckeditor5-livewire",
     "npm_package:typecheck": "npm run typecheck --workspace=ckeditor5-livewire",

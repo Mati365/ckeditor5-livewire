@@ -3,8 +3,13 @@
 namespace Mati365\CKEditor5Livewire\Components;
 
 use Livewire\Component;
+use Illuminate\View\View;
+
 use Mati365\CKEditor5Livewire\CKEditor5Config;
 
+/**
+ * Livewire component for integrating CKEditor5.
+ */
 final class CKEditor5 extends Component
 {
     /**
@@ -73,9 +78,9 @@ final class CKEditor5 extends Component
      * Render the Livewire component view.
      * Returns the CKEditor5 Blade template for rendering in the browser.
      *
-     * @return \Illuminate\View\View The view instance for the CKEditor5 component
+     * @return View The view instance for the CKEditor5 component
      */
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('ckeditor5::livewire.ckeditor5');
     }

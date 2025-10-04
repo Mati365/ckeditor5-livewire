@@ -12,5 +12,14 @@ export default defineConfig({
   ],
   server: {
     cors: true,
+    watch: {
+      ignored: [
+        '**/vendor/**/!(mati365)/**',
+        '**/vendor/mati365/!(ckeditor5-livewire)/**',
+        '**/vendor/mati365/ckeditor5-livewire/!(npm_package)/**',
+        '**/storage/**',
+        '**/node_modules/**',
+      ],
+    },
   },
 });

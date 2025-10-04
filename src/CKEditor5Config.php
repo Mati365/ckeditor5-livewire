@@ -4,6 +4,11 @@ namespace Mati365\CKEditor5Livewire;
 
 use Illuminate\Contracts\Config\Repository as Config;
 
+/**
+ * CKEditor 5 configuration class. It's used internally by the package.
+ *
+ * @internal
+ */
 final class CKEditor5Config
 {
     /**

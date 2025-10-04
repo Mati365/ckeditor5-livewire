@@ -6,7 +6,8 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Foundation\Application;
 use Livewire\Livewire;
-use Mati365\CKEditor5Livewire\Components\CKEditor5;
+
+use Mati365\CKEditor5Livewire\Components\{CKEditor5, CKEditor5Assets};
 
 final class CKEditor5ServiceProvider extends ServiceProvider
 {
@@ -41,6 +42,6 @@ final class CKEditor5ServiceProvider extends ServiceProvider
         }
 
         Livewire::component('ckeditor5', CKEditor5::class);
-        Blade::directive('ckeditor5Assets', fn () => "<?php echo view('ckeditor5::assets'); ?>");
+        Blade::component('ckeditor5-assets', CKEditor5Assets::class);
     }
 }

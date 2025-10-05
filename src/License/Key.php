@@ -2,8 +2,6 @@
 
 namespace Mati365\CKEditor5Livewire\License;
 
-use Mati365\CKEditor5Livewire\Exceptions\InvalidLicenseKey;
-
 /**
  * Represents a CKEditor 5 license key.
  *
@@ -26,13 +24,17 @@ final readonly class Key
     ) {}
 
     /**
-     * Checks if the license is a GPL license.
+     * Creates a deep clone of the current Key instance.
      *
-     * @return bool True if the license is GPL, false otherwise
+     * @return self A new Key instance that is a deep clone of the current instance.
      */
-    public function isGPL(): bool
+    public function clone(): self
     {
-        return $this->raw === 'GPL';
+        return new self(
+            raw: $this->raw,
+            distributionChannel: $this->distributionChannel,
+            expiresAt: $this->expiresAt,
+        );
     }
 
     /**
@@ -46,111 +48,25 @@ final readonly class Key
     }
 
     /**
-     * Parses a license key string and creates a license key instance.
+     * Checks if the license is a GPL license.
      *
-     * @param string $key License key string (JWT or 'GPL')
-     * @return self New license key instance
-     * @throws InvalidLicenseKey When the key is invalid
+     * @return bool True if the license is GPL, false otherwise
      */
-    public static function parse(string $key)
+    public function isGPL(): bool
     {
-        if ($key === 'GPL') {
-            return new self(
-                raw: $key,
-                distributionChannel: DistributionChannel::SH,
-            );
-        }
-
-        return self::parseJWT($key);
+        return $this->raw === 'GPL';
     }
 
     /**
-     * Parses a JWT token and creates a license key instance.
+     * Creates a GPL license key instance.
      *
-     * @param string $jwt JWT token to parse
-     * @return self New license key instance
-     * @throws InvalidLicenseKey When token is empty or invalid
+     * @return self New GPL license key instance
      */
-    public static function parseJWT(string $jwt): self
+    public static function ofGPL(): self
     {
-        if (empty($jwt)) {
-            throw new InvalidLicenseKey('License key cannot be empty');
-        }
-
-        $parts = explode('.', $jwt);
-        $payload = decodeJWTPayload($parts[1]);
-
-        validateJWTPayload($payload);
-
         return new self(
-            raw: $jwt,
-            expiresAt: (int) $payload['exp'],
-            distributionChannel: decodeDistributionChannel((string) $payload['distribution_channel']),
+            raw: 'GPL',
+            distributionChannel: DistributionChannel::SH,
         );
-    }
-}
-
-/**
- * Decodes the distribution channel from a string.
- *
- * @param string|null $channel Distribution channel string
- * @return DistributionChannel|null Decoded distribution channel or null
- * @throws InvalidLicenseKey When the channel is invalid
- */
-function decodeDistributionChannel(?string $channel): ?DistributionChannel
-{
-    if ($channel === null) {
-        return null;
-    }
-
-    $channel = DistributionChannel::tryFrom($channel);
-
-    if ($channel === null) {
-        throw new InvalidLicenseKey('Invalid distribution_channel in JWT payload');
-    }
-
-    return $channel;
-}
-
-/**
- * Decodes the payload from a JWT token.
- *
- * @param string $encodedPayload Base64url encoded payload
- * @return array Decoded payload data
- * @throws InvalidLicenseKey When decoding fails
- */
-function decodeJWTPayload(string $encodedPayload): array
-{
-    try {
-        $decoded = base64_decode(strtr($encodedPayload, '-_', '+/'), true);
-
-        if ($decoded === false) {
-            throw new InvalidLicenseKey('Invalid base64 encoding in JWT payload');
-        }
-
-        $payload = (array) json_decode($decoded, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new InvalidLicenseKey('Invalid JSON in JWT payload: ' . json_last_error_msg());
-        }
-
-        return $payload;
-    } catch (InvalidLicenseKey $e) {
-        throw $e;
-    } catch (\Throwable $e) {
-        throw new InvalidLicenseKey('Failed to decode JWT payload', 0, $e);
-    }
-}
-
-/**
- * Validates JWT payload for required fields.
- *
- * @param array $payload JWT payload data
- * @throws InvalidLicenseKey When payload is missing required fields
- */
-function validateJWTPayload(array $payload): void
-{
-    if (!isset($payload['distribution_channel']) || !is_string($payload['distribution_channel'])) {
-        throw new InvalidLicenseKey('Missing or invalid distribution_channel in JWT payload');
     }
 }

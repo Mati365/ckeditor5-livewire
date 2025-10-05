@@ -5,6 +5,7 @@ namespace Mati365\CKEditor5Livewire;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Mati365\CKEditor5Livewire\Preset\Preset;
 use Mati365\CKEditor5Livewire\Exceptions\UnknownPreset;
+use Mati365\CKEditor5Livewire\Preset\PresetParser;
 
 /**
  * CKEditor 5 configuration class. It's used internally by the package.
@@ -33,9 +34,9 @@ final class Config
      * Return the package's default editor configuration.
      * Can be called via the facade: CKEditor::getDefaultConfig()
      *
-     * @return array<string, Preset>
+     * @return array<string, array>
      */
-    public function getPresets(): array
+    public function getRawPresets(): array
     {
         $presets = $this->config['presets'];
 
@@ -43,18 +44,8 @@ final class Config
             return [];
         }
 
-        /** @var array<string, Preset> $presets */
+        /** @var array<string, array> $presets */
         return $presets;
-    }
-
-    /**
-     * Return the package's default preset configuration.
-     *
-     * @return Preset
-     */
-    public function getDefaultPreset(): Preset
-    {
-        return $this->getPresets()['default'];
     }
 
     /**
@@ -70,12 +61,12 @@ final class Config
             return $nameOrPreset;
         }
 
-        $preset = $this->getPresets()[$nameOrPreset] ?? null;
+        $json = $this->getRawPresets()[$nameOrPreset] ?? null;
 
-        if (!isset($preset)) {
+        if (!isset($json)) {
             throw new UnknownPreset($nameOrPreset);
         }
 
-        return $preset;
+        return PresetParser::parse($json);
     }
 }

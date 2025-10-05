@@ -5,7 +5,7 @@ namespace Mati365\CKEditor5Livewire\Utils;
 /**
  * Utility class for array operations.
  */
-class Arrays
+final class Arrays
 {
     /**
      * Deep-clone an array recursively. Objects contained within the array

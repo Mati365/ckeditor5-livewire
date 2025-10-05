@@ -6,6 +6,7 @@ use Livewire\Component;
 use Illuminate\View\View;
 use Mati365\CKEditor5Livewire\Config;
 use Mati365\CKEditor5Livewire\Preset\{Preset, EditorType};
+use Mati365\CKEditor5Livewire\Preset\PresetParser;
 
 /**
  * Livewire component for integrating CKEditor5.
@@ -17,13 +18,10 @@ final class CKEditor5 extends Component
     /**
      * The content of the CKEditor5 instance.
      * This property is bound to Livewire and will trigger updates when changed.
+     * Made public so Livewire can serialize and bind it to the frontend.
      */
     public string $content = '';
 
-    /**
-     * The preset configuration for the CKEditor5 instance.
-     */
-    public Preset $preset;
 
     /**
      * Unique identifier for the editor instance.
@@ -32,10 +30,23 @@ final class CKEditor5 extends Component
     public ?string $editorId = null;
 
     /**
+     * Public serializable preset dump for the view/JS and Livewire snapshot.
+     * Stored as array so Livewire will include it in `wire:snapshot`.
+     */
+    public array $serializedPreset = [];
+
+    /**
      * Configuration manager instance for handling CKEditor5 settings.
      * Injected via dependency injection in the boot method.
      */
-    protected Config $configService;
+    private Config $configService;
+
+    /**
+     * Internal preset object (kept private).
+     * Livewire cannot reliably serialize complex objects for the view, so
+     * we expose a serializable representation via `presetForView()`.
+     */
+    private Preset $preset;
 
     /**
      * Boot method called by Livewire to inject dependencies.
@@ -68,9 +79,10 @@ final class CKEditor5 extends Component
             $resolvedPreset = $resolvedPreset->ofConfig($config);
         }
 
+        $this->editorId = 'ckeditor-' . uniqid();
         $this->content = $content;
         $this->preset = $resolvedPreset;
-        $this->editorId = 'ckeditor-' . uniqid();
+        $this->serializedPreset = PresetParser::dump($this->preset);
     }
 
     /**

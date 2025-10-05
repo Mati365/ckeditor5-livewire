@@ -40,4 +40,28 @@ final class CloudParser
             ckbox: $ckbox,
         );
     }
+
+    /**
+     * Dump Cloud instance to an array compatible with CloudParser::parse().
+     *
+     * @param Cloud $cloud
+     * @return array
+     */
+    public static function dump(Cloud $cloud): array
+    {
+        $result = [
+            'editorVersion' => $cloud->editorVersion,
+            'premium' => $cloud->premium,
+        ];
+
+        if (!empty($cloud->translations)) {
+            $result['translations'] = $cloud->translations;
+        }
+
+        if ($cloud->ckbox !== null) {
+            $result['ckbox'] = CKBoxParser::dump($cloud->ckbox);
+        }
+
+        return $result;
+    }
 }

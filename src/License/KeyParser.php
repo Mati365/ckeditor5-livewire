@@ -114,4 +114,18 @@ final class KeyParser
             throw new InvalidLicenseKey('Missing or invalid distribution_channel in JWT payload');
         }
     }
+
+    /**
+     * Dumps a Key instance back to a string suitable for re-parsing.
+     *
+     * - GPL keys are represented as the literal string "GPL" (same as parse() expects).
+     * - Non-GPL keys are returned as their raw JWT string.
+     *
+     * @param Key $key The Key instance to dump
+     * @return string The string representation that can be passed to KeyParser::parse()
+     */
+    public static function dump(Key $key): string
+    {
+        return $key->raw;
+    }
 }

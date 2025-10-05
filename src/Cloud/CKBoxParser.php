@@ -34,4 +34,21 @@ final class CKBoxParser
             theme: isset($data['theme']) ? (string) $data['theme'] : null,
         );
     }
+
+    /**
+     * Dump CKBox instance to an array compatible with CKBoxParser::parse().
+     *
+     * @param CKBox $ckbox
+     * @return array
+     */
+    public static function dump(CKBox $ckbox): array
+    {
+        $result = ['version' => $ckbox->version];
+
+        if ($ckbox->theme !== null) {
+            $result['theme'] = $ckbox->theme;
+        }
+
+        return $result;
+    }
 }

@@ -44,4 +44,25 @@ final class PresetParser
             cloud: $cloud,
         );
     }
+
+    /**
+     * Dump Preset instance to an array compatible with PresetParser::parse().
+     *
+     * @param Preset $preset
+     * @return array
+     */
+    public static function dump(Preset $preset): array
+    {
+        $result = [
+            'config' => $preset->config,
+            'editorType' => $preset->editorType->value,
+            'licenseKey' => KeyParser::dump($preset->licenseKey),
+        ];
+
+        if ($preset->cloud !== null) {
+            $result['cloud'] = CloudParser::dump($preset->cloud);
+        }
+
+        return $result;
+    }
 }

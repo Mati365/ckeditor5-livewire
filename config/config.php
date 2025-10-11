@@ -7,6 +7,11 @@ return [
     "presets" => [
         "default" => [
             "editorType" => "classic",
+            "cloud" => [
+                "editorVersion" => "47.0.0",
+                "premium" => false,
+                "translations" => ["en"],
+            ],
             "config" => [
                 "toolbar" => [
                     "items" => [

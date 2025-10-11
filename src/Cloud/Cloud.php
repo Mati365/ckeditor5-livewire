@@ -3,6 +3,7 @@
 namespace Mati365\CKEditor5Livewire\Cloud;
 
 use Mati365\CKEditor5Livewire\Utils\Arrays;
+use Mati365\CKEditor5Livewire\Cloud\CKBox\CKBox;
 
 /**
  * Configuration data required to import CKEditor 5 from the cloud (CDN / importmap).
@@ -19,7 +20,7 @@ final readonly class Cloud
      *
      * @param string $editorVersion The CKEditor 5 version to import (e.g. "36.0.0").
      * @param bool $premium Flag indicating whether the premium package is used.
-     * @param array $translations List of available translations (e.g. ["pl", "en"]).
+     * @param string[] $translations List of available translations (e.g. ["pl", "en"]).
      * @param CKBox|null $ckbox CKBox information (optional) if used.
      */
     public function __construct(

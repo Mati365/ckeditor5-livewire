@@ -33,7 +33,7 @@ final class PresetParser
             throw new InvalidArgumentException('Preset config validation failed: ' . implode(', ', $e->getMessages()));
         }
 
-        $editorType = EditorType::fromString((string) $data['editorType']);
+        $editorType = EditorType::from((string) $data['editorType']);
         $cloud = isset($data['cloud']) ? CloudParser::parse((array) $data['cloud']) : null;
         $licenseKey = isset($data['licenseKey']) ? KeyParser::parse((string) $data['licenseKey']) : Key::ofGPL();
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Mati365\CKEditor5Livewire\Cloud;
+namespace Mati365\CKEditor5Livewire\Cloud\CKBox;
 
 /**
  * CKBox information used when importing the editor from the cloud (CDN / importmap).

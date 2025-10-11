@@ -4,6 +4,7 @@ namespace Mati365\CKEditor5Livewire\Components;
 
 use Illuminate\View\{View, Component, ComponentAttributeBag};
 use Mati365\CKEditor5Livewire\Config;
+use Mati365\CKEditor5Livewire\Cloud\CloudBundleBuilder;
 
 /**
  * Blade component for including CKEditor5 assets.
@@ -11,20 +12,19 @@ use Mati365\CKEditor5Livewire\Config;
 final class CKEditor5Assets extends Component
 {
     /**
-     * Configuration manager instance for handling CKEditor5 settings.
-     */
-    private Config $configService;
-
-    /**
      * Constructor with dependency injection.
      *
      * @param Config $configService The configuration manager for CKEditor5
+     * @param string $preset The preset name to resolve
+     * @param ?string $nonce The nonce value for CSP
      */
-    public function __construct(Config $configService)
-    {
+    public function __construct(
+        private Config $configService,
+        private string $preset = 'default',
+        private ?string $nonce = null
+    ) {
         $this->componentName = 'ckeditor5-assets';
         $this->attributes = new ComponentAttributeBag();
-        $this->configService = $configService;
     }
 
     /**
@@ -35,6 +35,14 @@ final class CKEditor5Assets extends Component
     #[\Override]
     public function render(): View
     {
-        return view('ckeditor5::components.assets');
+        $resolvedPreset = $this->configService->resolvePresetOrThrow($this->preset);
+
+        if ($resolvedPreset->cloud == null) {
+            throw new \RuntimeException('Cannot render CKEditor5 assets without cloud configuration.');
+        }
+
+        $bundle = CloudBundleBuilder::build($resolvedPreset->cloud);
+
+        return view('ckeditor5::components.assets')->with(['bundle' => $bundle, 'nonce' => $this->nonce]);
     }
 }

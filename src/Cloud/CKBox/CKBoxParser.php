@@ -1,6 +1,6 @@
 <?php
 
-namespace Mati365\CKEditor5Livewire\Cloud;
+namespace Mati365\CKEditor5Livewire\Cloud\CKBox;
 
 use Respect\Validation\Validator as v;
 use Respect\Validation\Exceptions\NestedValidationException;

@@ -22,7 +22,6 @@ final class CKEditor5 extends Component
      */
     public string $content = '';
 
-
     /**
      * Unique identifier for the editor instance.
      * Generated automatically to ensure multiple editors can coexist on the same page.
@@ -33,20 +32,13 @@ final class CKEditor5 extends Component
      * Public serializable preset dump for the view/JS and Livewire snapshot.
      * Stored as array so Livewire will include it in `wire:snapshot`.
      */
-    public array $serializedPreset = [];
+    public array $preset = [];
 
     /**
      * Configuration manager instance for handling CKEditor5 settings.
      * Injected via dependency injection in the boot method.
      */
     private Config $configService;
-
-    /**
-     * Internal preset object (kept private).
-     * Livewire cannot reliably serialize complex objects for the view, so
-     * we expose a serializable representation via `presetForView()`.
-     */
-    private Preset $preset;
 
     /**
      * Boot method called by Livewire to inject dependencies.
@@ -81,8 +73,7 @@ final class CKEditor5 extends Component
 
         $this->editorId = 'ckeditor-' . uniqid();
         $this->content = $content;
-        $this->preset = $resolvedPreset;
-        $this->serializedPreset = PresetParser::dump($this->preset);
+        $this->preset = PresetParser::dump($resolvedPreset);
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Mati365\CKEditor5Livewire\License;
 
+use Illuminate\Support\Facades\Log;
 use Mati365\CKEditor5Livewire\Exceptions\InvalidLicenseKey;
 
 /**
@@ -41,12 +42,10 @@ final class KeyParser
         $parts = explode('.', $jwt);
         $payload = self::decodeJWTPayload($parts[1]);
 
-        self::validateJWTPayload($payload);
-
         return new Key(
             raw: $jwt,
             expiresAt: (int) $payload['exp'],
-            distributionChannel: self::decodeDistributionChannel((string) $payload['distribution_channel']),
+            distributionChannel: self::decodeDistributionChannel((string) $payload['distributionChannel']),
         );
     }
 
@@ -66,7 +65,7 @@ final class KeyParser
         $channel = DistributionChannel::tryFrom($channel);
 
         if ($channel === null) {
-            throw new InvalidLicenseKey('Invalid distribution_channel in JWT payload');
+            throw new InvalidLicenseKey('Invalid distributionChannel in JWT payload');
         }
 
         return $channel;
@@ -99,19 +98,6 @@ final class KeyParser
             throw $e;
         } catch (\Throwable $e) {
             throw new InvalidLicenseKey('Failed to decode JWT payload', 0, $e);
-        }
-    }
-
-    /**
-     * Validates JWT payload for required fields.
-     *
-     * @param array $payload JWT payload data
-     * @throws InvalidLicenseKey When payload is missing required fields
-     */
-    private static function validateJWTPayload(array $payload): void
-    {
-        if (!isset($payload['distribution_channel']) || !is_string($payload['distribution_channel'])) {
-            throw new InvalidLicenseKey('Missing or invalid distribution_channel in JWT payload');
         }
     }
 

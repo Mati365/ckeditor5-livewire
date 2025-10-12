@@ -8,7 +8,7 @@ namespace Mati365\CKEditor5Livewire\License;
 enum DistributionChannel: string
 {
     case SH  = 'sh';  // Self-hosted, imported via npm or yarn.
-    case CDN = 'cdn'; // CDN, imported via importmap or script tag.
+    case CLOUD = 'cloud'; // Cloud, imported via importmap or script tag.
 
     /**
      * Checks if this distribution channel is compatible with another.

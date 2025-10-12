@@ -31,6 +31,17 @@ final class CKEditor5 extends Component
     public string $editorId;
 
     /**
+     * The name attribute for the hidden input field.
+     * If provided, a hidden input will be rendered for form submission.
+     */
+    public ?string $name = null;
+
+    /**
+     * Whether the hidden input is required.
+     */
+    public bool $required = false;
+
+    /**
      * Whether to use a watchdog for the CKEditor5 instance.
      * Watchdog helps recover from crashes by automatically restarting the editor.
      */
@@ -112,6 +123,8 @@ final class CKEditor5 extends Component
      * @param ?int $editableHeight Fixed height for the editor's content area in pixels
      * @param array{ui?: string, content?: string} $language Language configuration for UI and content
      * @param array{change?: bool, focus?: bool, blur?: bool} $events Events to forward to Livewire
+     * @param ?string $name Name attribute for the hidden input field (if form submission is needed)
+     * @param bool $required Whether the hidden input is required
      * @return void
      */
     public function mount(
@@ -124,7 +137,9 @@ final class CKEditor5 extends Component
         int $saveDebounceMs = 300,
         ?int $editableHeight = null,
         array $language = [],
-        array $events = []
+        array $events = [],
+        ?string $name = null,
+        bool $required = false
     ): void {
         $resolvedPreset = $this->configService->resolvePresetOrThrow($preset);
 
@@ -139,22 +154,12 @@ final class CKEditor5 extends Component
         $this->contextId = $contextId;
         $this->saveDebounceMs = $saveDebounceMs;
         $this->editableHeight = $editableHeight;
+        $this->name = $name;
+        $this->required = $required;
 
         // Merge with defaults
         $this->language = array_merge($this->language, $language);
         $this->events = array_merge($this->events, $events);
-    }
-
-    /**
-     * Livewire lifecycle hook triggered when the content property is updated.
-     * Dispatches a 'content-changed' event with the new content value.
-     *
-     * @param string $value The new content value
-     * @return void
-     */
-    public function updatedContent(string $value): void
-    {
-        $this->dispatch('content-changed', $value);
     }
 
     /**

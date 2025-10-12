@@ -92,8 +92,24 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
    * Creates the CKEditor instance.
    */
   private async createEditor() {
-    const { preset, editorId, contextId, editableHeight, events, saveDebounceMs, language, watchdog } = this.ephemeral;
-    const { customTranslations, editorType, licenseKey, config: { plugins, ...config } } = preset;
+    const {
+      preset,
+      editorId,
+      contextId,
+      editableHeight,
+      events,
+      saveDebounceMs,
+      language,
+      watchdog,
+      content,
+    } = this.ephemeral;
+
+    const {
+      customTranslations,
+      editorType,
+      licenseKey,
+      config: { plugins, ...config },
+    } = preset;
 
     // Wrap editor creator with watchdog if needed.
     let Constructor: EditorCreator = await loadEditorConstructor(editorType);
@@ -129,9 +145,18 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
 
     // Let's query all elements, and create basic configuration.
     const sourceElementOrData = getInitialRootsContentElements(editorId, editorType);
+    let initialData: string | Record<string, string> = {
+      ...content,
+      ...getEditablesInitialValues(editorId, editorType),
+    };
+
+    if (isSingleEditingLikeEditor(editorType)) {
+      initialData = initialData['main'] || '';
+    }
+
     const parsedConfig = {
       ...resolveEditorConfigElementReferences(config),
-      initialData: getInitialRootsValues(editorId, editorType),
+      initialData,
       licenseKey,
       plugins: loadedPlugins,
       language,
@@ -305,23 +330,18 @@ function getInitialRootsContentElements(editorId: EditorId, type: EditorType) {
  * @param type The type of the editor.
  * @returns The initial values for the editor's roots.
  */
-function getInitialRootsValues(editorId: EditorId, type: EditorType) {
+function getEditablesInitialValues(editorId: EditorId, type: EditorType) {
   // While the `decoupled` editor is a single editing-like editor, it has a different structure
   // and requires special handling to get the main editable.
   if (type === 'decoupled') {
     const { initialValue } = queryDecoupledMainEditableOrThrow(editorId);
 
     // If initial value is not set, then pick it from the editor element.
-    if (initialValue) {
-      return initialValue;
+    if (typeof initialValue === 'string') {
+      return {
+        main: initialValue,
+      };
     }
-  }
-
-  // Let's check initial value assigned to the editor element.
-  if (isSingleEditingLikeEditor(type)) {
-    const initialValue = document.getElementById(editorId)?.getAttribute('cke-initial-value') || '';
-
-    return initialValue;
   }
 
   const editables = queryAllEditorEditables(editorId);

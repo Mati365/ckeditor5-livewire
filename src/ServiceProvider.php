@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Livewire\Livewire;
-use Mati365\CKEditor5Livewire\Components\{CKEditor5, CKEditor5Assets};
+use Mati365\CKEditor5Livewire\Components\{CKEditor5, CKEditor5Assets, CKEHiddenInput};
 
 final class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {
@@ -42,5 +42,6 @@ final class ServiceProvider extends \Illuminate\Support\ServiceProvider
 
         Livewire::component('ckeditor5', CKEditor5::class);
         Blade::component('ckeditor5-assets', CKEditor5Assets::class);
+        Blade::component('ckeditor5-hidden-input', CKEHiddenInput::class);
     }
 }

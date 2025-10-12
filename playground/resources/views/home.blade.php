@@ -21,6 +21,10 @@
         @endif
     </head>
     <body class="flex flex-col lg:justify-center items-center bg-[#FDFDFC] dark:bg-[#0a0a0a] p-6 lg:p-8 min-h-screen text-[#1b1b18]">
-        <livewire:ckeditor5 wire:model="content" />
+        <livewire:ckeditor5
+            wire:model="content"
+            name="editor1"
+            :content="['main' => '<p>Initial content</p>']"
+        />
     </body>
 </html>

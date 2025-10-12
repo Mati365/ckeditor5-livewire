@@ -2,9 +2,10 @@
 
 namespace Mati365\CKEditor5Livewire\Cloud;
 
+use InvalidArgumentException;
 use Respect\Validation\Validator as v;
 use Respect\Validation\Exceptions\NestedValidationException;
-use InvalidArgumentException;
+use Mati365\CKEditor5Livewire\Cloud\CKBox\CKBoxParser;
 
 /**
  * Parser for Cloud configuration using Respect/Validation.
@@ -32,11 +33,13 @@ final class CloudParser
         }
 
         $ckbox = isset($data['ckbox']) ? CKBoxParser::parse((array) $data['ckbox']) : null;
+        $translations = isset($data['translations']) ? (array) $data['translations'] : [];
 
+        /** @var string[] $translations */
         return new Cloud(
             editorVersion: (string) $data['editorVersion'],
             premium: (bool) $data['premium'],
-            translations: (array) ($data['translations'] ?? []),
+            translations: $translations,
             ckbox: $ckbox,
         );
     }

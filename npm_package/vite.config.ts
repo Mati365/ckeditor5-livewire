@@ -22,7 +22,7 @@ export default defineConfig({
     sourcemap: true,
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      name: 'CKEditor5Phoenix',
+      name: 'CKEditor5Livewire',
       formats: ['es', 'cjs'],
       fileName: format => `index.${format === 'es' ? 'mjs' : 'cjs'}`,
     },
@@ -32,7 +32,6 @@ export default defineConfig({
         globals: {
           'ckeditor5': 'CKEditor5',
           'ckeditor5-premium-features': 'CKEditor5PremiumFeatures',
-          'phoenix_live_view': 'PhoenixLiveView',
         },
       },
     },
@@ -64,7 +63,6 @@ function isExternalModule(id: string): boolean {
   return [
     'ckeditor5',
     'ckeditor5-premium-features',
-    'phoenix_live_view',
   ].includes(id)
   || /^ckeditor5\/translations\/.+\.js$/.test(id)
   || /^ckeditor5-premium-features\/translations\/.+\.js$/.test(id);

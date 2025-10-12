@@ -1,4 +1,5 @@
-export const ABC = 12233;
+import './livewire.d';
 
-// eslint-disable-next-line no-console
-console.log('Hello from index.ts! asdasd!!');
+import { registerLivewireComponentHooks } from 'hooks';
+
+registerLivewireComponentHooks();

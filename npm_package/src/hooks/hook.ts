@@ -58,12 +58,12 @@ export abstract class ClassHook<T extends object = Record<string, unknown>> {
   /**
    * Pushes an event to the Livewire component if it is not being destroyed.
    */
-  pushEvent(name: string, data: object = {}): void {
+  emitGlobalEvent(name: string, data: object = {}): void {
     if (this.isBeingDestroyed()) {
       return;
     }
 
-    this.livewireComponent.$wire.dispatch(name, data);
+    this.$wire.emit(name, data);
   }
 }
 

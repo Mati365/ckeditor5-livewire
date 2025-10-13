@@ -7,34 +7,17 @@ import type { EditorId } from '../typings';
  * @returns An object mapping editable names to their corresponding elements and initial values.
  */
 export function queryAllEditorEditables(editorId: EditorId): Record<string, EditableItem> {
-  const iterator = document.querySelectorAll<HTMLElement>(
-    [
-      `[data-cke-editor-id="${editorId}"][data-cke-editable-root-name]`,
-      '[data-cke-editable-root-name]:not([data-cke-editor-id])',
-    ]
-      .join(', '),
-  );
-
   return (
-    Array
-      .from(iterator)
-      .reduce<Record<string, EditableItem>>((acc, element) => {
-        const name = element.getAttribute('data-cke-editable-root-name');
-        const initialValue = element.getAttribute('data-cke-editable-initial-value') || '';
-        const content = element.querySelector('[data-cke-editable-content]') as HTMLElement;
-
-        if (!name || !content) {
-          return acc;
-        }
-
-        return {
-          ...acc,
-          [name]: {
-            content,
-            initialValue,
-          },
-        };
-      }, Object.create({}))
+    window.Livewire
+      .all()
+      .filter(component => component.ephemeral['editorId'] === editorId)
+      .reduce<Record<string, EditableItem>>((acc, element) => ({
+        ...acc,
+        [element.ephemeral['rootName'] as string]: {
+          element: element.el,
+          content: element.ephemeral['content'] as string,
+        },
+      }), Object.create({}))
   );
 }
 
@@ -42,6 +25,6 @@ export function queryAllEditorEditables(editorId: EditorId): Record<string, Edit
  * Type representing an editable item within an editor.
  */
 export type EditableItem = {
-  content: HTMLElement;
-  initialValue: string;
+  element: HTMLElement;
+  content: string;
 };

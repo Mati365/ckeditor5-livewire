@@ -22,8 +22,8 @@
     </head>
     <body class="flex flex-col lg:justify-center items-center bg-[#FDFDFC] dark:bg-[#0a0a0a] p-6 lg:p-8 min-h-screen text-[#1b1b18]">
         <livewire:ckeditor5
-            wire:model="content"
             name="editor1"
+            class="w-full max-w-3xl"
             :content="['main' => '<p>Initial content</p>']"
         />
     </body>

@@ -1,13 +1,14 @@
 import type { Editor } from 'ckeditor5';
 
 import { ContextsRegistry, getNearestContextParentPromise } from 'hooks/context';
-import { debounce, isEmptyObject, mapObjectValues } from 'shared';
+import { isEmptyObject, mapObjectValues } from 'shared';
 
 import type { EditorId, EditorPreset, EditorType } from './typings';
 import type { EditorCreator } from './utils';
 
 import { ClassHook } from '../hook';
 import { EditorsRegistry } from './editors-registry';
+import { LivewireSync, SyncEditorWithInput } from './plugins';
 import {
   createEditorInContext,
   isSingleEditingLikeEditor,
@@ -97,7 +98,7 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
       editorId,
       contextId,
       editableHeight,
-      events,
+      emit,
       saveDebounceMs,
       language,
       watchdog,
@@ -135,6 +136,13 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
 
     const { loadedPlugins, hasPremium } = await loadEditorPlugins(plugins);
 
+    // Add integration specific plugins.
+    loadedPlugins.push(LivewireSync);
+
+    if (isSingleEditingLikeEditor(editorType)) {
+      loadedPlugins.push(SyncEditorWithInput);
+    }
+
     // Mix custom translations with loaded translations.
     const loadedTranslations = await loadAllEditorTranslations(language, hasPremium);
     const mixedTranslations = [
@@ -144,10 +152,10 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
       .filter(translations => !isEmptyObject(translations));
 
     // Let's query all elements, and create basic configuration.
-    const sourceElementOrData = getInitialRootsContentElements(editorId, editorType);
+    const sourceElementOrData = queryEditablesElements(editorId, editorType);
     let initialData: string | Record<string, string> = {
       ...content,
-      ...getEditablesInitialValues(editorId, editorType),
+      ...queryEditablesInitialValues(editorId, editorType),
     };
 
     if (isSingleEditingLikeEditor(editorType)) {
@@ -160,6 +168,12 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
       licenseKey,
       plugins: loadedPlugins,
       language,
+      livewire: {
+        saveDebounceMs,
+        component: this,
+        emit,
+        editorId,
+      },
       ...mixedTranslations.length && {
         translations: mixedTranslations,
       },
@@ -181,119 +195,12 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
       return result.editor;
     })();
 
-    if (events.change) {
-      this.setupTypingContentPush(editorId, editor, saveDebounceMs);
-    }
-
-    if (events.blur) {
-      this.setupEventPush(editorId, editor, 'blur');
-    }
-
-    if (events.focus) {
-      this.setupEventPush(editorId, editor, 'focus');
-    }
-
-    if (isSingleEditingLikeEditor(editorType)) {
-      const input = document.getElementById(`${editorId}_input`) as HTMLInputElement | null;
-
-      if (input) {
-        syncEditorToInput(input, editor, saveDebounceMs);
-      }
-
-      if (editableHeight) {
-        setEditorEditableHeight(editor, editableHeight);
-      }
+    if (isSingleEditingLikeEditor(editorType) && editableHeight) {
+      setEditorEditableHeight(editor, editableHeight);
     }
 
     return editor;
   };
-
-  /**
-   * Setups the content push event for the editor.
-   */
-  private setupTypingContentPush(editorId: EditorId, editor: Editor, saveDebounceMs: number) {
-    const pushContentChange = () => {
-      this.pushEvent(
-        'ckeditor5:change',
-        {
-          editorId,
-          data: getEditorRootsValues(editor),
-        },
-      );
-    };
-
-    editor.model.document.on('change:data', debounce(saveDebounceMs, pushContentChange));
-    pushContentChange();
-  }
-
-  /**
-   * Setups the event push for the editor.
-   */
-  private setupEventPush(editorId: EditorId, editor: Editor, eventType: 'focus' | 'blur') {
-    const pushEvent = () => {
-      const { isFocused } = editor.ui.focusTracker;
-      const currentType = isFocused ? 'focus' : 'blur';
-
-      if (currentType !== eventType) {
-        return;
-      }
-
-      this.pushEvent(
-        `ckeditor5:${eventType}`,
-        {
-          editorId,
-          data: getEditorRootsValues(editor),
-        },
-      );
-    };
-
-    editor.ui.focusTracker.on('change:isFocused', pushEvent);
-  }
-}
-
-/**
- * Gets the values of the editor's roots.
- *
- * @param editor The CKEditor instance.
- * @returns An object mapping root names to their content.
- */
-function getEditorRootsValues(editor: Editor) {
-  const roots = editor.model.document.getRootNames();
-
-  return roots.reduce<Record<string, string>>((acc, rootName) => {
-    acc[rootName] = editor.getData({ rootName });
-    return acc;
-  }, Object.create({}));
-}
-
-/**
- * Synchronizes the editor's content with a hidden input field.
- *
- * @param input The input element to synchronize with the editor.
- * @param editor The CKEditor instance.
- */
-function syncEditorToInput(input: HTMLInputElement, editor: Editor, saveDebounceMs: number) {
-  const sync = () => {
-    const newValue = editor.getData();
-
-    input.value = newValue;
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-  };
-
-  editor.model.document.on('change:data', debounce(saveDebounceMs, sync));
-  getParentFormElement(input)?.addEventListener('submit', sync);
-
-  sync();
-}
-
-/**
- * Gets the parent form element of the given HTML element.
- *
- * @param element The HTML element to find the parent form for.
- * @returns The parent form element or null if not found.
- */
-function getParentFormElement(element: HTMLElement) {
-  return element.closest('form') as HTMLFormElement | null;
 }
 
 /**
@@ -303,13 +210,13 @@ function getParentFormElement(element: HTMLElement) {
  * @param type The type of the editor.
  * @returns The root element(s) for the editor.
  */
-function getInitialRootsContentElements(editorId: EditorId, type: EditorType) {
+function queryEditablesElements(editorId: EditorId, type: EditorType) {
   // While the `decoupled` editor is a single editing-like editor, it has a different structure
   // and requires special handling to get the main editable.
   if (type === 'decoupled') {
-    const { content } = queryDecoupledMainEditableOrThrow(editorId);
+    const { element } = queryDecoupledMainEditableOrThrow(editorId);
 
-    return content;
+    return element;
   }
 
   if (isSingleEditingLikeEditor(type)) {
@@ -318,7 +225,7 @@ function getInitialRootsContentElements(editorId: EditorId, type: EditorType) {
 
   const editables = queryAllEditorEditables(editorId);
 
-  return mapObjectValues(editables, ({ content }) => content);
+  return mapObjectValues(editables, ({ element }) => element);
 }
 
 /**
@@ -330,23 +237,23 @@ function getInitialRootsContentElements(editorId: EditorId, type: EditorType) {
  * @param type The type of the editor.
  * @returns The initial values for the editor's roots.
  */
-function getEditablesInitialValues(editorId: EditorId, type: EditorType) {
+function queryEditablesInitialValues(editorId: EditorId, type: EditorType) {
   // While the `decoupled` editor is a single editing-like editor, it has a different structure
   // and requires special handling to get the main editable.
   if (type === 'decoupled') {
-    const { initialValue } = queryDecoupledMainEditableOrThrow(editorId);
+    const { content } = queryDecoupledMainEditableOrThrow(editorId);
 
     // If initial value is not set, then pick it from the editor element.
-    if (typeof initialValue === 'string') {
+    if (typeof content === 'string') {
       return {
-        main: initialValue,
+        main: content,
       };
     }
   }
 
   const editables = queryAllEditorEditables(editorId);
 
-  return mapObjectValues(editables, ({ initialValue }) => initialValue);
+  return mapObjectValues(editables, ({ content }) => content);
 }
 
 /**
@@ -412,9 +319,9 @@ type Snapshot = {
   };
 
   /**
-   * The events of the editor to forward to Livewire.
+   * The global events of the editor to forward to Livewire.
    */
-  events: {
+  emit: {
     change: boolean;
     focus: boolean;
     blur: boolean;

@@ -1,4 +1,9 @@
-<div id="{{ $editorId }}" wire:ignore>
+<div
+    wire:ignore
+    id="{{ $editorId }}"
+    @if($class) class="{{ $class }}" @endif
+    @if($style) style="{{ $style }}" @endif
+>
     <div id="{{ $editorId }}_editor"></div>
 
     @if($name)

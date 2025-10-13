@@ -4,9 +4,9 @@ namespace Mati365\CKEditor5Livewire\Components;
 
 use Livewire\Component;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\App;
 use Mati365\CKEditor5Livewire\Config;
-use Mati365\CKEditor5Livewire\Preset\{Preset, EditorType};
-use Mati365\CKEditor5Livewire\Preset\PresetParser;
+use Mati365\CKEditor5Livewire\Preset\{Preset, PresetParser};
 
 /**
  * Livewire component for integrating CKEditor5.
@@ -66,22 +66,37 @@ final class CKEditor5 extends Component
     public ?int $editableHeight = null;
 
     /**
+     * CSS class for the main wrapper element.
+     */
+    public ?string $class = null;
+
+    /**
+     * Inline styles for the main wrapper element.
+     */
+    public ?string $style = null;
+
+    /**
      * The language configuration for the editor UI and content.
      *
      * @var array{ui: string, content: string}
      */
-    public array $language = [
-        'ui' => 'en',
-        'content' => 'en',
-    ];
+    public array $language;
 
     /**
-     * Configuration for which events should be forwarded to Livewire.
+     * Configuration for which global events should be forwarded to Livewire.
+     *
+     * If enabled the `ckeditor5:${ event }` event will be emitted by the Livewire component
+     * when the corresponding CKEditor event occurs.
+     *
+     * The payload of the emitted event will be an array with the following structure:
+     *
+     * - `editorId` - The unique identifier of the editor instance.
+     * - `data` - Additional data related to the event (if applicable).
      *
      * @var array{change: bool, focus: bool, blur: bool}
      */
-    public array $events = [
-        'change' => true,
+    public array $emit = [
+        'change' => false,
         'focus' => false,
         'blur' => false,
     ];
@@ -121,10 +136,12 @@ final class CKEditor5 extends Component
      * @param ?string $contextId Identifier of the CKEditor context for shared contexts
      * @param int $saveDebounceMs Debounce time in milliseconds for saving content changes
      * @param ?int $editableHeight Fixed height for the editor's content area in pixels
-     * @param array{ui?: string, content?: string} $language Language configuration for UI and content
-     * @param array{change?: bool, focus?: bool, blur?: bool} $events Events to forward to Livewire
+     * @param array{ui?: string, content?: string}|string|null $language Language configuration for UI and content
+     * @param array{change?: bool, focus?: bool, blur?: bool} $emit Events to forward to Livewire
      * @param ?string $name Name attribute for the hidden input field (if form submission is needed)
      * @param bool $required Whether the hidden input is required
+     * @param ?string $class CSS class for the main wrapper element
+     * @param ?string $style Inline styles for the main wrapper element
      * @return void
      */
     public function mount(
@@ -136,10 +153,12 @@ final class CKEditor5 extends Component
         ?string $contextId = null,
         int $saveDebounceMs = 300,
         ?int $editableHeight = null,
-        array $language = [],
-        array $events = [],
+        array|string|null $language = null,
+        array $emit = [],
         ?string $name = null,
-        bool $required = false
+        bool $required = false,
+        ?string $class = null,
+        ?string $style = null
     ): void {
         $resolvedPreset = $this->configService->resolvePresetOrThrow($preset);
 
@@ -156,10 +175,10 @@ final class CKEditor5 extends Component
         $this->editableHeight = $editableHeight;
         $this->name = $name;
         $this->required = $required;
-
-        // Merge with defaults
-        $this->language = array_merge($this->language, $language);
-        $this->events = array_merge($this->events, $events);
+        $this->language = self::normalizeLanguage($language);
+        $this->emit = array_merge($this->emit, $emit);
+        $this->class = $class;
+        $this->style = $style;
     }
 
     /**
@@ -171,5 +190,38 @@ final class CKEditor5 extends Component
     public function render(): View
     {
         return view('ckeditor5::livewire.ckeditor5');
+    }
+
+    /**
+     * Normalizes the language parameter into a standardized array format.
+     *
+     * @param array{ui?: string, content?: string}|string|null $language The language configuration
+     * @return array{ui: string, content: string} The normalized language array
+     */
+    private static function normalizeLanguage(array|string|null $language): array
+    {
+        if (is_string($language)) {
+            return [
+                'ui' => $language,
+                'content' => $language,
+            ];
+        }
+
+        if ($language === null) {
+            $defaultLanguage = App::getLocale();
+
+            return [
+                'ui' => $defaultLanguage,
+                'content' => $defaultLanguage,
+            ];
+        }
+
+        return array_merge(
+            [
+                'ui' => 'en',
+                'content' => 'en',
+            ],
+            $language
+        );
     }
 }

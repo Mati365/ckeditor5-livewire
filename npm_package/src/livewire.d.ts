@@ -14,6 +14,7 @@ export type LivewireComponent = {
 
 export type Wire = {
   dispatch: (event: string, ...params: any[]) => void;
+  emit: (event: string, ...params: any[]) => void;
   set: (key: string | Record<string, any>, value?: any) => void | Promise<void>;
 };
 
@@ -28,8 +29,7 @@ type Hook = {
 };
 
 export type LivewireGlobal = {
-  find: (id: string) => any;
-  emit: (event: string, ...params: any[]) => void;
+  all: () => LivewireComponent[];
   on: (event: string, callback: (...params: any[]) => void) => void;
   hook: Hook;
 };

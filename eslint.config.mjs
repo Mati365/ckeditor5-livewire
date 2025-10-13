@@ -50,6 +50,7 @@ export default antfu({
   })
   .overrideRules({
     'dot-notation': 'off',
+    'antfu/no-top-level-await': 'off',
     'perfectionist/sort-imports': ['error', {
       groups: [
         'side-effect',

@@ -1,89 +1,101 @@
-import { Plugin } from 'ckeditor5';
+import type { PluginConstructor } from 'ckeditor5';
+
 import { debounce } from 'shared';
 
 /**
- * Plugin that synchronizes the editor's content with a hidden input field.
- * This is useful for form submissions and traditional server-side processing.
+ * Creates a SyncEditorWithInput plugin class.
  */
-export class SyncEditorWithInput extends Plugin {
-  /**
-   * The input element to synchronize with.
-   */
-  private input: HTMLInputElement | null = null;
+export async function createSyncEditorWithInputPlugin(): Promise<PluginConstructor> {
+  const { Plugin } = await import('ckeditor5');
 
-  /**
-   * The debounce time in milliseconds for saving content changes.
-   */
-  private saveDebounceMs: number;
+  return class SyncEditorWithInput extends Plugin {
+    /**
+     * The input element to synchronize with.
+     */
+    private input: HTMLInputElement | null = null;
 
-  /**
-   * The form element reference for cleanup.
-   */
-  private form: HTMLFormElement | null = null;
+    /**
+     * The debounce time in milliseconds for saving content changes.
+     */
+    private saveDebounceMs: number;
 
-  /**
-   * The name of the plugin.
-   */
-  static get pluginName() {
-    return 'SyncEditorWithInput' as const;
-  }
+    /**
+     * The form element reference for cleanup.
+     */
+    private form: HTMLFormElement | null = null;
 
-  /**
-   * Initializes the plugin.
-   */
-  public init(): void {
-    const editorElement = (this.editor as any).sourceElement as HTMLElement | undefined;
-
-    if (!editorElement) {
-      return;
+    /**
+     * The name of the plugin.
+     */
+    static get pluginName() {
+      return 'SyncEditorWithInput' as const;
     }
 
-    // Try to find the associated input field
-    const editorId = editorElement.id.replace(/_editor$/, '');
+    /**
+     * Initializes the plugin.
+     */
+    public init(): void {
+      const editorElement = (this.editor as any).sourceElement as
+        | HTMLElement
+        | undefined;
 
-    this.input = document.getElementById(`${editorId}_input`) as HTMLInputElement | null;
+      if (!editorElement) {
+        return;
+      }
 
-    if (!this.input) {
-      return;
+      // Try to find the associated input field
+      const editorId = editorElement.id.replace(/_editor$/, '');
+
+      this.input = document.getElementById(
+        `${editorId}_input`,
+      ) as HTMLInputElement | null;
+
+      if (!this.input) {
+        return;
+      }
+
+      // Get debounce time from editor config if available.
+      this.saveDebounceMs
+        = this.editor.config.get('livewire.saveDebounceMs') ?? 0;
+      this.form = this.input.closest('form');
+
+      // Setup handlers.
+      this.editor.model.document.on(
+        'change:data',
+        debounce(this.saveDebounceMs, () => this.sync()),
+      );
+
+      if (this.form) {
+        this.form.addEventListener('submit', this.sync);
+      }
+
+      this.sync();
     }
 
-    // Get debounce time from editor config if available.
-    this.saveDebounceMs = this.editor.config.get('livewire.saveDebounceMs') ?? 0;
-    this.form = this.input.closest('form');
+    /**
+     * Synchronizes the editor's content with the input field.
+     */
+    private sync = (): void => {
+      if (!this.input) {
+        return;
+      }
 
-    // Setup handlers.
-    this.editor.model.document.on('change:data', debounce(this.saveDebounceMs, () => this.sync()));
+      const newValue = this.editor.getData();
 
-    if (this.form) {
-      this.form.addEventListener('submit', this.sync);
+      this.input.value = newValue;
+      this.input.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+
+    /**
+     * Destroys the plugin.
+     */
+    public override destroy(): void {
+      if (this.form) {
+        this.form.removeEventListener('submit', this.sync);
+      }
+
+      this.input = null;
+      this.form = null;
     }
-
-    this.sync();
-  }
-
-  /**
-   * Synchronizes the editor's content with the input field.
-   */
-  private sync = (): void => {
-    if (!this.input) {
-      return;
-    }
-
-    const newValue = this.editor.getData();
-
-    this.input.value = newValue;
-    this.input.dispatchEvent(new Event('input', { bubbles: true }));
   };
-
-  /**
-   * Destroys the plugin.
-   */
-  public override destroy(): void {
-    if (this.form) {
-      this.form.removeEventListener('submit', this.sync);
-    }
-
-    this.input = null;
-    this.form = null;
-  }
 }

@@ -8,7 +8,10 @@ import type { EditorCreator } from './utils';
 
 import { ClassHook } from '../hook';
 import { EditorsRegistry } from './editors-registry';
-import { LivewireSync, SyncEditorWithInput } from './plugins';
+import {
+  createLivewireSyncPlugin,
+  createSyncEditorWithInputPlugin,
+} from './plugins';
 import {
   createEditorInContext,
   isSingleEditingLikeEditor,
@@ -137,10 +140,10 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
     const { loadedPlugins, hasPremium } = await loadEditorPlugins(plugins);
 
     // Add integration specific plugins.
-    loadedPlugins.push(LivewireSync);
+    loadedPlugins.push(await createLivewireSyncPlugin());
 
     if (isSingleEditingLikeEditor(editorType)) {
-      loadedPlugins.push(SyncEditorWithInput);
+      loadedPlugins.push(await createSyncEditorWithInputPlugin());
     }
 
     // Mix custom translations with loaded translations.

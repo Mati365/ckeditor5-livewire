@@ -5,7 +5,7 @@
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/mati365/ckeditor5-livewire?style=flat-square)
 [![GitHub issues](https://img.shields.io/github/issues/mati365/ckeditor5-livewire?style=flat-square)](https://github.com/Mati365/ckeditor5-livewire/issues)
 
-📝 CKEditor 5 for Livewire - easy WYSIWYG editor for your Laravel apps! ⚡ Works great with Livewire components or regular Blade forms. 💡 Simple setup, supports custom builds, dynamic loading, and localization. 🔧 Includes JS hooks, reusable components, and full customization. 🎯 Perfect for both open-source and commercial projects!
+CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel. It works with Livewire components and standard Blade forms. Easy to set up, it supports custom builds, dynamic loading, and localization. The package includes JavaScript hooks, reusable components, and options for customization, and is suitable for both open-source and commercial projects.
 
 > [!IMPORTANT]
 > This integration is unofficial and not maintained by CKSource. For official CKEditor 5 documentation, visit [ckeditor.com](https://ckeditor.com/docs/ckeditor5/latest/). If you encounter any issues in editor, please report them on the [GitHub repository](https://github.com/ckeditor/ckeditor5/issues).

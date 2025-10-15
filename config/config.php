@@ -126,4 +126,11 @@ return [
             ],
         ],
     ],
+    "contexts" => [
+        "default" => [
+            "config" => [
+                "plugins" => [],
+            ],
+        ],
+    ],
 ];

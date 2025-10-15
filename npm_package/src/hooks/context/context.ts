@@ -25,8 +25,8 @@ export class ContextComponentHook extends ClassHook<Snapshot> {
    * Mounts the context component.
    */
   override async mounted() {
-    const { id, language } = this.ephemeral;
-    const { customTranslations, watchdogConfig, config: { plugins, ...config } } = this.ephemeral.config;
+    const { contextId, language, context: contextConfig } = this.ephemeral;
+    const { customTranslations, watchdogConfig, config: { plugins, ...config } } = contextConfig;
 
     const { loadedPlugins, hasPremium } = await loadEditorPlugins(plugins ?? []);
 
@@ -34,13 +34,14 @@ export class ContextComponentHook extends ClassHook<Snapshot> {
     const loadedTranslations = await loadAllEditorTranslations(language, hasPremium);
     const mixedTranslations = [
       ...loadedTranslations,
-      normalizeCustomTranslations(customTranslations?.dictionary || {}),
+      normalizeCustomTranslations(customTranslations || {}),
     ]
       .filter(translations => !isEmptyObject(translations));
 
-    // Initialize context.
+    // Initialize context with watchdog.
     this.contextPromise = (async () => {
       const { ContextWatchdog, Context } = await import('ckeditor5');
+
       const instance = new ContextWatchdog(Context, {
         crashNumberLimit: 10,
         ...watchdogConfig,
@@ -65,7 +66,7 @@ export class ContextComponentHook extends ClassHook<Snapshot> {
     const context = await this.contextPromise;
 
     if (!this.isBeingDestroyed()) {
-      ContextsRegistry.the.register(id, context);
+      ContextsRegistry.the.register(contextId, context);
     }
   }
 
@@ -73,7 +74,7 @@ export class ContextComponentHook extends ClassHook<Snapshot> {
    * Destroys the context component. Unmounts root from the editor.
    */
   override async destroyed() {
-    const { id } = this.ephemeral;
+    const { contextId } = this.ephemeral;
 
     // Let's hide the element during destruction to prevent flickering.
     this.element.style.display = 'none';
@@ -87,8 +88,8 @@ export class ContextComponentHook extends ClassHook<Snapshot> {
     finally {
       this.contextPromise = null;
 
-      if (ContextsRegistry.the.hasItem(id)) {
-        ContextsRegistry.the.unregister(id);
+      if (ContextsRegistry.the.hasItem(contextId)) {
+        ContextsRegistry.the.unregister(contextId);
       }
     }
   }
@@ -135,8 +136,19 @@ export async function getNearestContextParentPromise(el: HTMLElement): Promise<C
  * The snapshot type stored in the Livewire Context hook.
  */
 type Snapshot = {
-  id: string;
-  config: ContextConfig;
+  /**
+   * The unique identifier for the context instance.
+   */
+  contextId: string;
+
+  /**
+   * The context configuration for the context instance.
+   */
+  context: ContextConfig;
+
+  /**
+   * The language of the context UI and content.
+   */
   language: {
     ui: string;
     content: string;

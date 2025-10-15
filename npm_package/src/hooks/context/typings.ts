@@ -10,9 +10,7 @@ export type ContextConfig = {
    * Optional custom translations for the editor.
    * This allows for localization of the editor interface.
    */
-  customTranslations?: {
-    dictionary: EditorCustomTranslationsDictionary;
-  } | null;
+  customTranslations?: EditorCustomTranslationsDictionary | null;
 
   /**
    * Watchdog configuration for the context.

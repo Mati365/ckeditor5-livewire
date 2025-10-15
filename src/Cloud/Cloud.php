@@ -13,7 +13,7 @@ use Mati365\CKEditor5Livewire\Cloud\CKBox\CKBox;
  * It contains information about the editor version, whether it's a premium
  * package, available translations, and CKBox details.
  */
-final readonly class Cloud
+final class Cloud
 {
     /**
      * Cloud constructor.
@@ -43,5 +43,57 @@ final readonly class Cloud
             translations: Arrays::deepClone($this->translations),
             ckbox: $this->ckbox?->clone(),
         );
+    }
+
+    /**
+     * Creates a new Cloud instance with modified editor version.
+     *
+     * @param string $editorVersion New editor version string.
+     * @return self A new Cloud instance with the specified editor version.
+     */
+    public function ofEditorVersion(string $editorVersion): self
+    {
+        $clone = $this->clone();
+        $clone->editorVersion = $editorVersion;
+        return $clone;
+    }
+
+    /**
+     * Creates a new Cloud instance with modified premium flag.
+     *
+     * @param bool $premium New premium flag value.
+     * @return self A new Cloud instance with the specified premium flag.
+     */
+    public function ofPremium(bool $premium): self
+    {
+        $clone = $this->clone();
+        $clone->premium = $premium;
+        return $clone;
+    }
+
+    /**
+     * Creates a new Cloud instance with modified translations.
+     *
+     * @param string[] $translations New list of translations.
+     * @return self A new Cloud instance with the specified translations.
+     */
+    public function ofTranslations(array $translations): self
+    {
+        $clone = $this->clone();
+        $clone->translations = $translations;
+        return $clone;
+    }
+
+    /**
+     * Creates a new Cloud instance with modified CKBox information.
+     *
+     * @param CKBox|null $ckbox New CKBox information (or null to remove).
+     * @return self A new Cloud instance with the specified CKBox information.
+     */
+    public function ofCKBox(?CKBox $ckbox): self
+    {
+        $clone = $this->clone();
+        $clone->ckbox = $ckbox;
+        return $clone;
     }
 }

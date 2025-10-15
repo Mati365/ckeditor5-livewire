@@ -4,8 +4,11 @@ namespace Mati365\CKEditor5Livewire;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Mati365\CKEditor5Livewire\Preset\Preset;
+use Mati365\CKEditor5Livewire\Context\Context;
 use Mati365\CKEditor5Livewire\Exceptions\UnknownPreset;
+use Mati365\CKEditor5Livewire\Exceptions\UnknownContext;
 use Mati365\CKEditor5Livewire\Preset\PresetParser;
+use Mati365\CKEditor5Livewire\Context\ContextParser;
 
 /**
  * CKEditor 5 configuration class. It's used internally by the package.
@@ -49,6 +52,23 @@ final class Config
     }
 
     /**
+     * Return the package's context configurations.
+     *
+     * @return array<string, array>
+     */
+    public function getRawContexts(): array
+    {
+        $contexts = $this->config['contexts'] ?? [];
+
+        if (!is_array($contexts)) {
+            return [];
+        }
+
+        /** @var array<string, array> $contexts */
+        return $contexts;
+    }
+
+    /**
      * Get a preset by its name or return the preset instance directly.
      *
      * @param Preset|string $name The preset name or instance
@@ -68,5 +88,27 @@ final class Config
         }
 
         return PresetParser::parse($json);
+    }
+
+    /**
+     * Get a context by its name or return the context instance directly.
+     *
+     * @param Context|string $name The context name or instance
+     * @return Context The resolved Context instance
+     * @throws UnknownContext If the context name does not exist in the configuration
+     */
+    public function resolveContextOrThrow(Context|string $nameOrContext): Context
+    {
+        if ($nameOrContext instanceof Context) {
+            return $nameOrContext;
+        }
+
+        $json = $this->getRawContexts()[$nameOrContext] ?? null;
+
+        if (!isset($json)) {
+            throw new UnknownContext($nameOrContext);
+        }
+
+        return ContextParser::parse($json);
     }
 }

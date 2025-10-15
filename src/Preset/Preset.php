@@ -9,7 +9,7 @@ use Mati365\CKEditor5Livewire\License\Key;
 /**
  * CKEditor 5 preset class. It should contain editor key, cloud configuration and editor settings.
  */
-final readonly class Preset
+final class Preset
 {
     /**
      * Constructor for the Preset class.
@@ -18,12 +18,14 @@ final readonly class Preset
      * @param EditorType $editorType Type of CKEditor 5 editor (default is CLASSIC).
      * @param Key $licenseKey License key for CKEditor 5 (default is 'GPL').
      * @param Cloud|null $cloud Optional cloud configuration array.
+     * @param array|null $customTranslations Optional custom translations dictionary.
      */
     public function __construct(
         public array $config,
         public EditorType $editorType,
         public Key $licenseKey,
         public ?Cloud $cloud = null,
+        public ?array $customTranslations = null,
     ) {}
 
     /**
@@ -38,6 +40,7 @@ final readonly class Preset
             editorType: $this->editorType,
             licenseKey: $this->licenseKey->clone(),
             cloud: $this->cloud?->clone(),
+            customTranslations: $this->customTranslations !== null ? Arrays::deepClone($this->customTranslations) : null,
         );
     }
 
@@ -54,6 +57,13 @@ final readonly class Preset
         return $clone;
     }
 
+    public function ofMergedConfig(array $config): self
+    {
+        $clone = $this->clone();
+        $clone->config = array_merge_recursive($this->config, $config);
+        return $clone;
+    }
+
     /**
      * Creates a new Preset instance with modified editor type.
      *
@@ -64,6 +74,19 @@ final readonly class Preset
     {
         $clone = $this->clone();
         $clone->editorType = $editorType;
+        return $clone;
+    }
+
+    /**
+     * Creates a new Preset instance with modified custom translations.
+     *
+     * @param array|null $customTranslations New custom translations dictionary.
+     * @return self A new Preset instance with the specified custom translations.
+     */
+    public function ofCustomTranslations(?array $customTranslations): self
+    {
+        $clone = $this->clone();
+        $clone->customTranslations = $customTranslations;
         return $clone;
     }
 }

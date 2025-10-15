@@ -25,7 +25,8 @@ final class PresetParser
         $validator = v::key('config', v::arrayType())
             ->key('editorType', v::stringType()->notEmpty())
             ->key('licenseKey', v::optional(v::stringType()), false)
-            ->key('cloud', v::optional(v::arrayType()), false);
+            ->key('cloud', v::optional(v::arrayType()), false)
+            ->key('customTranslations', v::optional(v::arrayType()), false);
 
         try {
             $validator->assert($data);
@@ -51,6 +52,7 @@ final class PresetParser
             editorType: $editorType,
             licenseKey: $licenseKey,
             cloud: $cloud,
+            customTranslations: isset($data['customTranslations']) ? (array) $data['customTranslations'] : null,
         );
     }
 
@@ -70,6 +72,10 @@ final class PresetParser
 
         if ($preset->cloud !== null) {
             $result['cloud'] = CloudParser::dump($preset->cloud);
+        }
+
+        if ($preset->customTranslations !== null) {
+            $result['customTranslations'] = $preset->customTranslations;
         }
 
         return $result;

@@ -58,11 +58,7 @@ Place the Livewire component where you want the editor to appear. This example s
 Example:
 
 ```blade
-<livewire:ckeditor5
-  name="editor1"
-  class="w-full max-w-3xl"
-  :content="['main' => '<p>Initial content</p>']"
-/>
+<livewire:ckeditor5 />
 ```
 
 ## Vite / import configuration ⚙️🔌
@@ -97,6 +93,121 @@ export default defineConfig({
 ```
 
 If you rely on the cloud-hosted script (not installed via NPM), keep the `<x-ckeditor5-assets />` in the head so the editor script is available globally.
+
+## Advanced configuration ⚙️
+
+### Basic editor with custom content and merged config 🧑‍💻
+
+You can pass initial content and merge additional configuration options:
+
+```blade
+<livewire:ckeditor5
+    content='<p>This is the initial content of the editor.</p>'
+    :mergeConfig="[
+        'menuBar' => [
+            'isVisible' => true
+        ]
+    ]"
+/>
+```
+
+### Custom configuration with plugins and toolbar items ⚙️
+
+Override the default configuration with custom plugins and toolbar items:
+
+```blade
+<livewire:ckeditor5
+    locale="pl"
+    content="<p>This editor has a custom configuration.</p>"
+    :customTranslations="[
+        'pl' => [
+            'Bold' => 'Grubo'
+        ]
+    ]"
+    :config="[
+        'plugins' => [
+            'Essentials',
+            'Paragraph',
+            'Bold',
+            'Italic',
+            'Link',
+            'Undo'
+        ],
+        'toolbar' => [
+            'items' => [
+                'bold',
+                'italic',
+                'link',
+                'undo',
+                'redo'
+            ]
+        ]
+    ]"
+/>
+```
+
+## Context 🤝
+
+The **context** feature is designed to group multiple editor instances together, allowing them to share a common context. This is particularly useful in collaborative editing scenarios, where users can work together in real time. By sharing a context, editors can synchronize features such as comments, track changes, and presence indicators across different editor instances. This enables seamless collaboration and advanced workflows in your Phoenix application.
+
+For more information about the context feature, see the [CKEditor 5 Context documentation](https://ckeditor.com/docs/ckeditor5/latest/features/collaboration/context-and-collaboration-features.html).
+
+![CKEditor 5 Context in Livewire application](docs/context.png)
+
+```blade
+<!-- Create a context -->
+<livewire:ckeditor5-context contextId="my-context" />
+
+<!-- Editor 1 using the context -->
+<livewire:ckeditor5
+    contextId="my-context"
+    content="Content 1"
+/>
+
+<!-- Editor 2 using the same context -->
+<livewire:ckeditor5
+    class="mt-6"
+    contextId="my-context"
+    content="Content 2"
+/>
+```
+
+### Decoupled editor 🌐
+
+Flexible editor where toolbar and editing area are completely separated. Provides maximum layout control for custom interfaces and complex applications.
+
+**Features:**
+
+- Complete separation of toolbar and content area
+- Custom positioning and styling of UI elements
+- Full control over editor layout and appearance
+
+![CKEditor 5 Decoupled Editor in Livewire application](docs/decoupled-editor.png)
+
+```blade
+<!-- Editor instance -->
+<livewire:ckeditor5
+    editorId="decoupled-editor"
+    editorType="decoupled"
+    :content="['main' => '<p>This is the initial content of the decoupled editor.</p>']"
+/>
+
+<!-- Separate toolbar -->
+<livewire:ckeditor5-ui-part
+    name="toolbar"
+    editorId="decoupled-editor"
+    class="my-4"
+/>
+
+<!-- Separate editable area -->
+<livewire:ckeditor5-editable
+    editorId="decoupled-editor"
+    editableId="decoupled-editor-main"
+    class="border border-gray-300 rounded-xs"
+    editableClass="p-4"
+    content="<p>This is the initial content of the decoupled editor editable.</p>"
+/>
+```
 
 ## Psst... 👀
 

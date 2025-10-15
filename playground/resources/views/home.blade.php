@@ -25,7 +25,7 @@
             <h2 class="mb-4 font-semibold text-lg">CKEditor 5 Basic</h2>
             <div>
                 <livewire:ckeditor5
-                    :content="['main' => '<p>This is the initial content of the editor.</p>']"
+                    content='<p>This is the initial content of the editor.</p>'
                     :mergeConfig="[
                         'menuBar' => [
                             'isVisible' => true
@@ -39,8 +39,8 @@
             <h2 class="mb-4 font-semibold text-lg">CKEditor 5 with Custom Config</h2>
             <div>
                 <livewire:ckeditor5
-                    :locale="'pl'"
-                    :content="['main' => '<p>This editor has a custom configuration.</p>']"
+                    locale="pl"
+                    content="<p>This editor has a custom configuration.</p>"
                     :customTranslations="[
                         'pl' => [
                             'Bold' => 'Grubo'
@@ -75,12 +75,12 @@
                 <livewire:ckeditor5-context contextId="my-context" />
                 <livewire:ckeditor5
                     contextId="my-context"
-                    :content="['main' => 'Content 1']"
+                    content="Content 1"
                 />
                 <livewire:ckeditor5
                     class="mt-6"
                     contextId="my-context"
-                    :content="['main' => 'Content 2']"
+                    content="Content 2"
                 />
             </div>
         </section>
@@ -94,7 +94,7 @@
                     :content="['main' => '<p>This is the initial content of the decoupled editor.</p>']"
                 />
 
-                <livewire:ckeditor5-ui-part :name="'toolbar'" :editorId="'decoupled-editor'" class="my-4" />
+                <livewire:ckeditor5-ui-part name="toolbar" editorId="decoupled-editor" class="my-4" />
 
                 <livewire:ckeditor5-editable
                     editorId="decoupled-editor"

@@ -22,7 +22,7 @@ final class CKEditor5 extends Component
      *
      * @var array<string, string> Content sections, e.g., ['main' => '<p>Initial content</p>']
      */
-    public array $content;
+    public mixed $content;
 
     /**
      * Unique identifier for the editor instance.
@@ -128,7 +128,7 @@ final class CKEditor5 extends Component
      * Mount method called when the component is initialized.
      * Sets up the initial content, configuration, and generates a unique editor ID.
      *
-     * @param array<string, string> $content Initial content for the editor
+     * @param string|array<string, string> $content Initial content for the editor
      * @param Preset|string $presetName Preset instance or preset name
      * @param ?string $editorId Unique identifier for the editor instance
      * @param ?array $config Configuration array for CKEditor5. It'll override the preset config if provided.
@@ -148,7 +148,7 @@ final class CKEditor5 extends Component
      * @return void
      */
     public function mount(
-        array $content = ['main' => ''],
+        array|string $content = ['main' => ''],
         Preset|string $presetName = 'default',
         ?string $editorId = null,
         ?array $config = null,
@@ -186,8 +186,13 @@ final class CKEditor5 extends Component
             );
         }
 
+        if (is_string($content)) {
+            $this->content = [ 'main' => $content ];
+        } else {
+            $this->content = $content;
+        }
+
         $this->editorId = $editorId ?? 'ckeditor-' . uniqid();
-        $this->content = $content;
         $this->preset = PresetParser::dump($resolvedPreset);
         $this->watchdog = $watchdog;
         $this->contextId = $contextId;

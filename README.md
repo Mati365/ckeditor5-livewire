@@ -98,7 +98,7 @@ If you rely on the cloud-hosted script (not installed via NPM), keep the `<x-cke
 
 ### Basic editor with custom content and merged config 🧑‍💻
 
-You can pass initial content and merge additional configuration options:
+You can pass initial content and merge additional configuration. In scenario below, the `mergeConfig` will extend the `default` preset configuration to make the menu bar visible. It's only shallow merge, so nested arrays will be replaced, not merged.
 
 ```blade
 <livewire:ckeditor5
@@ -113,7 +113,7 @@ You can pass initial content and merge additional configuration options:
 
 ### Custom configuration with plugins and toolbar items ⚙️
 
-Override the default configuration with custom plugins and toolbar items:
+Override the default configuration with custom plugins and toolbar items. In this example, the editor will only have `Essentials`, `Paragraph`, `Bold`, `Italic`, `Link`, and `Undo` plugins, and the toolbar will contain only bold, italic, link, undo, and redo buttons. The editor locale is set to Polish (`pl`), and a custom translation for the "Bold" label is provided.
 
 ```blade
 <livewire:ckeditor5
@@ -146,7 +146,7 @@ Override the default configuration with custom plugins and toolbar items:
 />
 ```
 
-## Context 🤝
+### Context 🤝
 
 The **context** feature is designed to group multiple editor instances together, allowing them to share a common context. This is particularly useful in collaborative editing scenarios, where users can work together in real time. By sharing a context, editors can synchronize features such as comments, track changes, and presence indicators across different editor instances. This enables seamless collaboration and advanced workflows in your Phoenix application.
 

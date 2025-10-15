@@ -61,7 +61,7 @@ Example:
 <livewire:ckeditor5 />
 ```
 
-## Vite / import configuration ⚙️🔌
+### Vite / import configuration ⚙️🔌
 
 Add lines below to your Vite app entrypoint so the package's JS hooks and Livewire wiring are included in your app. The `ckeditor5-livewire` package provides the integration (not the editor build itself) and is needed whether you use the cloud distribution or a self-hosted build from NPM.
 

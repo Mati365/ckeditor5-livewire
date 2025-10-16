@@ -1,6 +1,6 @@
 import type { PluginConstructor } from 'ckeditor5';
 
-import { debounce } from 'shared';
+import { debounce } from '../../../shared';
 
 /**
  * Creates a SyncEditorWithInput plugin class.

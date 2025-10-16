@@ -1,7 +1,6 @@
 import type { DecoupledEditor, MultiRootEditor } from 'ckeditor5';
 
-import { debounce } from 'shared';
-
+import { debounce } from '../shared';
 import { EditorsRegistry } from './editor/editors-registry';
 import { ClassHook } from './hook';
 

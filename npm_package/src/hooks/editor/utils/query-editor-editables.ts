@@ -1,7 +1,6 @@
-import { mapObjectValues } from 'shared';
-
 import type { EditorId, EditorType } from '../typings';
 
+import { mapObjectValues } from '../../../shared';
 import { isSingleEditingLikeEditor } from './is-single-editing-like-editor';
 
 /**

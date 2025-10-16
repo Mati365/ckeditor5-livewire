@@ -2,7 +2,7 @@
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "target": "ES2020",
-    "baseUrl": "src",
+    "baseUrl": ".",
     "rootDir": ".",
     "module": "ESNext",
     "moduleResolution": "bundler",

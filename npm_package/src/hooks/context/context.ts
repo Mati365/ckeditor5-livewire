@@ -1,10 +1,9 @@
 import type { Context, ContextWatchdog } from 'ckeditor5';
 
-import { ClassHook } from 'hooks/hook';
-import { isEmptyObject } from 'shared';
-
 import type { ContextConfig } from './typings';
 
+import { ClassHook } from '../../hooks/hook';
+import { isEmptyObject } from '../../shared';
 import {
   loadAllEditorTranslations,
   loadEditorPlugins,

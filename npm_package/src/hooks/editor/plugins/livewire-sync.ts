@@ -1,9 +1,8 @@
 import type { PluginConstructor } from 'ckeditor5';
 
-import { debounce } from 'shared';
-
 import type { EditorId } from '../typings';
 
+import { debounce } from '../../../shared';
 import { getEditorRootsValues } from '../utils';
 
 /**

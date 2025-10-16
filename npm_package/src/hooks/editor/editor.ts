@@ -1,11 +1,10 @@
 import type { Editor } from 'ckeditor5';
 
-import { ContextsRegistry, getNearestContextParentPromise } from 'hooks/context';
-import { isEmptyObject } from 'shared';
-
 import type { EditorPreset } from './typings';
 import type { EditorCreator } from './utils';
 
+import { ContextsRegistry, getNearestContextParentPromise } from '../../hooks/context';
+import { isEmptyObject } from '../../shared';
 import { ClassHook } from '../hook';
 import { EditorsRegistry } from './editors-registry';
 import {

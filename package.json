@@ -3,12 +3,12 @@
   "scripts": {
     "dev": "npx concurrently -c \"#00BCD4,#009688\" \"cd playground && composer dev\" \"pnpm run npm_package:watch\" --names playground,npm_package --kill-others",
     "typecheck": "pnpm run npm_package:typecheck && pnpm run playground:typecheck",
-    "playground:typecheck": "pnpm run typecheck --workspace=ckeditor5-livewire",
-    "npm_package:typecheck": "pnpm run typecheck --workspace=ckeditor5-livewire",
-    "npm_package:watch": "pnpm run watch --workspace=ckeditor5-livewire",
-    "npm_package:build": "pnpm run build --workspace=ckeditor5-livewire",
-    "npm_package:test": "pnpm run test --workspace=ckeditor5-livewire",
-    "npm_package:test:watch": "pnpm run test:watch --workspace=ckeditor5-livewire"
+    "playground:typecheck": "pnpm -F ckeditor5-livewire-playground run typecheck",
+    "npm_package:typecheck": "pnpm -F ckeditor5-livewire run typecheck",
+    "npm_package:watch": "pnpm -F ckeditor5-livewire run watch",
+    "npm_package:build": "pnpm -F ckeditor5-livewire run build",
+    "npm_package:test": "pnpm -F ckeditor5-livewire run test",
+    "npm_package:test:watch": "pnpm -F ckeditor5-livewire run test:watch"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^5.4.1",

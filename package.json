@@ -1,14 +1,14 @@
 {
   "private": true,
   "scripts": {
-    "dev": "npx concurrently -c \"#00BCD4,#009688\" \"cd playground && composer dev\" \"npm run npm_package:watch\" --names playground,npm_package --kill-others",
-    "typecheck": "npm run npm_package:typecheck && npm run playground:typecheck",
-    "playground:typecheck": "npm run typecheck --workspace=ckeditor5-livewire",
-    "npm_package:typecheck": "npm run typecheck --workspace=ckeditor5-livewire",
-    "npm_package:watch": "npm run watch --workspace=ckeditor5-livewire",
-    "npm_package:build": "npm run build --workspace=ckeditor5-livewire",
-    "npm_package:test": "npm run test --workspace=ckeditor5-livewire",
-    "npm_package:test:watch": "npm run test:watch --workspace=ckeditor5-livewire"
+    "dev": "npx concurrently -c \"#00BCD4,#009688\" \"cd playground && composer dev\" \"pnpm run npm_package:watch\" --names playground,npm_package --kill-others",
+    "typecheck": "pnpm run npm_package:typecheck && pnpm run playground:typecheck",
+    "playground:typecheck": "pnpm run typecheck --workspace=ckeditor5-livewire",
+    "npm_package:typecheck": "pnpm run typecheck --workspace=ckeditor5-livewire",
+    "npm_package:watch": "pnpm run watch --workspace=ckeditor5-livewire",
+    "npm_package:build": "pnpm run build --workspace=ckeditor5-livewire",
+    "npm_package:test": "pnpm run test --workspace=ckeditor5-livewire",
+    "npm_package:test:watch": "pnpm run test:watch --workspace=ckeditor5-livewire"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^5.4.1",
@@ -20,10 +20,6 @@
     "typescript": "^5.9.3",
     "vite": "^7.1.9"
   },
-  "workspaces": [
-    "npm_package",
-    "playground"
-  ],
   "lint-staged": {
     "*.{ts,js,mjs}": [
       "eslint --fix"

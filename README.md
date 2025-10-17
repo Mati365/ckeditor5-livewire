@@ -23,7 +23,7 @@ This project is still in development and not production-ready. Features, structu
 To start the development environment, run:
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 The playground app will be available at [http://localhost:8000](http://localhost:8000).

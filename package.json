@@ -19,7 +19,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.3",
     "typescript": "^5.9.3",
-    "vite": "^7.1.9"
+    "vite": "^7.1.11"
   },
   "lint-staged": {
     "*.{ts,js,mjs}": [

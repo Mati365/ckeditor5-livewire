@@ -43,20 +43,17 @@ export async function createSyncEditorWithInputPlugin(): Promise<PluginConstruct
         return;
       }
 
-      // Try to find the associated input field
+      // Try to find the associated input field.
       const editorId = editorElement.id.replace(/_editor$/, '');
 
-      this.input = document.getElementById(
-        `${editorId}_input`,
-      ) as HTMLInputElement | null;
+      this.input = document.getElementById(`${editorId}_input`) as HTMLInputElement | null;
 
       if (!this.input) {
         return;
       }
 
       // Get debounce time from editor config if available.
-      this.saveDebounceMs
-        = this.editor.config.get('livewire.saveDebounceMs') ?? 0;
+      this.saveDebounceMs = this.editor.config.get('livewire.saveDebounceMs') ?? 0;
       this.form = this.input.closest('form');
 
       // Setup handlers.

@@ -95,43 +95,6 @@ export class ContextComponentHook extends ClassHook<Snapshot> {
 }
 
 /**
- * Type guard to check if an element is a context hook HTMLElement.
- */
-function isContextHookHTMLElement(el: HTMLElement): el is HTMLElement & { instance: ContextComponentHook; } {
-  return el.hasAttribute('cke-context');
-}
-
-/**
- * Gets the nearest context hook parent element.
- */
-function getNearestContextParent(el: HTMLElement) {
-  let parent: HTMLElement | null = el;
-
-  while (parent) {
-    if (isContextHookHTMLElement(parent)) {
-      return parent;
-    }
-
-    parent = parent.parentElement;
-  }
-
-  return null;
-}
-
-/**
- * Gets the nearest context parent element as a promise.
- */
-export async function getNearestContextParentPromise(el: HTMLElement): Promise<ContextWatchdog<Context> | null> {
-  const parent = getNearestContextParent(el);
-
-  if (!parent) {
-    return null;
-  }
-
-  return ContextsRegistry.the.waitFor(parent.id);
-}
-
-/**
  * The snapshot type stored in the Livewire Context hook.
  */
 type Snapshot = {

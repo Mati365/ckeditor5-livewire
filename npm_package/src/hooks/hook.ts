@@ -54,17 +54,6 @@ export abstract class ClassHook<T extends object = Record<string, unknown>> {
    * Called when the element has been removed from the DOM.
    */
   destroyed(): CanBePromise<void> {}
-
-  /**
-   * Pushes an event to the Livewire component if it is not being destroyed.
-   */
-  emitGlobalEvent(name: string, data: object = {}): void {
-    if (this.isBeingDestroyed()) {
-      return;
-    }
-
-    this.$wire.emit(name, data);
-  }
 }
 
 /**

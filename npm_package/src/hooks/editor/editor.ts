@@ -172,7 +172,7 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
       language,
       livewire: {
         saveDebounceMs,
-        component: this,
+        component: this.livewireComponent,
         emit,
         editorId,
       },
@@ -210,7 +210,7 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
 /**
  * A snapshot of the Livewire component's state relevant to the CKEditor5 hook.
  */
-type Snapshot = {
+export type Snapshot = {
   /**
    * The unique identifier for the CKEditor5 instance.
    */
@@ -260,6 +260,5 @@ type Snapshot = {
   emit: {
     change: boolean;
     focus: boolean;
-    blur: boolean;
   };
 };

@@ -1,7 +1,5 @@
 import type { PluginConstructor } from 'ckeditor5';
 
-import type { EditorId } from '../typings';
-
 import { debounce } from '../../../shared';
 import { getEditorRootsValues } from '../utils';
 
@@ -23,33 +21,15 @@ export async function createLivewireSyncPlugin(): Promise<PluginConstructor> {
      * Initializes the plugin.
      */
     public init(): void {
-      const config = this.editor.config.get('livewire') as {
-        component: any;
-        emit: {
-          change?: boolean;
-          blur?: boolean;
-          focus?: boolean;
-        };
-        editorId: string;
-        saveDebounceMs: number;
-      } | undefined;
-
-      if (!config) {
-        return;
-      }
-
+      const config = this.editor.config.get('livewire')!;
       const { emit } = config;
 
       if (emit.change) {
         this.setupTypingContentPush();
       }
 
-      if (emit.blur) {
-        this.setupFocusableEventPush('blur');
-      }
-
       if (emit.focus) {
-        this.setupFocusableEventPush('focus');
+        this.setupFocusableEventPush();
       }
     }
 
@@ -57,82 +37,37 @@ export async function createLivewireSyncPlugin(): Promise<PluginConstructor> {
      * Setups the content push event for the editor.
      */
     private setupTypingContentPush() {
-      const config = this.editor.config.get('livewire') as {
-        component: any;
-        emit: {
-          change?: boolean;
-          blur?: boolean;
-          focus?: boolean;
-        };
-        editorId: string;
-        saveDebounceMs: number;
-      } | undefined;
+      const { config, model } = this.editor;
+      const { saveDebounceMs, component: { $wire } } = config.get('livewire')!;
 
-      if (!config) {
-        return;
-      }
-
-      const { editorId, saveDebounceMs, component } = config;
-
-      const pushContentChange = () => {
-        component.emitGlobalEvent(
-          'ckeditor5:change',
-          {
-            editorId,
-            data: getEditorRootsValues(this.editor),
-          },
-        );
+      const syncContentChange = () => {
+        $wire.set('content', this.getEditorRootsValues());
       };
 
-      this.editor.model.document.on('change:data', debounce(saveDebounceMs, pushContentChange));
-      pushContentChange();
+      model.document.on('change:data', debounce(saveDebounceMs, syncContentChange));
+      syncContentChange();
     }
 
     /**
      * Setups the event push for the editor.
      */
-    private setupFocusableEventPush(eventType: 'focus' | 'blur') {
-      const config = this.editor.config.get('livewire');
-      if (!config) {
-        return;
-      }
-
-      const { editorId, component } = config;
+    private setupFocusableEventPush() {
+      const { config, ui } = this.editor;
+      const { component: { $wire } } = config.get('livewire')!;
 
       const pushEvent = () => {
-        const { isFocused } = this.editor.ui.focusTracker;
-        const currentType = isFocused ? 'focus' : 'blur';
-
-        if (currentType !== eventType) {
-          return;
-        }
-
-        component.emitGlobalEvent(
-          `ckeditor5:${eventType}`,
-          {
-            editorId,
-            data: getEditorRootsValues(this.editor),
-          },
-        );
+        $wire.set('focused', ui.focusTracker.isFocused);
+        $wire.set('content', this.getEditorRootsValues());
       };
 
-      this.editor.ui.focusTracker.on('change:isFocused', pushEvent);
+      ui.focusTracker.on('change:isFocused', pushEvent);
+    }
+
+    /**
+     * Gets the current values of all editor roots.
+     */
+    private getEditorRootsValues(): Record<string, string> {
+      return getEditorRootsValues(this.editor);
     }
   };
-}
-
-declare module 'ckeditor5' {
-  // eslint-disable-next-line ts/consistent-type-definitions
-  interface EditorConfig {
-    livewire?: {
-      component: any;
-      emit: {
-        change?: boolean;
-        blur?: boolean;
-        focus?: boolean;
-      };
-      editorId: EditorId;
-      saveDebounceMs: number;
-    };
-  }
 }

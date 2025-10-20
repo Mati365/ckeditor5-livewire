@@ -93,12 +93,13 @@ final class CKEditor5 extends Component
      * - `editorId` - The unique identifier of the editor instance.
      * - `data` - Additional data related to the event (if applicable).
      *
-     * @var array{change: bool, focus: bool, blur: bool}
+     * It's enabled by default for the `change` and `focus` events.
+     *
+     * @var array{change: bool, focus: bool}
      */
     public array $emit = [
-        'change' => false,
-        'focus' => false,
-        'blur' => false,
+        'change' => true,
+        'focus' => true,
     ];
 
     /**
@@ -140,7 +141,7 @@ final class CKEditor5 extends Component
      * @param int $saveDebounceMs Debounce time in milliseconds for saving content changes
      * @param ?int $editableHeight Fixed height for the editor's content area in pixels
      * @param array{ui?: string, content?: string}|string|null $locale Language configuration for UI and content
-     * @param array{change?: bool, focus?: bool, blur?: bool} $emit Events to forward to Livewire
+     * @param array{change?: bool, focus?: bool} $emit Events to forward to Livewire
      * @param ?string $name Name attribute for the hidden input field (if form submission is needed)
      * @param bool $required Whether the hidden input is required
      * @param ?string $class CSS class for the main wrapper element

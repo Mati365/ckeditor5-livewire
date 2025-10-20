@@ -1,24 +1,22 @@
-export type LivewireComponent = {
-  el: HTMLElement;
+export type LivewireComponent<E = any> = {
   id: string;
+  el: HTMLElement;
   name: string;
+  ephemeral: E;
+  $wire: Wire;
   effects: Record<string, unknown>;
   canonical: Record<string, unknown>;
-  ephemeral: Record<string, unknown>;
   reactive: any;
-  $wire: Wire;
   children: Array<any>;
   snapshot: Record<string, unknown>;
   snapshotEncoded: string;
 };
 
 export type Wire = {
-  dispatch: (event: string, ...params: any[]) => void;
-  emit: (event: string, ...params: any[]) => void;
   set: (key: string | Record<string, any>, value?: any) => void | Promise<void>;
 };
 
-type ComponentInitEvent = {
+export type ComponentInitEvent = {
   cleanup: (cb: VoidFunction) => void;
   component: LivewireComponent;
 };
@@ -29,14 +27,14 @@ type Hook = {
 };
 
 export type LivewireGlobal = {
+  find: (id: string) => LivewireComponent | undefined;
   all: () => LivewireComponent[];
   on: (event: string, callback: (...params: any[]) => void) => void;
+  dispatch: (event: string, ...params: any[]) => void;
   hook: Hook;
 };
 
 declare global {
-  // eslint-disable-next-line ts/consistent-type-definitions
-  interface Window {
-    Livewire: LivewireGlobal;
-  }
+  // eslint-disable-next-line vars-on-top
+  var Livewire: LivewireGlobal;
 }

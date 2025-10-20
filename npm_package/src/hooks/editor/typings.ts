@@ -99,7 +99,7 @@ export type EditorPreset = {
    * Optional custom translations for the editor.
    * This allows for localization of the editor interface.
    */
-  customTranslations?: EditorCustomTranslationsDictionary;
+  customTranslations?: EditorCustomTranslationsDictionary | null;
 };
 
 /**

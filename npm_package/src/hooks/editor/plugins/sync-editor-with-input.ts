@@ -34,11 +34,13 @@ export async function createSyncEditorWithInputPlugin(): Promise<PluginConstruct
     /**
      * Initializes the plugin.
      */
-    public init(): void {
-      const editorElement = (this.editor as any).sourceElement as
+    public afterInit(): void {
+      const { editor } = this;
+      const editorElement = (editor as any).sourceElement as
         | HTMLElement
         | undefined;
 
+      // Multi-root editors are not supported.
       if (!editorElement) {
         return;
       }
@@ -53,34 +55,25 @@ export async function createSyncEditorWithInputPlugin(): Promise<PluginConstruct
       }
 
       // Get debounce time from editor config if available.
-      this.saveDebounceMs = this.editor.config.get('livewire.saveDebounceMs') ?? 0;
-      this.form = this.input.closest('form');
+      this.saveDebounceMs = editor.config.get('livewire.saveDebounceMs')!;
 
       // Setup handlers.
-      this.editor.model.document.on(
-        'change:data',
-        debounce(this.saveDebounceMs, () => this.sync()),
-      );
+      editor.model.document.on('change:data', debounce(this.saveDebounceMs, () => this.sync()));
+      editor.once('ready', this.sync);
 
-      if (this.form) {
-        this.form.addEventListener('submit', this.sync);
-      }
-
-      this.sync();
+      // Setup form integration.
+      this.form = this.input.closest('form');
+      this.form?.addEventListener('submit', this.sync);
     }
 
     /**
      * Synchronizes the editor's content with the input field.
      */
     private sync = (): void => {
-      if (!this.input) {
-        return;
-      }
-
       const newValue = this.editor.getData();
 
-      this.input.value = newValue;
-      this.input.dispatchEvent(new Event('input', { bubbles: true }));
+      this.input!.value = newValue;
+      this.input!.dispatchEvent(new Event('input', { bubbles: true }));
     };
 
     /**

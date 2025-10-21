@@ -53,6 +53,7 @@ export default defineConfig({
         '**/node_modules/**',
         '**/dist/**',
         './src/**/index.ts',
+        '**/test-utils/**',
         './scripts/**',
       ],
     },

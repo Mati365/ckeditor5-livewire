@@ -15,3 +15,10 @@ export const DEFAULT_TEST_EDITOR_ID: EditorId = 'test-editor';
 export function waitForTestEditor<E extends Editor>(id: EditorId = DEFAULT_TEST_EDITOR_ID): Promise<E> {
   return EditorsRegistry.the.waitFor<E>(id);
 }
+
+/**
+ * Creates a classic editor HTML element for testing.
+ */
+export function getTestEditorInput() {
+  return document.getElementById(`${DEFAULT_TEST_EDITOR_ID}_input`) as HTMLInputElement;
+}

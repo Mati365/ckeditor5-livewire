@@ -1,7 +1,6 @@
 import { vi } from 'vitest';
 
 import type { ComponentInitEvent, LivewireComponent, LivewireGlobal } from '../src/livewire';
-import type { RequiredBy } from '../src/types';
 
 import { uid } from '../src/shared/uid';
 
@@ -102,9 +101,10 @@ export class LivewireStub implements LivewireGlobal {
      * Creates a full component object and triggers the component.init hook.
      *
      * @param component - Base component data to initialize
+     * @returns The initialized Livewire component
      */
     dispatchComponentInit: (component: LivewireBaseComponent) => {
-      const mappedComponent: LivewireComponent = {
+      const mappedComponent = {
         id: `component-${uid()}`,
         effects: {},
         canonical: {},
@@ -116,12 +116,14 @@ export class LivewireStub implements LivewireGlobal {
         snapshot: {},
         snapshotEncoded: '',
         ...component,
-      };
+      } satisfies LivewireComponent;
 
       const declaration = new ComponentDeclaration(mappedComponent);
 
       this.componentsDeclarations.add(declaration);
       this.$internal.dispatchHook('component.init', declaration);
+
+      return mappedComponent;
     },
 
     /**
@@ -134,9 +136,8 @@ export class LivewireStub implements LivewireGlobal {
       const { el } = component;
 
       document.body.appendChild(el);
-      this.$internal.dispatchComponentInit(component);
 
-      return component;
+      return this.$internal.dispatchComponentInit(component);
     },
 
     /**
@@ -186,7 +187,7 @@ export class LivewireStub implements LivewireGlobal {
 /**
  * Base component data used for initializing a Livewire component in tests.
  */
-type LivewireBaseComponent<E = any> = RequiredBy<Partial<LivewireComponent<E>>, 'name' | 'el' | 'ephemeral'>;
+type LivewireBaseComponent<E = any> = Pick<LivewireComponent<E>, 'name' | 'el' | 'ephemeral'>;
 
 /**
  * Component declaration that wraps a Livewire component and manages its lifecycle.

@@ -1,3 +1,4 @@
+export * from './editable';
 export * from './editor';
 export * from './html';
 export * from './livewire-stub';

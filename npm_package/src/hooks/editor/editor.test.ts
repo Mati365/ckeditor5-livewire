@@ -9,6 +9,7 @@ import {
   createEditorSnapshot,
   DEFAULT_TEST_EDITOR_ID,
   getTestEditorInput,
+  html,
   isEditorShown,
   LivewireStub,
   waitForTestEditor,
@@ -107,6 +108,21 @@ describe('editor component', () => {
       const editor = await waitForTestEditor();
 
       expect(editor.getData()).toBe(initialValue);
+    });
+
+    it('should assign empty main value if initialized editor with empty `content` snapshot property', async () => {
+      livewireStub.$internal.appendComponentToDOM<Snapshot>({
+        name: COMPONENT_NAME,
+        el: createEditorHtmlElement(),
+        ephemeral: {
+          ...createEditorSnapshot(),
+          content: {},
+        },
+      });
+
+      const editor = await waitForTestEditor();
+
+      expect(editor.getData()).toBe('');
     });
   });
 
@@ -430,6 +446,90 @@ describe('editor component', () => {
 
         expect($wire.set).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe('form integration', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('should sync editor data to the associated input field', async () => {
+      livewireStub.$internal.appendComponentToDOM<Snapshot>({
+        name: COMPONENT_NAME,
+        el: createEditorHtmlElement({
+          withInput: true,
+        }),
+        ephemeral: {
+          ...createEditorSnapshot(),
+          saveDebounceMs: 0,
+        },
+      });
+
+      const editor = await waitForTestEditor();
+      const input = getTestEditorInput();
+
+      editor.setData('<p>Form integration test</p>');
+      await vi.advanceTimersByTimeAsync(1);
+
+      expect(input.value).to.be.equal('<p>Form integration test</p>');
+    });
+
+    it('should not crash if hidden input is not present', async () => {
+      livewireStub.$internal.appendComponentToDOM<Snapshot>({
+        name: COMPONENT_NAME,
+        el: createEditorHtmlElement({
+          withInput: false,
+        }),
+        ephemeral: {
+          ...createEditorSnapshot(),
+          saveDebounceMs: 0,
+        },
+      });
+
+      const editor = await waitForTestEditor();
+
+      expect(() => {
+        editor.setData('<p>Form integration test</p>');
+        vi.advanceTimersByTime(1);
+      }).not.to.throw();
+    });
+
+    it('should immediately sync editor data to the associated input field on form submit', async () => {
+      document.body.appendChild(
+        html.form({ id: 'form' }),
+      );
+
+      livewireStub.$internal.appendComponentToDOM<Snapshot>({
+        name: COMPONENT_NAME,
+        el: createEditorHtmlElement({
+          withInput: true,
+        }),
+        ephemeral: {
+          ...createEditorSnapshot(),
+          saveDebounceMs: 5000,
+        },
+      }, '#form');
+
+      const editor = await waitForTestEditor();
+      const input = getTestEditorInput();
+
+      editor.setData('<p>Form integration test</p>');
+      await vi.advanceTimersByTimeAsync(1000);
+
+      // Value should not be synced yet due to debounce.
+      expect(input.value).to.be.equal('<p>Initial content</p>');
+
+      // Submit the form.
+      input.closest('form')!.dispatchEvent(new Event('submit', { bubbles: true }));
+      await vi.advanceTimersByTimeAsync(1);
+
+      // Value should be synced immediately on form submit.
+      expect(input.value).to.be.equal('<p>Form integration test</p>');
     });
   });
 });

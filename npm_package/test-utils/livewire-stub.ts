@@ -103,7 +103,7 @@ export class LivewireStub implements LivewireGlobal {
      * @param component - Base component data to initialize
      * @returns The initialized Livewire component
      */
-    dispatchComponentInit: (component: LivewireBaseComponent) => {
+    dispatchComponentInit: <E>(component: LivewireBaseComponent<E>) => {
       const mappedComponent = {
         id: `component-${uid()}`,
         effects: {},
@@ -129,13 +129,14 @@ export class LivewireStub implements LivewireGlobal {
     /**
      * Creates and appends a Livewire component to the DOM and initializes it.
      *
-     * @param component - Base component data to create and append
-     * @returns The created Livewire component
+     * @param component - Base component data to create and append.
+     * @param selector - CSS selector of the parent element to append the component to (default is 'body').
+     * @returns The created Livewire component.
      */
-    appendComponentToDOM: <E>(component: LivewireBaseComponent<E>) => {
+    appendComponentToDOM: <E>(component: LivewireBaseComponent<E>, selector: string = 'body') => {
       const { el } = component;
 
-      document.body.appendChild(el);
+      document.querySelector(selector)?.appendChild(el);
 
       return this.$internal.dispatchComponentInit(component);
     },

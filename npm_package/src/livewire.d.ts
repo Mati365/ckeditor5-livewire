@@ -1,3 +1,5 @@
+import type { CanBePromise } from './types';
+
 export type LivewireComponent<E = any> = {
   id: string;
   el: HTMLElement;
@@ -13,7 +15,7 @@ export type LivewireComponent<E = any> = {
 };
 
 export type Wire = {
-  set: (key: string | Record<string, any>, value?: any) => void | Promise<void>;
+  set: (key: string | Record<string, any>, value?: any) => CanBePromise<void>;
 };
 
 export type ComponentInitEvent = {

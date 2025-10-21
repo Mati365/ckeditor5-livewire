@@ -1,6 +1,6 @@
 import type { EditorId, EditorType } from '../typings';
 
-import { mapObjectValues } from '../../../shared';
+import { filterObjectValues, mapObjectValues } from '../../../shared';
 import { isSingleEditingLikeEditor } from './is-single-editing-like-editor';
 
 /**
@@ -13,12 +13,12 @@ export function queryAllEditorEditables(editorId: EditorId): Record<string, Edit
   return (
     window.Livewire
       .all()
-      .filter(component => component.ephemeral['editorId'] === editorId)
-      .reduce<Record<string, EditableItem>>((acc, element) => ({
+      .filter(({ name, ephemeral }) => name === 'ckeditor5-editable' && ephemeral['editorId'] === editorId)
+      .reduce<Record<string, EditableItem>>((acc, { ephemeral, el }) => ({
         ...acc,
-        [element.ephemeral['rootName'] as string]: {
-          element: element.el.querySelector('[data-cke-editable-content]')!,
-          content: element.ephemeral['content'] as string,
+        [ephemeral['rootName'] as string]: {
+          element: el.querySelector('[data-cke-editable-content]')!,
+          content: ephemeral['content'],
         },
       }), Object.create({}))
   );
@@ -73,8 +73,9 @@ export function queryEditablesSnapshotContent(editorId: EditorId, type: EditorTy
   }
 
   const editables = queryAllEditorEditables(editorId);
+  const values = mapObjectValues(editables, ({ content }) => content);
 
-  return mapObjectValues(editables, ({ content }) => content);
+  return filterObjectValues(values, value => typeof value === 'string') as Record<string, string>;
 }
 
 /**
@@ -97,5 +98,5 @@ function queryDecoupledMainEditableOrThrow(editorId: EditorId) {
  */
 export type EditableItem = {
   element: HTMLElement;
-  content: string;
+  content: string | null;
 };

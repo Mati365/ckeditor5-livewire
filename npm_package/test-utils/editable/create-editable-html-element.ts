@@ -1,3 +1,4 @@
+import { uid } from '../../src/shared';
 import { html } from '../html';
 
 /**
@@ -5,16 +6,16 @@ import { html } from '../html';
  */
 export function createEditableHtmlElement(
   {
-    id,
+    id = `editable-${uid()}`,
     name,
     required,
     withInput,
   }: {
-    id: string;
+    id?: string;
     name?: string;
     required?: boolean;
     withInput?: boolean;
-  },
+  } = {},
 ) {
   return html.div(
     {

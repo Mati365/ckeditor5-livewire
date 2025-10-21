@@ -1,12 +1,20 @@
 import type { PluginConstructor } from 'ckeditor5';
 
+import type { Wire } from '../../../livewire';
+
 import { debounce } from '../../../shared';
 import { getEditorRootsValues } from '../utils';
 
 /**
  * Creates a LivewireSync plugin class.
  */
-export async function createLivewireSyncPlugin(): Promise<PluginConstructor> {
+export async function createLivewireSyncPlugin(
+  {
+    emit,
+    saveDebounceMs,
+    $wire,
+  }: Attrs,
+): Promise<PluginConstructor> {
   const { Plugin } = await import('ckeditor5');
 
   return class LivewireSync extends Plugin {
@@ -21,9 +29,6 @@ export async function createLivewireSyncPlugin(): Promise<PluginConstructor> {
      * Initializes the plugin.
      */
     public init(): void {
-      const config = this.editor.config.get('livewire')!;
-      const { emit } = config;
-
       if (emit.change) {
         this.setupTypingContentPush();
       }
@@ -37,8 +42,7 @@ export async function createLivewireSyncPlugin(): Promise<PluginConstructor> {
      * Setups the content push event for the editor.
      */
     private setupTypingContentPush() {
-      const { config, model } = this.editor;
-      const { saveDebounceMs, component: { $wire } } = config.get('livewire')!;
+      const { model } = this.editor;
 
       const syncContentChange = () => {
         $wire.set('content', this.getEditorRootsValues());
@@ -52,8 +56,7 @@ export async function createLivewireSyncPlugin(): Promise<PluginConstructor> {
      * Setups the event push for the editor.
      */
     private setupFocusableEventPush() {
-      const { config, ui } = this.editor;
-      const { component: { $wire } } = config.get('livewire')!;
+      const { ui } = this.editor;
 
       const pushEvent = () => {
         $wire.set('focused', ui.focusTracker.isFocused);
@@ -71,3 +74,12 @@ export async function createLivewireSyncPlugin(): Promise<PluginConstructor> {
     }
   };
 }
+
+/**
+ * The attributes required to create the LivewireSync plugin.
+ */
+type Attrs = {
+  emit: { change?: boolean; focus?: boolean; };
+  saveDebounceMs: number;
+  $wire: Wire;
+};

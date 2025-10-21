@@ -98,7 +98,6 @@
 
                 <livewire:ckeditor5-editable
                     editorId="decoupled-editor"
-                    editableId="decoupled-editor-main"
                     class="border border-gray-300 rounded-xs"
                     editableClass="p-4"
                     content="<p>This is the initial content of the decoupled editor editable.</p>"

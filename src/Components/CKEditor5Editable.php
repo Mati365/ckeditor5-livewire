@@ -16,12 +16,6 @@ use Illuminate\View\View;
 final class CKEditor5Editable extends Component
 {
     /**
-     * Unique identifier for the editable instance.
-     * Generated automatically to ensure multiple editables can coexist on the same page.
-     */
-    public string $editableId;
-
-    /**
      * The identifier of the editor instance this editable belongs to.
      */
     public string $editorId;
@@ -35,7 +29,7 @@ final class CKEditor5Editable extends Component
     /**
      * The initial content value for the editable.
      */
-    public string $content;
+    public ?string $content;
 
     /**
      * The name attribute for the hidden input field.
@@ -47,6 +41,12 @@ final class CKEditor5Editable extends Component
      * Whether the hidden input is required.
      */
     public bool $required = false;
+
+    /**
+     * Unique identifier for the editable instance.
+     * Generated automatically to ensure multiple editables can coexist on the same page.
+     */
+    public string $id;
 
     /**
      * CSS class for the editable wrapper element.
@@ -73,8 +73,8 @@ final class CKEditor5Editable extends Component
      *
      * @param string $editorId The identifier of the editor instance
      * @param string $rootName The name of the root element
-     * @param string $content The initial content for the editable
-     * @param ?string $editableId Unique identifier for the editable instance
+     * @param ?string $content The initial content for the editable
+     * @param ?string $id Unique identifier for the editable instance
      * @param ?string $name Name attribute for the hidden input field
      * @param bool $required Whether the hidden input is required
      * @param ?string $class CSS class for the wrapper element
@@ -86,8 +86,8 @@ final class CKEditor5Editable extends Component
     public function mount(
         string $editorId,
         string $rootName = 'main',
-        string $content = '',
-        ?string $editableId = null,
+        ?string $content = null,
+        ?string $id = null,
         ?string $name = null,
         bool $required = false,
         ?string $class = null,
@@ -95,7 +95,7 @@ final class CKEditor5Editable extends Component
         ?string $editableClass = null,
         ?string $editableStyle = null
     ): void {
-        $this->editableId = $editableId ?? 'ckeditor-editable-' . uniqid();
+        $this->id = $id ?? 'ckeditor-editable-' . uniqid();
         $this->editorId = $editorId;
         $this->rootName = $rootName;
         $this->content = $content;

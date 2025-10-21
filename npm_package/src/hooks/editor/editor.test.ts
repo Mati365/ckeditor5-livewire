@@ -1,9 +1,10 @@
 import type { LanguageConfig } from 'ckeditor5';
 
-import { ClassicEditor, Editor, Plugin } from 'ckeditor5';
+import { BalloonEditor, ClassicEditor, DecoupledEditor, Editor, InlineEditor, MultiRootEditor, Plugin } from 'ckeditor5';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  createEditableHtmlElement,
   createEditorHtmlElement,
   createEditorPreset,
   createEditorSnapshot,
@@ -15,8 +16,10 @@ import {
   waitForTestEditor,
 } from '~/test-utils';
 
-import type { Snapshot } from './editor';
+import type { Snapshot as EditableSnapshot } from '../editable';
+import type { Snapshot as EditorSnapshot } from './editor';
 
+import { timeout } from '../../shared/timeout';
 import { registerLivewireComponentHook } from '../hook';
 import { CustomEditorPluginsRegistry } from './custom-editor-plugins';
 import { EditorComponentHook } from './editor';
@@ -40,7 +43,7 @@ describe('editor component', () => {
   });
 
   it('should save the editor instance in the registry with provided editorId', async () => {
-    livewireStub.$internal.appendComponentToDOM<Snapshot>({
+    livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
       name: COMPONENT_NAME,
       el: createEditorHtmlElement(),
       ephemeral: createEditorSnapshot(),
@@ -63,7 +66,7 @@ describe('editor component', () => {
 
     CustomEditorPluginsRegistry.the.register('MyCustomPlugin', () => MyCustomPlugin);
 
-    livewireStub.$internal.appendComponentToDOM<Snapshot>({
+    livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
       name: COMPONENT_NAME,
       el: createEditorHtmlElement(),
       ephemeral: {
@@ -77,58 +80,259 @@ describe('editor component', () => {
     expect(editor.plugins.get('MyCustomPlugin')).toBeInstanceOf(MyCustomPlugin);
   });
 
-  describe('classic editor', () => {
-    it('should create an classic editor with default preset', async () => {
-      livewireStub.$internal.appendComponentToDOM<Snapshot>({
-        name: COMPONENT_NAME,
-        el: createEditorHtmlElement(),
-        ephemeral: createEditorSnapshot(),
+  describe('editor types', () => {
+    describe('classic', () => {
+      it('should create an classic editor with default preset', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: COMPONENT_NAME,
+          el: createEditorHtmlElement(),
+          ephemeral: createEditorSnapshot(),
+        });
+
+        const editor = await waitForTestEditor();
+
+        expect(editor).to.toBeInstanceOf(ClassicEditor);
+        expect(isEditorShown()).toBe(true);
       });
 
-      const editor = await waitForTestEditor();
+      it('should assign default value from `content` snapshot property', async () => {
+        const initialValue = `<p>Hello World! Today is ${new Date().toLocaleDateString()}</p>`;
 
-      expect(editor).to.toBeInstanceOf(ClassicEditor);
-      expect(isEditorShown()).toBe(true);
-    });
-
-    it('should assign default value from `content` snapshot property', async () => {
-      const initialValue = `<p>Hello World! Today is ${new Date().toLocaleDateString()}</p>`;
-
-      livewireStub.$internal.appendComponentToDOM<Snapshot>({
-        name: COMPONENT_NAME,
-        el: createEditorHtmlElement(),
-        ephemeral: {
-          ...createEditorSnapshot(),
-          content: {
-            main: initialValue,
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: COMPONENT_NAME,
+          el: createEditorHtmlElement(),
+          ephemeral: {
+            ...createEditorSnapshot(),
+            content: {
+              main: initialValue,
+            },
           },
-        },
+        });
+
+        const editor = await waitForTestEditor();
+
+        expect(editor.getData()).toBe(initialValue);
       });
 
-      const editor = await waitForTestEditor();
+      it('should assign empty main value if initialized editor with empty `content` snapshot property', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: COMPONENT_NAME,
+          el: createEditorHtmlElement(),
+          ephemeral: {
+            ...createEditorSnapshot(),
+            content: {},
+          },
+        });
 
-      expect(editor.getData()).toBe(initialValue);
+        const editor = await waitForTestEditor();
+
+        expect(editor.getData()).toBe('');
+      });
     });
 
-    it('should assign empty main value if initialized editor with empty `content` snapshot property', async () => {
-      livewireStub.$internal.appendComponentToDOM<Snapshot>({
-        name: COMPONENT_NAME,
-        el: createEditorHtmlElement(),
-        ephemeral: {
-          ...createEditorSnapshot(),
-          content: {},
-        },
+    describe('inline', () => {
+      it('should create an inline editor with default preset', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: COMPONENT_NAME,
+          el: createEditorHtmlElement(),
+          ephemeral: {
+            ...createEditorSnapshot(),
+            preset: {
+              ...createEditorPreset(),
+              editorType: 'inline',
+            },
+          },
+        });
+
+        const editor = await waitForTestEditor();
+
+        expect(editor).to.toBeInstanceOf(InlineEditor);
+        expect(isEditorShown()).toBe(true);
+      });
+    });
+
+    describe('decoupled', () => {
+      it('should create a decoupled editor with `main` editable and default preset', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: COMPONENT_NAME,
+          el: createEditorHtmlElement(),
+          ephemeral: {
+            ...createEditorSnapshot(),
+            preset: {
+              ...createEditorPreset(),
+              editorType: 'decoupled',
+            },
+          },
+        });
+
+        livewireStub.$internal.appendComponentToDOM<EditableSnapshot>({
+          name: 'ckeditor5-editable',
+          el: createEditableHtmlElement(),
+          ephemeral: {
+            rootName: 'main',
+            editorId: DEFAULT_TEST_EDITOR_ID,
+            content: null,
+          },
+        });
+
+        const editor = await waitForTestEditor();
+
+        expect(editor).to.toBeInstanceOf(DecoupledEditor);
+        expect(isEditorShown()).toBe(true);
+      });
+    });
+
+    describe('balloon', () => {
+      it('should create a balloon editor with default preset', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: COMPONENT_NAME,
+          el: createEditorHtmlElement(),
+          ephemeral: {
+            ...createEditorSnapshot(),
+            preset: {
+              ...createEditorPreset(),
+              editorType: 'balloon',
+            },
+          },
+        });
+
+        const editor = await waitForTestEditor();
+
+        expect(editor).to.toBeInstanceOf(BalloonEditor);
+        expect(isEditorShown()).toBe(true);
+      });
+    });
+
+    describe('multiroot', () => {
+      it('should create a multiroot editor without editables in the DOM and initial content', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: COMPONENT_NAME,
+          el: createEditorHtmlElement(),
+          ephemeral: {
+            ...createEditorSnapshot(),
+            preset: {
+              ...createEditorPreset('classic'),
+              editorType: 'multiroot',
+            },
+            content: {},
+          },
+        });
+
+        const editor = await waitForTestEditor();
+
+        expect(editor).toBeInstanceOf(MultiRootEditor);
       });
 
-      const editor = await waitForTestEditor();
+      it('should wait and for root elements to be present in DOM if they are not (with content=null value)', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: COMPONENT_NAME,
+          el: createEditorHtmlElement(),
+          ephemeral: {
+            ...createEditorSnapshot(),
+            preset: {
+              ...createEditorPreset('classic'),
+              editorType: 'multiroot',
+            },
+            content: {
+              header: '<p>Header root initial content</p>',
+            },
+          },
+        });
 
-      expect(editor.getData()).toBe('');
+        waitForTestEditor();
+        await timeout(500); // Simulate some delay before adding the root.
+
+        livewireStub.$internal.appendComponentToDOM<EditableSnapshot>({
+          name: 'ckeditor5-editable',
+          el: createEditableHtmlElement(),
+          ephemeral: {
+            rootName: 'header',
+            editorId: DEFAULT_TEST_EDITOR_ID,
+            content: null,
+          },
+        });
+
+        const editor = await waitForTestEditor();
+
+        expect(editor).toBeInstanceOf(MultiRootEditor);
+        expect(editor.getData({ rootName: 'header' })).toBe('<p>Header root initial content</p>');
+      });
+
+      it('should wait and for root elements to be present in DOM if they are not (with content=\'\' value)', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: COMPONENT_NAME,
+          el: createEditorHtmlElement(),
+          ephemeral: {
+            ...createEditorSnapshot(),
+            preset: {
+              ...createEditorPreset('classic'),
+              editorType: 'multiroot',
+            },
+            content: {
+              header: '<p>Header root initial content</p>',
+            },
+          },
+        });
+
+        waitForTestEditor();
+        await timeout(500); // Simulate some delay before adding the root.
+
+        livewireStub.$internal.appendComponentToDOM<EditableSnapshot>({
+          name: 'ckeditor5-editable',
+          el: createEditableHtmlElement(),
+          ephemeral: {
+            rootName: 'header',
+            editorId: DEFAULT_TEST_EDITOR_ID,
+            content: '',
+          },
+        });
+
+        const editor = await waitForTestEditor();
+
+        expect(editor).toBeInstanceOf(MultiRootEditor);
+        expect(editor.getData({ rootName: 'header' })).toBe('');
+      });
+
+      it('should wait and for root elements to be present in DOM if they are not (with set content value)', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: COMPONENT_NAME,
+          el: createEditorHtmlElement(),
+          ephemeral: {
+            ...createEditorSnapshot(),
+            preset: {
+              ...createEditorPreset('classic'),
+              editorType: 'multiroot',
+            },
+            content: {
+              header: '<p>Header root initial content</p>',
+            },
+          },
+        });
+
+        waitForTestEditor();
+        await timeout(500); // Simulate some delay before adding the root.
+
+        livewireStub.$internal.appendComponentToDOM<EditableSnapshot>({
+          name: 'ckeditor5-editable',
+          el: createEditableHtmlElement(),
+          ephemeral: {
+            rootName: 'header',
+            editorId: DEFAULT_TEST_EDITOR_ID,
+            content: '<p>Editable content overrides snapshot content</p>',
+          },
+        });
+
+        const editor = await waitForTestEditor();
+
+        expect(editor).toBeInstanceOf(MultiRootEditor);
+        expect(editor.getData({ rootName: 'header' })).toBe('<p>Editable content overrides snapshot content</p>');
+      });
     });
   });
 
   describe('`editableHeight` snapshot parameter`', () => {
     it('should not set any height if `editableHeight` parameter is `null`', async () => {
-      livewireStub.$internal.appendComponentToDOM<Snapshot>({
+      livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: COMPONENT_NAME,
         el: createEditorHtmlElement(),
         ephemeral: {
@@ -144,7 +348,7 @@ describe('editor component', () => {
     });
 
     it('should set the editable height if `editableHeight` snapshot parameter is provided', async () => {
-      livewireStub.$internal.appendComponentToDOM<Snapshot>({
+      livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: COMPONENT_NAME,
         el: createEditorHtmlElement(),
         ephemeral: {
@@ -170,7 +374,7 @@ describe('editor component', () => {
     });
 
     it('should parameter to debounce `$wire.set` when `emit.change` is true', async () => {
-      const { $wire } = livewireStub.$internal.appendComponentToDOM<Snapshot>({
+      const { $wire } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: COMPONENT_NAME,
         el: createEditorHtmlElement(),
         ephemeral: {
@@ -196,7 +400,7 @@ describe('editor component', () => {
     });
 
     it('should use parameter to debounce input sync', async () => {
-      livewireStub.$internal.appendComponentToDOM<Snapshot>({
+      livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: COMPONENT_NAME,
         el: createEditorHtmlElement({
           withInput: true,
@@ -223,7 +427,7 @@ describe('editor component', () => {
 
   describe('`language` snapshot parameter`', () => {
     it('should be possible to pass language configuration to the editor configuration', async () => {
-      livewireStub.$internal.appendComponentToDOM<Snapshot>({
+      livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: COMPONENT_NAME,
         el: createEditorHtmlElement(),
         ephemeral: {
@@ -243,7 +447,7 @@ describe('editor component', () => {
     });
 
     it('should have buttons translated to the selected UI language', async () => {
-      livewireStub.$internal.appendComponentToDOM<Snapshot>({
+      livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: COMPONENT_NAME,
         el: createEditorHtmlElement(),
         ephemeral: {
@@ -267,7 +471,7 @@ describe('editor component', () => {
         },
       });
 
-      livewireStub.$internal.appendComponentToDOM<Snapshot>({
+      livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: COMPONENT_NAME,
         el: createEditorHtmlElement(),
         ephemeral: {
@@ -288,7 +492,7 @@ describe('editor component', () => {
 
   describe('`watchdog` snapshot parameter`', () => {
     it('should not wrap editor with watchdog if `watchdog` is false', async () => {
-      livewireStub.$internal.appendComponentToDOM<Snapshot>({
+      livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: COMPONENT_NAME,
         el: createEditorHtmlElement(),
         ephemeral: {
@@ -304,7 +508,7 @@ describe('editor component', () => {
     });
 
     it('should resurrect editor after crashing and broadcast the new instance when `watchdog` is enabled', async () => {
-      livewireStub.$internal.appendComponentToDOM<Snapshot>({
+      livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: COMPONENT_NAME,
         el: createEditorHtmlElement({
           id: 'editor-with-watchdog',
@@ -332,7 +536,7 @@ describe('editor component', () => {
   describe('socket sync', () => {
     describe('`emit.focus` snapshot parameter`', () => {
       it('should sync editor content on focus change if `emit.focus` is true', async () => {
-        const { $wire } = livewireStub.$internal.appendComponentToDOM<Snapshot>({
+        const { $wire } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: COMPONENT_NAME,
           el: createEditorHtmlElement(),
           ephemeral: {
@@ -362,7 +566,7 @@ describe('editor component', () => {
       });
 
       it('should not sync editor content on focus change if `emit.focus` is false', async () => {
-        const { $wire } = livewireStub.$internal.appendComponentToDOM<Snapshot>({
+        const { $wire } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: COMPONENT_NAME,
           el: createEditorHtmlElement(),
           ephemeral: {
@@ -400,7 +604,7 @@ describe('editor component', () => {
       });
 
       it('should sync editor content on change if `emit.change` is true', async () => {
-        const { $wire } = livewireStub.$internal.appendComponentToDOM<Snapshot>({
+        const { $wire } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: COMPONENT_NAME,
           el: createEditorHtmlElement(),
           ephemeral: {
@@ -424,7 +628,7 @@ describe('editor component', () => {
       });
 
       it('should not sync editor content on change if `emit.change` is false', async () => {
-        const { $wire } = livewireStub.$internal.appendComponentToDOM<Snapshot>({
+        const { $wire } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: COMPONENT_NAME,
           el: createEditorHtmlElement(),
           ephemeral: {
@@ -459,7 +663,7 @@ describe('editor component', () => {
     });
 
     it('should sync editor data to the associated input field', async () => {
-      livewireStub.$internal.appendComponentToDOM<Snapshot>({
+      livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: COMPONENT_NAME,
         el: createEditorHtmlElement({
           withInput: true,
@@ -480,7 +684,7 @@ describe('editor component', () => {
     });
 
     it('should not crash if hidden input is not present', async () => {
-      livewireStub.$internal.appendComponentToDOM<Snapshot>({
+      livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: COMPONENT_NAME,
         el: createEditorHtmlElement({
           withInput: false,
@@ -504,7 +708,7 @@ describe('editor component', () => {
         html.form({ id: 'form' }),
       );
 
-      livewireStub.$internal.appendComponentToDOM<Snapshot>({
+      livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: COMPONENT_NAME,
         el: createEditorHtmlElement({
           withInput: true,
@@ -530,6 +734,24 @@ describe('editor component', () => {
 
       // Value should be synced immediately on form submit.
       expect(input.value).to.be.equal('<p>Form integration test</p>');
+    });
+  });
+
+  describe('destroy', () => {
+    it('should destroy editor on component unmount', async () => {
+      const component = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+        name: COMPONENT_NAME,
+        el: createEditorHtmlElement(),
+        ephemeral: createEditorSnapshot(),
+      });
+
+      const editor = await waitForTestEditor();
+
+      livewireStub.$internal.unmountComponent(component.id);
+
+      await vi.waitFor(() => {
+        expect(editor.state).toBe('destroyed');
+      });
     });
   });
 });

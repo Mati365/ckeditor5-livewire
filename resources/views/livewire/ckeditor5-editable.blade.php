@@ -1,6 +1,9 @@
 <div
     wire:ignore
-    id="{{ $editableId }}"
+    id="{{ $id }}"
+    data-cke-editable-editor-id="{{ $editorId }}"
+    data-cke-editable-root-name="{{ $rootName }}"
+    data-cke-editable-initial-content="{{ htmlspecialchars($content, ENT_QUOTES, 'UTF-8') }}"
     @if($class) class="{{ $class }}" @endif
     @if($style) style="{{ $style }}" @endif
 >
@@ -12,7 +15,6 @@
 
     @if($name)
         <x-ckeditor5-hidden-input
-            :id="$editableId . '_input'"
             :name="$name"
             :value="$content"
             :required="$required"

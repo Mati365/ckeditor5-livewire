@@ -16,9 +16,9 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
   /**
    * Mounts the editable component.
    */
-  override async mounted() {
-    const { editableId, editorId, rootName, initialValue } = this.ephemeral;
-    const input = this.element.querySelector<HTMLInputElement>(`#${editableId}_input`);
+  override mounted() {
+    const { editorId, rootName, content } = this.ephemeral;
+    const input = this.element.querySelector<HTMLInputElement>('input');
 
     // If the editor is not registered yet, we will wait for it to be registered.
     this.mountedPromise = EditorsRegistry.the.execute(editorId, (editor: MultiRootEditor) => {
@@ -30,7 +30,9 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
 
       editor.addRoot(rootName, {
         isUndoable: false,
-        data: initialValue,
+        ...content !== null && {
+          data: content,
+        },
       });
 
       const contentElement = this.element.querySelector('[data-cke-editable-content]') as HTMLElement | null;
@@ -90,12 +92,7 @@ function syncEditorRootToInput(input: HTMLInputElement, editor: MultiRootEditor,
 /**
  * A snapshot of the Livewire component's state relevant to the CKEditor5 editable hook.
  */
-type Snapshot = {
-  /**
-   * The unique identifier for the editable element.
-   */
-  editableId: string;
-
+export type Snapshot = {
   /**
    * The ID of the editor instance this editable belongs to.
    */
@@ -109,5 +106,5 @@ type Snapshot = {
   /**
    * The initial content value for the editable.
    */
-  initialValue: string;
+  content: string | null;
 };

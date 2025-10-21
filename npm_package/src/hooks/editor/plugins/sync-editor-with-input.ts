@@ -5,7 +5,7 @@ import { debounce } from '../../../shared';
 /**
  * Creates a SyncEditorWithInput plugin class.
  */
-export async function createSyncEditorWithInputPlugin(): Promise<PluginConstructor> {
+export async function createSyncEditorWithInputPlugin(saveDebounceMs: number): Promise<PluginConstructor> {
   const { Plugin } = await import('ckeditor5');
 
   return class SyncEditorWithInput extends Plugin {
@@ -13,11 +13,6 @@ export async function createSyncEditorWithInputPlugin(): Promise<PluginConstruct
      * The input element to synchronize with.
      */
     private input: HTMLInputElement | null = null;
-
-    /**
-     * The debounce time in milliseconds for saving content changes.
-     */
-    private saveDebounceMs: number;
 
     /**
      * The form element reference for cleanup.
@@ -54,11 +49,8 @@ export async function createSyncEditorWithInputPlugin(): Promise<PluginConstruct
         return;
       }
 
-      // Get debounce time from editor config if available.
-      this.saveDebounceMs = editor.config.get('livewire.saveDebounceMs')!;
-
       // Setup handlers.
-      editor.model.document.on('change:data', debounce(this.saveDebounceMs, () => this.sync()));
+      editor.model.document.on('change:data', debounce(saveDebounceMs, () => this.sync()));
       editor.once('ready', this.sync);
 
       // Setup form integration.

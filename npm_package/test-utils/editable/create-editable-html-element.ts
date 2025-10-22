@@ -7,9 +7,9 @@ import { html } from '../html';
 export function createEditableHtmlElement(
   {
     id = `editable-${uid()}`,
-    name,
+    name = `editable-${id}-input`,
     required,
-    withInput,
+    withInput = true,
   }: {
     id?: string;
     name?: string;
@@ -31,4 +31,8 @@ export function createEditableHtmlElement(
       name,
     }),
   );
+}
+
+export function queryEditableInput(editableId: string): HTMLInputElement | null {
+  return document.querySelector<HTMLInputElement>(`#${editableId} input`);
 }

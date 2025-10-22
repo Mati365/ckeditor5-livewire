@@ -105,9 +105,21 @@ export class AsyncRegistry<T extends Destructible> {
 
   /**
    * Gets all registered items.
+   *
+   * @returns An array of all registered items.
    */
   getItems(): T[] {
     return Array.from(this.items.values());
+  }
+
+  /**
+   * Gets a registered item by ID.
+   *
+   * @param id The ID of the item.
+   * @returns The item instance, or `undefined` if not found.
+   */
+  getItem(id: RegistryId | null): T | undefined {
+    return this.items.get(id);
   }
 
   /**

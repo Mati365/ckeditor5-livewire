@@ -1,4 +1,4 @@
-import type { DecoupledEditor, MultiRootEditor } from 'ckeditor5';
+import type { MultiRootEditor } from 'ckeditor5';
 
 import { debounce } from '../shared';
 import { EditorsRegistry } from './editor/editors-registry';
@@ -11,21 +11,33 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
   /**
    * The promise that resolves when the editable is mounted.
    */
-  private mountedPromise: Promise<void> | null = null;
+  private editorPromise: Promise<MultiRootEditor> | null = null;
 
   /**
    * Mounts the editable component.
    */
   override mounted() {
-    const { editorId, rootName, content } = this.ephemeral;
+    const { editorId, rootName, content, saveDebounceMs } = this.ephemeral;
     const input = this.element.querySelector<HTMLInputElement>('input');
 
     // If the editor is not registered yet, we will wait for it to be registered.
-    this.mountedPromise = EditorsRegistry.the.execute(editorId, (editor: MultiRootEditor) => {
+    this.editorPromise = EditorsRegistry.the.execute(editorId, (editor: MultiRootEditor) => {
       const { ui, editing, model } = editor;
 
       if (model.document.getRoot(rootName)) {
-        return;
+        // If the newly added root already exists, but the newly added editable has content,
+        // we need to update the root data with the editable content.
+        if (content !== null) {
+          const data = editor.getData({ rootName });
+
+          if (data && data !== content) {
+            editor.setData({
+              [rootName]: content,
+            });
+          }
+        }
+
+        return editor;
       }
 
       editor.addRoot(rootName, {
@@ -41,9 +53,21 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
       ui.addEditable(editable);
       editing.view.forceRender();
 
-      if (input) {
-        syncEditorRootToInput(input, editor, rootName);
-      }
+      // Sync data with socket and input element.
+      const sync = () => {
+        const html = editor.getData({ rootName });
+
+        if (input) {
+          input.value = html;
+        }
+
+        this.$wire.set('content', html);
+      };
+
+      editor.model.document.on('change:data', debounce(saveDebounceMs, sync));
+      sync();
+
+      return editor;
     });
   }
 
@@ -51,42 +75,25 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
    * Destroys the editable component. Unmounts root from the editor.
    */
   override async destroyed() {
-    const { editorId, rootName } = this.ephemeral;
+    const { rootName } = this.ephemeral;
 
     // Let's hide the element during destruction to prevent flickering.
     this.element.style.display = 'none';
 
     // Let's wait for the mounted promise to resolve before proceeding with destruction.
-    await this.mountedPromise;
-    this.mountedPromise = null;
+    const editor = await this.editorPromise;
+    this.editorPromise = null;
 
-    // Unmount root from the editor.
-    await EditorsRegistry.the.execute(editorId, (editor: MultiRootEditor | DecoupledEditor) => {
+    // Unmount root from the editor if editor is still registered.
+    if (editor && editor.state !== 'destroyed') {
       const root = editor.model.document.getRoot(rootName);
 
       if (root && 'detachEditable' in editor) {
         editor.detachEditable(root);
         editor.detachRoot(rootName, false);
       }
-    });
+    }
   }
-}
-
-/**
- * Synchronizes the editor's root data to the corresponding input element.
- * This is used to keep the input value in sync with the editor's content.
- *
- * @param input - The input element to synchronize with the editor.
- * @param editor - The CKEditor instance.
- * @param rootName - The name of the root to synchronize.
- */
-function syncEditorRootToInput(input: HTMLInputElement, editor: MultiRootEditor, rootName: string) {
-  const sync = () => {
-    input.value = editor.getData({ rootName });
-  };
-
-  editor.model.document.on('change:data', debounce(100, sync));
-  sync();
 }
 
 /**
@@ -107,4 +114,9 @@ export type Snapshot = {
    * The initial content value for the editable.
    */
   content: string | null;
+
+  /**
+   * The debounce time in milliseconds for saving changes.
+   */
+  saveDebounceMs: number;
 };

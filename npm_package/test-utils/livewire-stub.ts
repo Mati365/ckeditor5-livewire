@@ -1,6 +1,7 @@
 import { vi } from 'vitest';
 
 import type { ComponentInitEvent, LivewireComponent, LivewireGlobal } from '../src/livewire';
+import type { CanBePromise } from '../src/types';
 
 import { uid } from '../src/shared/uid';
 
@@ -159,23 +160,23 @@ export class LivewireStub implements LivewireGlobal {
      * @param id - The ID of the component to unmount
      * @throws Error if the component with the specified ID is not found
      */
-    unmountComponent: (id: string) => {
+    unmountComponent: async (id: string) => {
       const declaration = this.$internal.findComponentDeclaration(id);
 
       if (!declaration) {
         throw new Error(`Component with ID "${id}" not found in LivewireStub.`);
       }
 
-      declaration.$internal.destroy();
       this.componentsDeclarations.delete(declaration);
+      await declaration.$internal.destroy();
     },
 
     /**
      * Destroys the LivewireStub instance by clearing all registered components, callbacks, and hooks.
      */
-    destroy: () => {
+    destroy: async () => {
       for (const declaration of Array.from(this.componentsDeclarations)) {
-        declaration.$internal.destroy();
+        await declaration.$internal.destroy();
       }
 
       this.componentsDeclarations.clear();
@@ -186,15 +187,10 @@ export class LivewireStub implements LivewireGlobal {
 }
 
 /**
- * Base component data used for initializing a Livewire component in tests.
- */
-type LivewireBaseComponent<E = any> = Pick<LivewireComponent<E>, 'name' | 'el' | 'ephemeral'>;
-
-/**
  * Component declaration that wraps a Livewire component and manages its lifecycle.
  */
 class ComponentDeclaration implements ComponentInitEvent {
-  private cleanupCallbacks: VoidFunction[] = [];
+  private cleanupCallbacks: LivewireUnmountCallback[] = [];
 
   constructor(
     readonly component: LivewireComponent,
@@ -205,7 +201,7 @@ class ComponentDeclaration implements ComponentInitEvent {
    *
    * @param cb - The cleanup callback function
    */
-  cleanup = (cb: VoidFunction) => {
+  cleanup = (cb: LivewireUnmountCallback) => {
     this.cleanupCallbacks.push(cb);
   };
 
@@ -216,12 +212,22 @@ class ComponentDeclaration implements ComponentInitEvent {
     /**
      * Destroys the component by calling all registered cleanup callbacks.
      */
-    destroy: () => {
+    destroy: async () => {
       for (const cb of this.cleanupCallbacks) {
-        cb();
+        await cb();
       }
 
       this.component.el.remove();
     },
   };
 }
+
+/**
+ * Callback type for Livewire unmount event.
+ */
+type LivewireUnmountCallback = () => CanBePromise<void>;
+
+/**
+ * Base component data used for initializing a Livewire component in tests.
+ */
+type LivewireBaseComponent<E = any> = Pick<LivewireComponent<E>, 'name' | 'el' | 'ephemeral'>;

@@ -69,6 +69,12 @@ final class CKEditor5Editable extends Component
     public ?string $editableStyle = null;
 
     /**
+     * The debounce time in milliseconds for saving content changes.
+     * Prevents excessive updates by delaying the save operation.
+     */
+    public int $saveDebounceMs = 300;
+
+    /**
      * Mount method called when the component is initialized.
      *
      * @param string $editorId The identifier of the editor instance
@@ -81,6 +87,7 @@ final class CKEditor5Editable extends Component
      * @param ?string $style Inline styles for the wrapper element
      * @param ?string $editableClass CSS class for the editable content element
      * @param ?string $editableStyle Inline styles for the editable content element
+     * @param int $saveDebounceMs Debounce time in milliseconds for saving content changes
      * @return void
      */
     public function mount(
@@ -93,7 +100,8 @@ final class CKEditor5Editable extends Component
         ?string $class = null,
         ?string $style = null,
         ?string $editableClass = null,
-        ?string $editableStyle = null
+        ?string $editableStyle = null,
+        int $saveDebounceMs = 300,
     ): void {
         $this->id = $id ?? 'ckeditor-editable-' . uniqid();
         $this->editorId = $editorId;
@@ -105,6 +113,7 @@ final class CKEditor5Editable extends Component
         $this->style = $style;
         $this->editableClass = $editableClass;
         $this->editableStyle = $editableStyle;
+        $this->saveDebounceMs = $saveDebounceMs;
     }
 
     /**

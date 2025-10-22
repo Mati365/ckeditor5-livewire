@@ -48,12 +48,12 @@ export abstract class ClassHook<T extends object = Record<string, unknown>> {
   /**
    * Called when the hook has been mounted to the DOM.
    */
-  mounted(): CanBePromise<void> {}
+  abstract mounted(): CanBePromise<void>;
 
   /**
    * Called when the element has been removed from the DOM.
    */
-  destroyed(): CanBePromise<void> {}
+  abstract destroyed(): CanBePromise<void>;
 }
 
 /**

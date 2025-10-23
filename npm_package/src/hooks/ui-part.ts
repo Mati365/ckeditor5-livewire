@@ -67,7 +67,7 @@ function mapUIPartView(name: string): string | null {
 /**
  * A snapshot of the Livewire component's state relevant to the CKEditor5 UI part hook.
  */
-type Snapshot = {
+export type Snapshot = {
   /**
    * The ID of the editor instance this UI part belongs to.
    */

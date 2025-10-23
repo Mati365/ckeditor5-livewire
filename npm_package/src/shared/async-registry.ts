@@ -113,16 +113,6 @@ export class AsyncRegistry<T extends Destructible> {
   }
 
   /**
-   * Gets a registered item by ID.
-   *
-   * @param id The ID of the item.
-   * @returns The item instance, or `undefined` if not found.
-   */
-  getItem(id: RegistryId | null): T | undefined {
-    return this.items.get(id);
-  }
-
-  /**
    * Checks if an item with the given ID is registered.
    *
    * @param id The ID of the item.

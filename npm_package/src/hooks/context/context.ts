@@ -1,5 +1,6 @@
 import type { Context, ContextWatchdog } from 'ckeditor5';
 
+import type { EditorLanguage } from '../editor';
 import type { ContextConfig } from './typings';
 
 import { ClassHook } from '../../hooks/hook';
@@ -111,8 +112,5 @@ type Snapshot = {
   /**
    * The language of the context UI and content.
    */
-  language: {
-    ui: string;
-    content: string;
-  };
+  language: EditorLanguage;
 };

@@ -1,6 +1,6 @@
 import type { Editor } from 'ckeditor5';
 
-import type { EditorId, EditorPreset, EditorType } from './typings';
+import type { EditorId, EditorLanguage, EditorPreset, EditorType } from './typings';
 import type { EditorCreator } from './utils';
 
 import { ContextsRegistry, getNearestContextParentPromise } from '../../hooks/context';
@@ -345,10 +345,7 @@ export type Snapshot = {
   /**
    * The language of the editor UI and content.
    */
-  language: {
-    ui: string;
-    content: string;
-  };
+  language: EditorLanguage;
 
   /**
    * The global events of the editor to forward to Livewire.

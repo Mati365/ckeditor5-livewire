@@ -97,6 +97,14 @@ export type EditorPreset = {
 };
 
 /**
+ * Represents the language settings for the CKEditor5 editor.
+ */
+export type EditorLanguage = {
+  ui: string;
+  content: string;
+};
+
+/**
  * Represents custom translations for the editor.
  */
 export type EditorCustomTranslationsDictionary = {

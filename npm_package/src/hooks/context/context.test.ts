@@ -125,4 +125,48 @@ describe('context component', () => {
 
     expect(plugin.getHelloTitle()).toBe('Hello from CustomPlugin');
   });
+
+  it('should support custom language for context translations', async () => {
+    class CustomPlugin extends ContextPlugin {
+      static get pluginName() {
+        return 'CustomPlugin';
+      }
+
+      getHelloTitle() {
+        return this.context.t('HELLO');
+      }
+    }
+
+    CustomEditorPluginsRegistry.the.register('CustomPlugin', () => CustomPlugin);
+
+    livewireStub.$internal.appendComponentToDOM({
+      name: 'ckeditor5-context',
+      el: createContextHtmlElement(),
+      ephemeral: createContextSnapshot(
+        DEFAULT_TEST_CONTEXT_ID,
+        {
+          customTranslations: {
+            en: {
+              HELLO: 'Hello from CustomPlugin',
+            },
+            pl: {
+              HELLO: 'Witaj z CustomPlugin',
+            },
+          },
+          config: {
+            plugins: ['CustomPlugin'],
+          },
+        },
+        {
+          ui: 'pl',
+          content: 'pl',
+        },
+      ),
+    });
+
+    const { context } = await waitForTestContext();
+    const plugin = context?.plugins.get('CustomPlugin') as CustomPlugin;
+
+    expect(plugin.getHelloTitle()).toBe('Witaj z CustomPlugin');
+  });
 });

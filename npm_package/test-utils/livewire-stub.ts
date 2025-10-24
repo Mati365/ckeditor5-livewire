@@ -230,4 +230,6 @@ type LivewireUnmountCallback = () => CanBePromise<void>;
 /**
  * Base component data used for initializing a Livewire component in tests.
  */
-type LivewireBaseComponent<E = any> = Pick<LivewireComponent<E>, 'name' | 'el' | 'ephemeral'>;
+type LivewireBaseComponent<E = any> = Pick<LivewireComponent<E>, 'name' | 'el' | 'ephemeral'> & {
+  id?: string;
+};

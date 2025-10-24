@@ -252,6 +252,44 @@ describe('context component', () => {
 
       expect(context?.editors.first).toEqual(editor);
     });
+
+    it('should be possible to attach multiple editors to the same context', async () => {
+      livewireStub.$internal.appendComponentToDOM({
+        name: 'ckeditor5-context',
+        el: createContextHtmlElement(),
+        ephemeral: createContextSnapshot(),
+      });
+
+      const { context } = await waitForTestContext();
+
+      livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+        name: 'ckeditor5',
+        el: createEditorHtmlElement({ id: 'editor-1' }),
+        ephemeral: {
+          ...createEditorSnapshot(),
+          editorId: 'editor-1',
+          contextId: DEFAULT_TEST_CONTEXT_ID,
+        },
+      });
+
+      livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+        name: 'ckeditor5',
+        el: createEditorHtmlElement({ id: 'editor-2' }),
+        ephemeral: {
+          ...createEditorSnapshot(),
+          editorId: 'editor-2',
+          contextId: DEFAULT_TEST_CONTEXT_ID,
+        },
+      });
+
+      const editors = await Promise.all([
+        waitForTestEditor('editor-1'),
+        waitForTestEditor('editor-2'),
+      ]);
+
+      expect(context?.editors.length).toBe(2);
+      expect([...context!.editors]).toEqual(editors);
+    });
   });
 
   describe('destroy', () => {

@@ -3,7 +3,7 @@ import type { Editor } from 'ckeditor5';
 import type { EditorId, EditorLanguage, EditorPreset, EditorType } from './typings';
 import type { EditorCreator } from './utils';
 
-import { ContextsRegistry, getNearestContextParentPromise } from '../../hooks/context';
+import { ContextsRegistry } from '../../hooks/context';
 import { isEmptyObject, waitFor } from '../../shared';
 import { ClassHook } from '../hook';
 import { EditorsRegistry } from './editors-registry';
@@ -133,7 +133,7 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
     const context = await (
       contextId
         ? ContextsRegistry.the.waitFor(contextId)
-        : getNearestContextParentPromise(this.element)
+        : null
     );
 
     // Do not use editor specific watchdog if context is attached, as the context is by default protected.

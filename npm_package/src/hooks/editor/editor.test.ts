@@ -1,6 +1,14 @@
 import type { LanguageConfig } from 'ckeditor5';
 
-import { BalloonEditor, ClassicEditor, DecoupledEditor, Editor, InlineEditor, MultiRootEditor, Plugin } from 'ckeditor5';
+import {
+  BalloonEditor,
+  ClassicEditor,
+  DecoupledEditor,
+  Editor,
+  InlineEditor,
+  MultiRootEditor,
+  Plugin,
+} from 'ckeditor5';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {

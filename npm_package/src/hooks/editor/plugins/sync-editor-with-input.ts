@@ -1,4 +1,4 @@
-import type { PluginConstructor } from 'ckeditor5';
+import type { ClassicEditor, PluginConstructor } from 'ckeditor5';
 
 import { debounce } from '../../../shared';
 
@@ -31,14 +31,7 @@ export async function createSyncEditorWithInputPlugin(saveDebounceMs: number): P
      */
     public afterInit(): void {
       const { editor } = this;
-      const editorElement = (editor as any).sourceElement as
-        | HTMLElement
-        | undefined;
-
-      // Multi-root editors are not supported.
-      if (!editorElement) {
-        return;
-      }
+      const editorElement = (editor as ClassicEditor).sourceElement as HTMLElement;
 
       // Try to find the associated input field.
       const editorId = editorElement.id.replace(/_editor$/, '');

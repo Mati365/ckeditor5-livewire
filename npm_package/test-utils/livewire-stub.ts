@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 import type { ComponentInitEvent, LivewireComponent, LivewireGlobal } from '../src/livewire';
 import type { CanBePromise } from '../src/types';
 
-import { uid } from '../src/shared/uid';
+import { once, uid } from '../src/shared';
 
 /**
  * Livewire stub class for testing purposes.
@@ -212,13 +212,13 @@ class ComponentDeclaration implements ComponentInitEvent {
     /**
      * Destroys the component by calling all registered cleanup callbacks.
      */
-    destroy: async () => {
+    destroy: once(async () => {
       for (const cb of this.cleanupCallbacks) {
         await cb();
       }
 
       this.component.el.remove();
-    },
+    }),
   };
 }
 

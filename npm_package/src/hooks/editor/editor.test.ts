@@ -37,6 +37,7 @@ describe('editor component', () => {
   });
 
   afterEach(async () => {
+    CustomEditorPluginsRegistry.the.unregisterAll();
     await livewireStub.$internal.destroy();
   });
 
@@ -323,6 +324,25 @@ describe('editor component', () => {
 
         expect(editor).toBeInstanceOf(MultiRootEditor);
         expect(editor.getData({ rootName: 'header' })).toBe('<p>Editable content overrides snapshot content</p>');
+      });
+
+      it('should not crash after setting content using `setData`', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement(),
+          ephemeral: {
+            ...createEditorSnapshot(),
+            content: {
+              main: '<p>Initial content</p>',
+            },
+          },
+        });
+
+        const editor = await waitForTestEditor();
+
+        expect(() => {
+          editor.setData('<p>New content</p>');
+        }).not.toThrow();
       });
     });
   });

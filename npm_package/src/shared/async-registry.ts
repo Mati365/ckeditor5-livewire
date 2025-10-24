@@ -2,10 +2,6 @@
  * Generic async registry for objects with an async destroy method.
  * Provides a way to register, unregister, and execute callbacks on objects by ID.
  */
-/**
- * Generic async registry for objects with an async destroy method.
- * Provides a way to register, unregister, and execute callbacks on objects by ID.
- */
 export class AsyncRegistry<T extends Destructible> {
   /**
    * Map of registered items.
@@ -13,19 +9,14 @@ export class AsyncRegistry<T extends Destructible> {
   private readonly items = new Map<RegistryId | null, T>();
 
   /**
-   * Map of error callbacks for items.
+   * Map of initialization errors for items that failed to register.
    */
-  private readonly initializationErrors = new Map<RegistryId | null, Error>();
+  private readonly initializationErrors = new Map<RegistryId | null, any>();
 
   /**
-   * Map of callbacks that are waiting for an item to be registered.
+   * Map of pending callbacks waiting for items to be registered or fail.
    */
-  private readonly callbacks = new Map<RegistryId | null, RegistryCallback<T>[]>();
-
-  /**
-   * Map of error callbacks for items.
-   */
-  private readonly errorCallbacks = new Map<RegistryId | null, RegistryErrorCallback[]>();
+  private readonly pendingCallbacks = new Map<RegistryId | null, PendingCallbacks<T>>();
 
   /**
    * Set of watchers that observe changes to the registry.
@@ -44,36 +35,36 @@ export class AsyncRegistry<T extends Destructible> {
   execute<R, E extends T = T>(
     id: RegistryId | null,
     onSuccess: (item: E) => R,
-    onError?: (error: Error) => void,
+    onError?: (error: any) => void,
   ): Promise<Awaited<R>> {
-    const { callbacks, items, initializationErrors } = this;
+    const item = this.items.get(id);
+    const error = this.initializationErrors.get(id);
 
-    const item = items.get(id);
-    const error = initializationErrors.get(id);
-
-    if (error && onError) {
-      onError(error);
+    // If error exists and callback provided, invoke it immediately.
+    if (error) {
+      onError?.(error);
+      return Promise.reject(error);
     }
 
+    // If item exists, invoke callback immediately (synchronously via Promise.resolve).
     if (item) {
       return Promise.resolve(onSuccess(item as E));
     }
 
-    return new Promise((resolve) => {
-      const callback = async (item: T) => resolve(await onSuccess(item as E));
+    // Item not ready yet - queue the callbacks.
+    return new Promise((resolve, reject) => {
+      const pending = this.getPendingCallbacks(id);
+
+      pending.success.push(async (item: T) => {
+        resolve(await onSuccess(item as E));
+      });
 
       if (onError) {
-        this.onError(id, onError);
+        pending.error.push(onError);
       }
-
-      if (!this.callbacks.has(id)) {
-        callbacks.set(id, []);
+      else {
+        pending.error.push(reject);
       }
-
-      callbacks.set(id, [
-        ...callbacks.get(id)!,
-        callback,
-      ]);
     });
   }
 
@@ -84,49 +75,51 @@ export class AsyncRegistry<T extends Destructible> {
    * @param item The item instance.
    */
   register(id: RegistryId | null, item: T): void {
-    const { items, callbacks } = this;
-    const callbacksForItem = callbacks.get(id);
-
-    if (items.has(id)) {
+    if (this.items.has(id)) {
       throw new Error(`Item with ID "${id}" is already registered.`);
     }
 
     this.resetErrors(id);
-    items.set(id, item);
+    this.items.set(id, item);
 
-    if (callbacksForItem) {
-      callbacksForItem.forEach(callback => callback(item));
-      callbacks.delete(id);
+    // Execute all pending callbacks for this item (synchronously).
+    const pending = this.pendingCallbacks.get(id);
+
+    if (pending) {
+      pending.success.forEach(callback => callback(item));
+      this.pendingCallbacks.delete(id);
     }
 
     // Register the first item as the default item (null ID).
-    if (this.items.size === 1) {
-      this.register(null, item);
-    }
-
+    this.registerAsDefault(id, item);
     this.notifyWatchers();
   }
 
   /**
-   * Registers an error callback for an item.
+   * Registers an error for an item.
    *
    * @param id The ID of the item.
-   * @param callback The error callback to register.
+   * @param error The error to register.
    */
-  onError(id: RegistryId | null, callback: RegistryErrorCallback): void {
-    const { initializationErrors, errorCallbacks } = this;
-    const error = initializationErrors.get(id);
+  error(id: RegistryId | null, error: any): void {
+    this.items.delete(id);
+    this.initializationErrors.set(id, error);
 
-    if (error) {
-      callback(error);
-      return;
+    // Execute all pending error callbacks for this item.
+    const pending = this.pendingCallbacks.get(id);
+
+    if (pending) {
+      pending.error.forEach(callback => callback(error));
+      this.pendingCallbacks.delete(id);
     }
 
-    if (!errorCallbacks.has(id)) {
-      errorCallbacks.set(id, []);
+    // Set as default error if this is the first error and no items exist.
+    if (this.initializationErrors.size === 1 && !this.items.size) {
+      this.error(null, error);
     }
 
-    errorCallbacks.get(id)!.push(callback);
+    // Notify watchers about the error state.
+    this.notifyWatchers();
   }
 
   /**
@@ -137,36 +130,12 @@ export class AsyncRegistry<T extends Destructible> {
   resetErrors(id: RegistryId | null): void {
     const { initializationErrors } = this;
 
-    if (
-      initializationErrors.has(null)
-      && initializationErrors.get(null) === initializationErrors.get(id)
-    ) {
+    // Clear default error if it's the same as the specific error.
+    if (initializationErrors.has(null) && initializationErrors.get(null) === initializationErrors.get(id)) {
       initializationErrors.delete(null);
     }
 
-    this.initializationErrors.delete(id);
-    this.errorCallbacks.delete(id);
-  }
-
-  /**
-   * Registers an error for an item.
-   *
-   * @param id The ID of the item.
-   * @param error The error to register.
-   */
-  error(id: RegistryId | null, error: Error): void {
-    const errorCallbacksForItem = this.errorCallbacks.get(id);
-
-    this.initializationErrors.set(id, error);
-
-    if (errorCallbacksForItem) {
-      errorCallbacksForItem.forEach(callback => callback(error));
-      this.errorCallbacks.delete(id);
-    }
-
-    if (this.initializationErrors.size === 1 && !this.items.size) {
-      this.initializationErrors.set(null, error);
-    }
+    initializationErrors.delete(id);
   }
 
   /**
@@ -175,18 +144,17 @@ export class AsyncRegistry<T extends Destructible> {
    * @param id The ID of the item.
    */
   unregister(id: RegistryId | null): void {
-    const { items, callbacks } = this;
-
-    if (!items.has(id)) {
+    if (!this.items.has(id)) {
       throw new Error(`Item with ID "${id}" is not registered.`);
     }
 
-    if (id && this.items.get(null) === items.get(id)) {
+    // If unregistering the default item, clear it.
+    if (id && this.items.get(null) === this.items.get(id)) {
       this.unregister(null);
     }
 
-    items.delete(id);
-    callbacks.delete(id);
+    this.items.delete(id);
+    this.pendingCallbacks.delete(id);
 
     this.notifyWatchers();
   }
@@ -235,12 +203,12 @@ export class AsyncRegistry<T extends Destructible> {
     );
 
     this.items.clear();
-    this.callbacks.clear();
+    this.pendingCallbacks.clear();
 
     await Promise.all(promises);
 
     this.notifyWatchers();
-  };
+  }
 
   /**
    * Registers a watcher that will be called whenever the registry changes.
@@ -251,8 +219,11 @@ export class AsyncRegistry<T extends Destructible> {
   watch(watcher: RegistryWatcher<T>): () => void {
     this.watchers.add(watcher);
 
-    // Call the watcher immediately with the current state
-    watcher(new Map(this.items));
+    // Call the watcher immediately with the current state.
+    watcher(
+      new Map(this.items),
+      new Map(this.initializationErrors),
+    );
 
     return this.unwatch.bind(this, watcher);
   }
@@ -270,8 +241,41 @@ export class AsyncRegistry<T extends Destructible> {
    * Notifies all watchers about changes to the registry.
    */
   private notifyWatchers(): void {
-    const itemsCopy = new Map(this.items);
-    this.watchers.forEach(watcher => watcher(itemsCopy));
+    this.watchers.forEach(
+      watcher => watcher(
+        new Map(this.items),
+        new Map(this.initializationErrors),
+      ),
+    );
+  }
+
+  /**
+   * Gets or creates pending callbacks for a specific ID.
+   *
+   * @param id The ID of the item.
+   * @returns The pending callbacks structure.
+   */
+  private getPendingCallbacks(id: RegistryId | null): PendingCallbacks<T> {
+    let pending = this.pendingCallbacks.get(id);
+
+    if (!pending) {
+      pending = { success: [], error: [] };
+      this.pendingCallbacks.set(id, pending);
+    }
+
+    return pending;
+  }
+
+  /**
+   * Registers an item as the default (null ID) item if it's the first one.
+   *
+   * @param id The ID of the item being registered.
+   * @param item The item instance.
+   */
+  private registerAsDefault(id: RegistryId | null, item: T): void {
+    if (this.items.size === 1 && id !== null) {
+      this.register(null, item);
+    }
   }
 }
 
@@ -288,16 +292,17 @@ export type Destructible = {
 type RegistryId = string;
 
 /**
- * Callback type for registry operations.
+ * Structure holding pending success and error callbacks for an item.
  */
-type RegistryCallback<T> = (item: T) => void;
-
-/**
- * Callback type for registry errors.
- */
-type RegistryErrorCallback = (error: Error) => void;
+type PendingCallbacks<T> = {
+  success: Array<(item: T) => void>;
+  error: Array<(error: Error) => void>;
+};
 
 /**
  * Callback type for watching registry changes.
  */
-type RegistryWatcher<T> = (items: Map<RegistryId | null, T>) => void;
+type RegistryWatcher<T> = (
+  items: Map<RegistryId | null, T>,
+  errors: Map<RegistryId | null, Error>,
+) => void;

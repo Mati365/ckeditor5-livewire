@@ -160,13 +160,52 @@ describe('editor component', () => {
         livewireStub.$internal.appendComponentToDOM({
           name: 'ckeditor5-editable',
           el: createEditableHtmlElement(),
-          ephemeral: createEditableSnapshot(),
+          ephemeral: createEditableSnapshot('main', null),
         });
 
         const editor = await waitForTestEditor();
 
         expect(editor).to.toBeInstanceOf(DecoupledEditor);
         expect(isEditorShown()).toBe(true);
+      });
+
+      it('should pick initial content from the editable snapshot if provided', async () => {
+        const initialEditableContent = '<p>Initial editable content</p>';
+
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement(),
+          ephemeral: {
+            ...createEditorSnapshot(),
+            preset: createEditorPreset('decoupled'),
+          },
+        });
+
+        livewireStub.$internal.appendComponentToDOM({
+          name: 'ckeditor5-editable',
+          el: createEditableHtmlElement(),
+          ephemeral: createEditableSnapshot('main', initialEditableContent),
+        });
+
+        const editor = await waitForTestEditor();
+
+        expect(editor).to.toBeInstanceOf(DecoupledEditor);
+        expect(editor.getData()).toBe(initialEditableContent);
+      });
+
+      it('should throw error if `main` editable is not found in the DOM', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement(),
+          ephemeral: {
+            ...createEditorSnapshot(),
+            preset: createEditorPreset('decoupled'),
+          },
+        });
+
+        await expect(waitForTestEditor()).rejects.toThrowError(
+          `No "main" editable found for editor with ID "test-editor".`,
+        );
       });
     });
 

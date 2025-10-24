@@ -13,9 +13,19 @@ export class AsyncRegistry<T extends Destructible> {
   private readonly items = new Map<RegistryId | null, T>();
 
   /**
+   * Map of error callbacks for items.
+   */
+  private readonly initializationErrors = new Map<RegistryId | null, Error>();
+
+  /**
    * Map of callbacks that are waiting for an item to be registered.
    */
   private readonly callbacks = new Map<RegistryId | null, RegistryCallback<T>[]>();
+
+  /**
+   * Map of error callbacks for items.
+   */
+  private readonly errorCallbacks = new Map<RegistryId | null, RegistryErrorCallback[]>();
 
   /**
    * Set of watchers that observe changes to the registry.
@@ -27,19 +37,34 @@ export class AsyncRegistry<T extends Destructible> {
    * If the item is not yet registered, it will wait for it to be registered.
    *
    * @param id The ID of the item.
-   * @param fn The function to execute.
+   * @param onSuccess The function to execute.
+   * @param onError Optional error callback.
    * @returns A promise that resolves with the result of the function.
    */
-  execute<R, E extends T = T>(id: RegistryId | null, fn: (item: E) => R): Promise<Awaited<R>> {
-    const { callbacks, items } = this;
+  execute<R, E extends T = T>(
+    id: RegistryId | null,
+    onSuccess: (item: E) => R,
+    onError?: (error: Error) => void,
+  ): Promise<Awaited<R>> {
+    const { callbacks, items, initializationErrors } = this;
+
     const item = items.get(id);
+    const error = initializationErrors.get(id);
+
+    if (error && onError) {
+      onError(error);
+    }
 
     if (item) {
-      return Promise.resolve(fn(item as E));
+      return Promise.resolve(onSuccess(item as E));
     }
 
     return new Promise((resolve) => {
-      const callback = async (item: T) => resolve(await fn(item as E));
+      const callback = async (item: T) => resolve(await onSuccess(item as E));
+
+      if (onError) {
+        this.onError(id, onError);
+      }
 
       if (!this.callbacks.has(id)) {
         callbacks.set(id, []);
@@ -66,6 +91,7 @@ export class AsyncRegistry<T extends Destructible> {
       throw new Error(`Item with ID "${id}" is already registered.`);
     }
 
+    this.resetErrors(id);
     items.set(id, item);
 
     if (callbacksForItem) {
@@ -79,6 +105,68 @@ export class AsyncRegistry<T extends Destructible> {
     }
 
     this.notifyWatchers();
+  }
+
+  /**
+   * Registers an error callback for an item.
+   *
+   * @param id The ID of the item.
+   * @param callback The error callback to register.
+   */
+  onError(id: RegistryId | null, callback: RegistryErrorCallback): void {
+    const { initializationErrors, errorCallbacks } = this;
+    const error = initializationErrors.get(id);
+
+    if (error) {
+      callback(error);
+      return;
+    }
+
+    if (!errorCallbacks.has(id)) {
+      errorCallbacks.set(id, []);
+    }
+
+    errorCallbacks.get(id)!.push(callback);
+  }
+
+  /**
+   * Resets errors for an item.
+   *
+   * @param id The ID of the item.
+   */
+  resetErrors(id: RegistryId | null): void {
+    const { initializationErrors } = this;
+
+    if (
+      initializationErrors.has(null)
+      && initializationErrors.get(null) === initializationErrors.get(id)
+    ) {
+      initializationErrors.delete(null);
+    }
+
+    this.initializationErrors.delete(id);
+    this.errorCallbacks.delete(id);
+  }
+
+  /**
+   * Registers an error for an item.
+   *
+   * @param id The ID of the item.
+   * @param error The error to register.
+   */
+  error(id: RegistryId | null, error: Error): void {
+    const errorCallbacksForItem = this.errorCallbacks.get(id);
+
+    this.initializationErrors.set(id, error);
+
+    if (errorCallbacksForItem) {
+      errorCallbacksForItem.forEach(callback => callback(error));
+      this.errorCallbacks.delete(id);
+    }
+
+    if (this.initializationErrors.size === 1 && !this.items.size) {
+      this.initializationErrors.set(null, error);
+    }
   }
 
   /**
@@ -130,7 +218,9 @@ export class AsyncRegistry<T extends Destructible> {
    * @returns A promise that resolves with the item instance.
    */
   waitFor<E extends T = T>(id: RegistryId | null): Promise<E> {
-    return this.execute(id, item => item) as Promise<E>;
+    return new Promise<E>((resolve, reject) => {
+      void this.execute(id, resolve as (value: E) => void, reject);
+    });
   }
 
   /**
@@ -201,6 +291,11 @@ type RegistryId = string;
  * Callback type for registry operations.
  */
 type RegistryCallback<T> = (item: T) => void;
+
+/**
+ * Callback type for registry errors.
+ */
+type RegistryErrorCallback = (error: Error) => void;
 
 /**
  * Callback type for watching registry changes.

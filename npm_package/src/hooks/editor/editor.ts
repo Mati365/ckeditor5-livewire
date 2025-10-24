@@ -42,20 +42,28 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
   override async mounted(): Promise<void> {
     const { editorId } = this.ephemeral;
 
-    this.editorPromise = this.createEditor();
+    EditorsRegistry.the.resetErrors(editorId);
 
-    const editor = await this.editorPromise;
+    try {
+      this.editorPromise = this.createEditor();
 
-    // Do not even try to broadcast about the registration of the editor
-    // if hook was immediately destroyed.
-    if (!this.isBeingDestroyed()) {
-      EditorsRegistry.the.register(editorId, editor);
+      const editor = await this.editorPromise;
 
-      editor.once('destroy', () => {
-        if (EditorsRegistry.the.hasItem(editorId)) {
-          EditorsRegistry.the.unregister(editorId);
-        }
-      });
+      // Do not even try to broadcast about the registration of the editor
+      // if hook was immediately destroyed.
+      if (!this.isBeingDestroyed()) {
+        EditorsRegistry.the.register(editorId, editor);
+
+        editor.once('destroy', () => {
+          if (EditorsRegistry.the.hasItem(editorId)) {
+            EditorsRegistry.the.unregister(editorId);
+          }
+        });
+      }
+    }
+    catch (error: any) {
+      this.editorPromise = null;
+      EditorsRegistry.the.error(editorId, error);
     }
   }
 
@@ -69,7 +77,12 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
 
     // Let's wait for the mounted promise to resolve before proceeding with destruction.
     try {
-      const editor = (await this.editorPromise)!;
+      const editor = await this.editorPromise;
+
+      if (!editor) {
+        return;
+      }
+
       const editorContext = unwrapEditorContext(editor);
       const watchdog = unwrapEditorWatchdog(editor);
 

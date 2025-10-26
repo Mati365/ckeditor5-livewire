@@ -20,28 +20,6 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
 
 This project is still in development and not production-ready. Features, structure, and APIs may change.
 
-## Development ⚙️
-
-To start the development environment, run:
-
-```bash
-pnpm run dev
-```
-
-The playground app will be available at [http://localhost:8000](http://localhost:8000).
-
-### Running Tests 🧪
-
-The project includes comprehensive PHP unit tests with 100% code coverage requirement:
-
-```bash
-# Run all tests
-composer test
-
-# Run tests with coverage report (requires pcov)
-composer test:coverage
-```
-
 ## Usage example ✍️
 
 Below is a minimal Blade example showing what to add to the page `<head>` and to the `<body>` in order to render the editor powered by Livewire. The example is based on `playground/resources/views/home.blade.php` from this repository.
@@ -186,6 +164,29 @@ For more information about the context feature, see the [CKEditor 5 Context docu
 />
 ```
 
+### Inline editor 📝
+
+Minimalist editor that appears directly within content when clicked. Ideal for in-place editing scenarios where the editing interface should be invisible until needed.
+
+**Features:**
+
+- No visible toolbar until content is focused
+- Seamless integration with existing layouts
+- Great for editing headings, captions, or short content
+
+![CKEditor 5 Inline Editor in Elixir Phoenix application](docs/inline-editor.png)
+
+```blade
+<%!-- Inline editor --%>
+<.ckeditor
+  editorType="inline"
+  content="<p>Click here to edit this content</p>"
+  editableHeight="300px"
+/>
+```
+
+**Note:** Inline editors don't work with `<textarea>` elements and may not be suitable for traditional form scenarios.
+
 ### Decoupled editor 🌐
 
 Flexible editor where toolbar and editing area are completely separated. Provides maximum layout control for custom interfaces and complex applications.
@@ -220,6 +221,77 @@ Flexible editor where toolbar and editing area are completely separated. Provide
     editableClass="p-4"
     content="<p>This is the initial content of the decoupled editor editable.</p>"
 />
+```
+
+## Development ⚙️
+
+To start the development environment, run:
+
+```bash
+pnpm run dev
+```
+
+The playground app will be available at [http://localhost:8000](http://localhost:8000).
+
+### Running Tests 🧪
+
+The project includes comprehensive PHP unit tests with 100% code coverage requirement:
+
+```bash
+# Run all tests
+composer test
+
+# Run tests with coverage report (requires pcov)
+composer test:coverage
+```
+
+## Custom plugins 🧩
+
+To register a custom plugin, use the `registerCustomEditorPlugin` function. This function takes the plugin name and the plugin _reader_ that returns a class extending `Plugin`.
+
+```javascript
+import { CustomEditorPluginsRegistry as Registry } from 'ckeditor5-livewire';
+
+const unregister = Registry.the.register('MyCustomPlugin', async () => {
+  // It's recommended to use lazy import to
+  // avoid bundling ckeditor code in your application bundle.
+  const { Plugin } = await import('ckeditor5');
+
+  return class extends Plugin {
+    static get pluginName() {
+      return 'MyCustomPlugin';
+    }
+
+    init() {
+      console.log('MyCustomPlugin initialized');
+      // Custom plugin logic here
+    }
+  };
+});
+```
+
+In order to use the plugin you need to extend your config in your `config` file:
+
+```php
+'plugins' => [
+    // other plugins...
+    'MyCustomPlugin',
+],
+```
+
+It must be called before the editor is initialized. You can unregister the plugin later by calling the returned function:
+
+```javascript
+unregister();
+// or CustomEditorPluginsRegistry.the.unregister('MyCustomPlugin');
+```
+
+If you want to de-register all registered plugins, you can use the `unregisterAll` method:
+
+```javascript
+import { CustomEditorPluginsRegistry } from 'ckeditor5-livewire';
+
+CustomEditorPluginsRegistry.the.unregisterAll();
 ```
 
 ## Psst... 👀

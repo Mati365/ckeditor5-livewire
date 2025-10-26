@@ -17,7 +17,7 @@
 
 {{-- Stylesheets --}}
 @foreach($bundle->css as $cssUrl)
-    <link rel="stylesheet" href="{{ $cssUrl }}" @if($nonce) nonce="{{ $nonce }}" @endif>
+    <link rel="stylesheet" href="{{ $cssUrl }}" crossorigin="anonymous" @if($nonce) nonce="{{ $nonce }}" @endif>
 @endforeach
 
 {{-- UMD scripts --}}
@@ -30,5 +30,5 @@
 
 {{-- Module preload for ESM assets --}}
 @foreach($esmAssets as $asset)
-    <link rel="modulepreload" href="{{ $asset->url }}" @if($nonce) nonce="{{ $nonce }}" @endif>
+    <link rel="modulepreload" href="{{ $asset->url }}" crossorigin="anonymous" @if($nonce) nonce="{{ $nonce }}" @endif>
 @endforeach

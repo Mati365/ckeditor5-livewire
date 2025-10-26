@@ -86,6 +86,18 @@
         </section>
 
         <section class="mb-16 w-full max-w-5xl">
+            <h2 class="mb-4 font-semibold text-lg">CKEditor 5 Inline</h2>
+            <div>
+                <livewire:ckeditor5
+                    editorId="inline-editor"
+                    editorType="inline"
+                    editableHeight="200"
+                    content="<p>This is the initial content of the inline editor.</p>"
+                />
+            </div>
+        </section>
+
+        <section class="mb-16 w-full max-w-5xl">
             <h2 class="mb-4 font-semibold text-lg">CKEditor 5 Decoupled</h2>
             <div>
                 <livewire:ckeditor5

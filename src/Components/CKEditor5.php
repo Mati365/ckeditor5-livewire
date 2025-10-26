@@ -98,8 +98,8 @@ final class CKEditor5 extends Component
      * @var array{change: bool, focus: bool}
      */
     public array $emit = [
-        'change' => true,
-        'focus' => true,
+        'change' => false,
+        'focus' => false,
     ];
 
     /**

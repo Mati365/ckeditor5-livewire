@@ -449,6 +449,8 @@ CKEditor 5 for Livewire supports multiple distinct editor types, each designed f
 
 Traditional WYSIWYG editor with a fixed toolbar above the editing area. Best for standard content editing scenarios like blog posts, articles, or forms.
 
+![CKEditor 5 Classic Editor in Livewire application](docs/classic.png)
+
 **Features:**
 
 - Fixed toolbar with all editing tools

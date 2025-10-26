@@ -426,7 +426,7 @@ You can also provide custom translations for the editor. This is useful if you w
 return [
     'presets' => [
         'default' => [
-            'custom_translations' => [
+            'customTranslations' => [
                 'en' => [
                     'Bold' => 'Custom Bold',
                     'Italic' => 'Custom Italic'
@@ -645,7 +645,7 @@ return [
     'contexts' => [
         'custom' => [
             // ...
-            'custom_translations' => [
+            'customTranslations' => [
                 'en' => [
                     'Bold' => 'Custom Bold',
                     'Italic' => 'Custom Italic'

@@ -228,12 +228,6 @@ class Editor extends Component
 }
 ```
 
-**Event details:**
-
-- Events are sent automatically when content changes
-- `saveDebounceMs` controls the delay between changes and events (default: 300ms)
-- Higher debounce values improve performance for large content or frequent changes
-
 ### Focus Tracking 👁️
 
 You can track the focus and blur events of the editor by listening for the `editor-focus-changed` event. This event is dispatched with the editor ID and a boolean indicating whether the editor is focused.

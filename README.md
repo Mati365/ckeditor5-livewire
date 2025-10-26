@@ -16,75 +16,526 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
   <img src="docs/intro-classic-editor.png" alt="CKEditor 5 Classic Editor in Laravel Livewire application">
 </p>
 
+## Table of Contents
+
+- [ckeditor5-livewire](#ckeditor5-livewire)
+  - [Table of Contents](#table-of-contents)
+  - [Under Construction 🚧](#under-construction-)
+  - [Installation 🚀](#installation-)
+    - [🏠 Self-hosted via NPM](#-self-hosted-via-npm)
+    - [📡 CDN Distribution](#-cdn-distribution)
+  - [Basic Usage 🏁](#basic-usage-)
+    - [Simple Editor ✏️](#simple-editor-️)
+    - [Watchdog prop 🐶](#watchdog-prop-)
+      - [How it works ⚙️](#how-it-works-️)
+      - [Disabling the watchdog 🚫](#disabling-the-watchdog-)
+    - [With Livewire Sync 🔄](#with-livewire-sync-)
+  - [Configuration ⚙️](#configuration-️)
+    - [Custom Presets 🧩](#custom-presets-)
+    - [Dynamic presets 🎯](#dynamic-presets-)
+    - [Use Custom Preset 🧩](#use-custom-preset-)
+    - [Providing the License Key 🗝️](#providing-the-license-key-️)
+  - [Localization 🌍](#localization-)
+    - [CDN Translation Loading 🌐](#cdn-translation-loading-)
+    - [Global Translation Config 🛠️](#global-translation-config-️)
+    - [Custom translations 🌐](#custom-translations-)
+  - [Editor Types 🖊️](#editor-types-️)
+    - [Classic editor 📝](#classic-editor-)
+    - [Inline editor 📝](#inline-editor-)
+    - [Decoupled editor 🌐](#decoupled-editor-)
+  - [Advanced configuration ⚙️](#advanced-configuration-️)
+    - [Basic editor with custom content and merged config 🧑‍💻](#basic-editor-with-custom-content-and-merged-config-)
+    - [Custom configuration with plugins and toolbar items ⚙️](#custom-configuration-with-plugins-and-toolbar-items-️)
+  - [Context 🤝](#context-)
+    - [Basic usage 🔧](#basic-usage--1)
+    - [Custom context translations 🌐](#custom-context-translations-)
+  - [Custom plugins 🧩](#custom-plugins-)
+    - [Decoupled editor 🌐](#decoupled-editor--1)
+  - [Development ⚙️](#development-️)
+    - [Running Tests 🧪](#running-tests-)
+  - [Psst... 👀](#psst-)
+  - [Trademarks 📜](#trademarks-)
+  - [License 📜](#license-)
+
 ## Under Construction 🚧
 
 This project is still in development and not production-ready. Features, structure, and APIs may change.
 
-## Usage example ✍️
+## Installation 🚀
 
-Below is a minimal Blade example showing what to add to the page `<head>` and to the `<body>` in order to render the editor powered by Livewire. The example is based on `playground/resources/views/home.blade.php` from this repository.
+Choose between two installation methods based on your needs. Both approaches provide the same functionality but differ in how CKEditor 5 assets are loaded and managed.
 
-### What to add to the head 🔗
+### 🏠 Self-hosted via NPM
 
-In the page head you should load the CKEditor 5 assets and Livewire scripts. If you're using Vite, include your app CSS and JS as well.
+Bundle CKEditor 5 with your application for full control over assets, custom builds, and offline support. This method is recommended for advanced users or production applications with specific requirements.
 
-Example:
+**Complete setup:**
+
+1. **Add PHP dependency** to your `composer.json`:
+
+   ```bash
+   composer require mati365/ckeditor5-livewire
+   ```
+
+2. **Install CKEditor 5 via NPM:**
+
+   ```bash
+   npm install ckeditor5 ckeditor5-livewire
+   ```
+
+3. **Import integration** in your `resources/js/app.js`:
+
+   ```javascript
+   import 'ckeditor5-livewire';
+   ```
+
+4. **Import styles** in your `resources/css/app.css`:
+
+   ```css
+   @import "ckeditor5/ckeditor5.css";
+   ```
+
+5. **Use in Blade templates** (no CDN assets needed):
+
+   ```blade
+   <livewire:ckeditor5 content="<p>Hello world!</p>" />
+   ```
+
+### 📡 CDN Distribution
+
+Load CKEditor 5 directly from CKSource's CDN - no build configuration required. This method is ideal for most users who want quick setup and don't need custom builds.
+
+**Complete setup:**
+
+1. **Add PHP dependency** to your `composer.json`:
+
+   ```bash
+   composer require mati365/ckeditor5-livewire
+   ```
+
+2. **Install NPM package:**
+
+   ```bash
+   npm install ckeditor5-livewire
+   ```
+
+3. **Import integration** in your `resources/js/app.js`:
+
+   ```javascript
+   import 'ckeditor5-livewire';
+   ```
+
+4. **Exclude CKEditor from bundler** in your `vite.config.js`:
+
+   ```javascript
+   import laravel from 'laravel-vite-plugin';
+   import { defineConfig } from 'vite';
+   import externalize from 'vite-plugin-externalize-dependencies';
+
+   export default defineConfig({
+     plugins: [
+       laravel({
+         input: ['resources/css/app.css', 'resources/js/app.js'],
+         refresh: true,
+       }),
+       externalize({
+         externals: ['ckeditor5', 'ckeditor5-premium-features'],
+       }),
+     ],
+   });
+   ```
+
+5. **Add license key** (see [Providing the License Key 🗝️](#providing-the-license-key-️) section)
+
+6. **Use in Blade templates:**
+
+   ```blade
+   <%-- Load CDN assets in <head> (based on `default` preset) --%>
+   <x-ckeditor5-assets />
+
+   <%-- or with specific features (overrides `default` preset) --%>
+   <x-ckeditor5-assets :translations="['pl', 'de', 'fr']" premium />
+
+   <%-- or with specific preset --%>
+   <x-ckeditor5-assets preset="inline" />
+
+   <%-- Use editor anywhere in <body> --%>
+   <livewire:ckeditor5 content="<p>Hello world!</p>" />
+   ```
+
+That's it! 🎉
+
+## Basic Usage 🏁
+
+Get started with the most common usage patterns. These examples show how to render editors in your templates and handle real-time content changes.
+
+### Simple Editor ✏️
+
+Create a basic editor with default toolbar and features. Perfect for simple content editing without server synchronization.
 
 ```blade
-<!-- CKEditor 5 Assets -->
+<%-- CDN only: Load assets in <head> --%>
 <x-ckeditor5-assets />
 
-<!-- Livewire scripts -->
-@livewireScripts
-
-<!-- If you use Vite / built assets -->
-@if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-  @vite(['resources/css/app.css', 'resources/js/app.js'])
-@endif
+<%-- Render editor with initial content --%>
+<livewire:ckeditor5
+    content="<p>Initial content</p>"
+    editableHeight="300px"
+/>
 ```
 
-### What to add to the page body 🧩
+### Watchdog prop 🐶
 
-Place the Livewire component where you want the editor to appear. This example shows basic options: the field name (`name`), CSS class and initial content passed as an array.
+By default, the `<livewire:ckeditor5>` component uses a built-in watchdog mechanism to automatically restart the editor if it crashes (e.g., due to a JavaScript error). The watchdog periodically saves the editor's content and restores it after a crash, minimizing the risk of data loss for users.
 
-Example:
+#### How it works ⚙️
+
+- If the editor crashes, it is automatically restarted without requiring a page reload.
+- The editor's content is periodically saved in the browser's memory.
+- After a restart, the last saved content is automatically restored.
+
+This feature is especially useful in applications where reliability and data safety are important.
+
+#### Disabling the watchdog 🚫
+
+The watchdog is enabled by default. To disable it, set the `watchdog` attribute to `false`:
 
 ```blade
-<livewire:ckeditor5 />
+<livewire:ckeditor5
+    content="<p>Initial content</p>"
+    :watchdog="false"
+/>
 ```
 
-### Vite / import configuration ⚙️🔌
+### With Livewire Sync 🔄
 
-Add lines below to your Vite app entrypoint so the package's JS hooks and Livewire wiring are included in your app. The `ckeditor5-livewire` package provides the integration (not the editor build itself) and is needed whether you use the cloud distribution or a self-hosted build from NPM.
+Enable real-time synchronization between the editor and your LiveView. Content changes are automatically sent to the server with configurable debouncing for performance optimization.
 
-```js
-// playground/resources/js/app.ts
-import 'ckeditor5-livewire';
+```blade
+<livewire:ckeditor5
+    wire:model="content"
+    :saveDebounceMs="500"
+/>
 ```
 
-Cloud distribution vs self-hosted (NPM):
+Handle content changes in your Livewire component:
 
-- Cloud distribution (hosted by CKEditor) is useful if you don't want to install a build. In that case include the cloud script in the `<head>` using the assets/component described above. If you install the editor via NPM (self-hosted), the cloud script is not required and should be omitted from the head to avoid duplicate loading.
+```php
+class Editor extends Component
+{
+    public $content = '<p>Initial content</p>';
 
-- If you rely on the cloud-hosted script (for example when loading CKEditor from a CDN or via an import map) but still build your app with Vite, add `vite-plugin-externalize-dependencies` to your Vite config so Vite doesn't bundle CKEditor into your application and the editor is loaded from the external source instead.
-
-Example `vite.config.js` snippet (playground) showing `externalize` usage:
-
-```js
-import externalize from 'vite-plugin-externalize-dependencies';
-
-export default defineConfig({
-  plugins: [
-    // other plugins...
-    externalize({
-      // externalize cloud distribution or CKEditor packages so they are loaded from CDN
-      externals: ['ckeditor5', 'ckeditor5-premium-features'],
-    }),
-  ],
-});
+    public function render()
+    {
+        return view('livewire.editor');
+    }
+}
 ```
 
-If you rely on the cloud-hosted script (not installed via NPM), keep the `<x-ckeditor5-assets />` in the head so the editor script is available globally.
+**Event details:**
+
+- Events are sent automatically when content changes
+- `saveDebounceMs` controls the delay between changes and events (default: 300ms)
+- Higher debounce values improve performance for large content or frequent changes
+
+## Configuration ⚙️
+
+You can configure the editor _presets_ in your `config/ckeditor5.php` file. The default preset is `default`, which provides a basic configuration with a toolbar and essential plugins. The preset is an array that contains the editor configuration, including the toolbar items and plugins. There can be multiple presets, and you can switch between them by passing the `preset` attribute to the component.
+
+### Custom Presets 🧩
+
+In order to override the default preset or add custom presets, publish the configuration file:
+
+```bash
+php artisan vendor:publish --tag=ckeditor5-config
+```
+
+Then modify `config/ckeditor5.php`:
+
+```php
+<?php
+
+return [
+    'presets' => [
+        'minimal' => [
+            'cloud' => [
+                'editorVersion' => '47.0.0',
+                'premium' => true,
+                'translations' => ['pl'],
+                'ckbox' => [
+                    'version' => '1.0.0'
+                ]
+            ],
+            'config' => [
+                'toolbar' => [
+                    'items' => ['bold', 'italic', 'link']
+                ],
+                'plugins' => [
+                    'Bold',
+                    'Italic',
+                    'Link',
+                    'Essentials',
+                    'Paragraph'
+                ]
+            ]
+        ],
+        'full' => [
+            'config' => [
+                'toolbar' => [
+                    'items' => [
+                        'heading',
+                        '|',
+                        'bold',
+                        'italic',
+                        'underline',
+                        '|',
+                        'link',
+                        'insertImage',
+                        'insertTable',
+                        '|',
+                        'bulletedList',
+                        'numberedList',
+                        'blockQuote'
+                    ]
+                ],
+                'plugins' => [
+                    'Heading',
+                    'Bold',
+                    'Italic',
+                    'Underline',
+                    'Link',
+                    'ImageBlock',
+                    'ImageUpload',
+                    'Table',
+                    'List',
+                    'BlockQuote',
+                    'Essentials',
+                    'Paragraph'
+                ]
+            ]
+        ]
+    ]
+];
+```
+
+### Dynamic presets 🎯
+
+You can also create dynamic presets that can be modified at runtime. This is useful if you want to change the editor configuration based on user input or other conditions.
+
+```php
+use CKEditor5\Livewire\Preset\PresetParser;
+
+class Editor extends Component
+{
+    public array $preset;
+
+    public function mount()
+    {
+        $this->preset = PresetParser::parse([
+            'config' => [
+                'toolbar' => [
+                    'items' => ['bold', 'italic', 'link']
+                ],
+                'plugins' => [
+                    'Bold',
+                    'Italic',
+                    'Link',
+                    'Essentials',
+                    'Paragraph'
+                ]
+            ]
+        ]);
+    }
+}
+```
+
+```blade
+<livewire:ckeditor5 :preset="$preset" />
+```
+
+### Use Custom Preset 🧩
+
+To use a custom preset, pass the `preset` attribute to the component. For example, to use the `minimal` preset defined above:
+
+```blade
+<livewire:ckeditor5 preset="minimal" content="<p>Simple editor</p>" />
+```
+
+### Providing the License Key 🗝️
+
+CKEditor 5 requires a license key when using the official CDN or premium features. You can provide the license key in two simple ways:
+
+1. **Environment variable**: Set the `CKEDITOR5_LICENSE_KEY` environment variable in your `.env` file:
+
+   ```env
+   CKEDITOR5_LICENSE_KEY=your-license-key-here
+   ```
+
+2. **Preset config**: You can also set the license key directly in your preset configuration in `config/ckeditor5.php`:
+
+   ```php
+   'presets' => [
+       'default' => [
+           'licenseKey' => 'your-license-key-here'
+       ]
+   ]
+   ```
+
+If you use CKEditor 5 under the GPL license, you do not need to provide a license key. However, if you choose to set one, it must be set to `GPL`.
+
+If both are set, the preset config takes priority. For more details, see the [CKEditor 5 licensing guide](https://ckeditor.com/docs/ckeditor5/latest/getting-started/licensing/license-and-legal.html).
+
+## Localization 🌍
+
+Support multiple languages in the editor UI and content. Learn how to load translations via CDN or configure them globally.
+
+### CDN Translation Loading 🌐
+
+Depending on your setup, you can preload translations via CDN or let your bundler handle them automatically using lazy imports.
+
+```blade
+<%-- CDN only: Load specific translations --%>
+<x-ckeditor5-assets :translations="['pl', 'de', 'fr']" />
+
+<livewire:ckeditor5
+    locale="pl"
+    content="<p>Content with Polish UI</p>"
+/>
+```
+
+### Global Translation Config 🛠️
+
+You can also configure translations globally in your `config/ckeditor5.php` file. This is useful if you want to load translations for multiple languages at once or set a default language for the editor. Keep in mind that this configuration is only used when loading translations via CDN. If you are using self-hosted setup, translations are handled by your bundler automatically.
+
+```php
+// config/ckeditor5.php
+return [
+    'presets' => [
+        'default' => [
+            'cloud' => [
+                'translations' => ['pl', 'de', 'fr']  // CDN only
+            ]
+        ]
+    ]
+];
+```
+
+**Note:** For self-hosted setups, translations are handled by your bundler automatically.
+
+### Custom translations 🌐
+
+You can also provide custom translations for the editor. This is useful if you want to override existing translations or add new ones. Custom translations can be provided in the preset configuration.
+
+```php
+// config/ckeditor5.php
+return [
+    'presets' => [
+        'default' => [
+            'custom_translations' => [
+                'en' => [
+                    'Bold' => 'Custom Bold',
+                    'Italic' => 'Custom Italic'
+                ],
+                'pl' => [
+                    'Bold' => 'Grubo',
+                    'Italic' => 'Kursywa'
+                ]
+            ]
+        ]
+    ]
+];
+```
+
+## Editor Types 🖊️
+
+CKEditor 5 for Livewire supports multiple distinct editor types, each designed for specific use cases. Choose the one that best fits your application's layout and functionality requirements.
+
+### Classic editor 📝
+
+Traditional WYSIWYG editor with a fixed toolbar above the editing area. Best for standard content editing scenarios like blog posts, articles, or forms.
+
+**Features:**
+
+- Fixed toolbar with all editing tools
+- Familiar interface similar to desktop word processors
+- Works well in forms and modal dialogs
+
+```blade
+<%-- CDN assets in <head> --%>
+<x-ckeditor5-assets />
+
+<%-- Classic editor in <body> --%>
+<livewire:ckeditor5
+    editorType="classic"
+    content="<p>Initial content here</p>"
+    editableHeight="300px"
+/>
+```
+
+### Inline editor 📝
+
+Minimalist editor that appears directly within content when clicked. Ideal for in-place editing scenarios where the editing interface should be invisible until needed.
+
+**Features:**
+
+- No visible toolbar until content is focused
+- Seamless integration with existing layouts
+- Great for editing headings, captions, or short content
+
+![CKEditor 5 Inline Editor in Livewire application](docs/inline-editor.png)
+
+```blade
+<%-- CDN assets in <head> --%>
+<x-ckeditor5-assets />
+
+<%-- Inline editor --%>
+<livewire:ckeditor5
+    editorType="inline"
+    content="<p>Click here to edit this content</p>"
+    editableHeight="300px"
+/>
+```
+
+**Note:** Inline editors don't work with `<textarea>` elements and may not be suitable for traditional form scenarios.
+
+### Decoupled editor 🌐
+
+Flexible editor where toolbar and editing area are completely separated. Provides maximum layout control for custom interfaces and complex applications.
+
+**Features:**
+
+- Complete separation of toolbar and content area
+- Custom positioning and styling of UI elements
+- Full control over editor layout and appearance
+
+![CKEditor 5 Decoupled Editor in Livewire application](docs/decoupled-editor.png)
+
+```blade
+<%-- CDN assets in <head> --%>
+<x-ckeditor5-assets />
+
+<%-- Editor instance --%>
+<livewire:ckeditor5
+    editorId="decoupled-editor"
+    editorType="decoupled"
+    :content="['main' => '<p>This is the initial content of the decoupled editor.</p>']"
+/>
+
+<%-- Separate toolbar --%>
+<livewire:ckeditor5-ui-part
+    name="toolbar"
+    editorId="decoupled-editor"
+    class="my-4"
+/>
+
+<%-- Separate editable area --%>
+<livewire:ckeditor5-editable
+    editorId="decoupled-editor"
+    class="border border-gray-300 rounded-xs"
+    editableClass="p-4"
+    content="<p>This is the initial content of the decoupled editor editable.</p>"
+/>
+```
 
 ## Advanced configuration ⚙️
 
@@ -138,7 +589,7 @@ Override the default configuration with custom plugins and toolbar items. In thi
 />
 ```
 
-### Context 🤝
+## Context 🤝
 
 The **context** feature is designed to group multiple editor instances together, allowing them to share a common context. This is particularly useful in collaborative editing scenarios, where users can work together in real time. By sharing a context, editors can synchronize features such as comments, track changes, and presence indicators across different editor instances. This enables seamless collaboration and advanced workflows in your Phoenix application.
 
@@ -146,17 +597,43 @@ For more information about the context feature, see the [CKEditor 5 Context docu
 
 ![CKEditor 5 Context in Livewire application](docs/context.png)
 
+### Basic usage 🔧
+
+Define your context in configuration (`config/ckeditor5.php`):
+
+```php
+return [
+    'contexts' => [
+        'my-context' => [
+            'config' => [
+                'plugins' => [
+                    'CustomContextPlugin'
+                ]
+            ],
+            'watchdog' => [
+                'crash_number_limit' => 20
+            ]
+        ]
+    ],
+    'presets' => [
+        // ...
+    ]
+];
+```
+
+And use it in your Blade template:
+
 ```blade
-<!-- Create a context -->
+<%-- Create a context --%>
 <livewire:ckeditor5-context contextId="my-context" />
 
-<!-- Editor 1 using the context -->
+<%-- Editor 1 using the context --%>
 <livewire:ckeditor5
     contextId="my-context"
     content="Content 1"
 />
 
-<!-- Editor 2 using the same context -->
+<%-- Editor 2 using the same context --%>
 <livewire:ckeditor5
     class="mt-6"
     contextId="my-context"
@@ -164,7 +641,33 @@ For more information about the context feature, see the [CKEditor 5 Context docu
 />
 ```
 
-### Inline editor 📝
+### Custom context translations 🌐
+
+Define your custom translations in the configuration:
+
+```php
+return [
+    'contexts' => [
+        'custom' => [
+            // ...
+            'custom_translations' => [
+                'en' => [
+                    'Bold' => 'Custom Bold',
+                    'Italic' => 'Custom Italic'
+                ],
+                'pl' => [
+                    'Bold' => 'Pogrubiony',
+                    'Italic' => 'Kursywa'
+                ]
+            ]
+        ]
+    ]
+];
+```
+
+These translations will be used in the context's editors, overriding the default translations.
+
+## Custom plugins 🧩
 
 Minimalist editor that appears directly within content when clicked. Ideal for in-place editing scenarios where the editing interface should be invisible until needed.
 
@@ -243,55 +746,6 @@ composer test
 
 # Run tests with coverage report (requires pcov)
 composer test:coverage
-```
-
-## Custom plugins 🧩
-
-To register a custom plugin, use the `registerCustomEditorPlugin` function. This function takes the plugin name and the plugin _reader_ that returns a class extending `Plugin`.
-
-```javascript
-import { CustomEditorPluginsRegistry as Registry } from 'ckeditor5-livewire';
-
-const unregister = Registry.the.register('MyCustomPlugin', async () => {
-  // It's recommended to use lazy import to
-  // avoid bundling ckeditor code in your application bundle.
-  const { Plugin } = await import('ckeditor5');
-
-  return class extends Plugin {
-    static get pluginName() {
-      return 'MyCustomPlugin';
-    }
-
-    init() {
-      console.log('MyCustomPlugin initialized');
-      // Custom plugin logic here
-    }
-  };
-});
-```
-
-In order to use the plugin you need to extend your config in your `config` file:
-
-```php
-'plugins' => [
-    // other plugins...
-    'MyCustomPlugin',
-],
-```
-
-It must be called before the editor is initialized. You can unregister the plugin later by calling the returned function:
-
-```javascript
-unregister();
-// or CustomEditorPluginsRegistry.the.unregister('MyCustomPlugin');
-```
-
-If you want to de-register all registered plugins, you can use the `unregisterAll` method:
-
-```javascript
-import { CustomEditorPluginsRegistry } from 'ckeditor5-livewire';
-
-CustomEditorPluginsRegistry.the.unregisterAll();
 ```
 
 ## Psst... 👀

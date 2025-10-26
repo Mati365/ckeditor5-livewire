@@ -1,0 +1,78 @@
+---
+name: Publish Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version (e.g. 0.1.0)
+        required: true
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Set version in composer.json
+        run: |
+          jq ".version = \"${{ github.event.inputs.version }}\"" composer.json > tmp.json && mv tmp.json composer.json
+
+      - name: Set version in npm_package/package.json
+        run: |
+          jq ".version = \"${{ github.event.inputs.version }}\"" npm_package/package.json > tmp.json && mv tmp.json npm_package/package.json
+
+      - name: Set version in README.md
+        run: |
+          sed -i "s/\"mati365\/ckeditor5-livewire\": \"[^\"]*\"/\"mati365\/ckeditor5-livewire\": \"^${{ github.event.inputs.version }}\"/" README.md
+
+      - name: Install npm dependencies
+        run: pnpm install
+        working-directory: ./npm_package
+
+      - name: Build npm package
+        run: pnpm run build
+        working-directory: ./npm_package
+
+      - name: Publish npm package
+        run: pnpm publish --access public --no-git-checks
+        working-directory: ./npm_package
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+
+      - name: Commit and push version bump
+        run: |
+          git add composer.json npm_package/package.json README.md
+          git commit -m "build: bump versions to v${{ github.event.inputs.version }}"
+          git push
+
+      - name: Create git tag
+        run: |
+          git tag v${{ github.event.inputs.version }}
+          git push origin v${{ github.event.inputs.version }}

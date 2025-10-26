@@ -41,7 +41,7 @@ final class Config
      */
     public function getRawPresets(): array
     {
-        $presets = $this->config['presets'];
+        $presets = $this->config['presets'] ?? [];
 
         if (!is_array($presets)) {
             return [];

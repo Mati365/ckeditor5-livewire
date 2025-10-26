@@ -2,15 +2,10 @@
 
 namespace Mati365\CKEditor5Livewire\Tests\Unit\Cloud\CKBox;
 
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\UsesClass;
 use InvalidArgumentException;
-use Mati365\CKEditor5Livewire\Cloud\CKBox\CKBox;
-use Mati365\CKEditor5Livewire\Cloud\CKBox\CKBoxParser;
+use PHPUnit\Framework\TestCase;
+use Mati365\CKEditor5Livewire\Cloud\CKBox\{CKBox,CKBoxParser};
 
-#[CoversClass(CKBoxParser::class)]
-#[UsesClass(CKBox::class)]
 class CKBoxParserTest extends TestCase
 {
     public function testParseValidMinimalData(): void

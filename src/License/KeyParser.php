@@ -42,10 +42,14 @@ final class KeyParser
         $parts = explode('.', $jwt);
         $payload = self::decodeJWTPayload($parts[1]);
 
+        $distributionChannel = isset($payload['distributionChannel']) && is_string($payload['distributionChannel'])
+            ? $payload['distributionChannel']
+            : null;
+
         return new Key(
             raw: $jwt,
             expiresAt: (int) $payload['exp'],
-            distributionChannel: self::decodeDistributionChannel((string) $payload['distributionChannel']),
+            distributionChannel: self::decodeDistributionChannel($distributionChannel),
         );
     }
 

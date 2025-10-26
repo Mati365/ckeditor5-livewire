@@ -3,14 +3,10 @@
 namespace Mati365\CKEditor5Livewire\Tests\Unit\Cloud\Bundle;
 
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\UsesClass;
 use Mati365\CKEditor5Livewire\Cloud\Bundle\AssetsBundle;
 use Mati365\CKEditor5Livewire\Cloud\Bundle\JSAsset;
 use Mati365\CKEditor5Livewire\Cloud\Bundle\JSAssetType;
 
-#[CoversClass(AssetsBundle::class)]
-#[UsesClass(JSAsset::class)]
 class AssetsBundleTest extends TestCase
 {
     public function testConstructorSetsProperties(): void

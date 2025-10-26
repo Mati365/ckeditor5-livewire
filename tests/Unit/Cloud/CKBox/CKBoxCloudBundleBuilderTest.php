@@ -3,16 +3,9 @@
 namespace Mati365\CKEditor5Livewire\Tests\Unit\Cloud\CKBox;
 
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\UsesClass;
 use Mati365\CKEditor5Livewire\Cloud\CKBox\CKBoxCloudBundleBuilder;
-use Mati365\CKEditor5Livewire\Cloud\Bundle\AssetsBundle;
-use Mati365\CKEditor5Livewire\Cloud\Bundle\JSAsset;
-use Mati365\CKEditor5Livewire\Cloud\Bundle\JSAssetType;
+use Mati365\CKEditor5Livewire\Cloud\Bundle\{JSAssetType, AssetsBundle};
 
-#[CoversClass(CKBoxCloudBundleBuilder::class)]
-#[UsesClass(AssetsBundle::class)]
-#[UsesClass(JSAsset::class)]
 class CKBoxCloudBundleBuilderTest extends TestCase
 {
     public function testBuildWithoutTranslations(): void

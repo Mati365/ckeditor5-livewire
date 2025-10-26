@@ -3,10 +3,8 @@
 namespace Mati365\CKEditor5Livewire\Tests\Unit\Utils;
 
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
 use Mati365\CKEditor5Livewire\Utils\Arrays;
 
-#[CoversClass(Arrays::class)]
 class ArraysTest extends TestCase
 {
     public function testDeepCloneSimpleArray(): void

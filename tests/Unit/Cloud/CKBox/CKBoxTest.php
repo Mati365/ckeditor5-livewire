@@ -3,10 +3,8 @@
 namespace Mati365\CKEditor5Livewire\Tests\Unit\Cloud\CKBox;
 
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
 use Mati365\CKEditor5Livewire\Cloud\CKBox\CKBox;
 
-#[CoversClass(CKBox::class)]
 class CKBoxTest extends TestCase
 {
     public function testConstructorSetsProperties(): void

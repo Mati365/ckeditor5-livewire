@@ -15,8 +15,9 @@
 
     @if($name)
         <x-ckeditor5-hidden-input
+            :id="$id . '-hidden'"
             :name="$name"
-            :value="$content"
+            :value="$content ?? ''"
             :required="$required"
         />
     @endif

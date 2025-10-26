@@ -3,10 +3,8 @@
 namespace Mati365\CKEditor5Livewire\Tests\Unit\Cloud\Bundle;
 
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
 use Mati365\CKEditor5Livewire\Cloud\Bundle\JSAssetType;
 
-#[CoversClass(JSAssetType::class)]
 class JSAssetTypeTest extends TestCase
 {
     public function testESMValue(): void

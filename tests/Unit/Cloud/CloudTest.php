@@ -3,15 +3,9 @@
 namespace Mati365\CKEditor5Livewire\Tests\Unit\Cloud;
 
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\UsesClass;
 use Mati365\CKEditor5Livewire\Cloud\Cloud;
 use Mati365\CKEditor5Livewire\Cloud\CKBox\CKBox;
-use Mati365\CKEditor5Livewire\Utils\Arrays;
 
-#[CoversClass(Cloud::class)]
-#[UsesClass(CKBox::class)]
-#[UsesClass(Arrays::class)]
 class CloudTest extends TestCase
 {
     public function testConstructorSetsProperties(): void

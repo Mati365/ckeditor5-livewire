@@ -20,6 +20,6 @@ flags:
     carryforward: false
 
 comment:
-  layout: "reach,diff,flags,tree"
+  layout: 'reach,diff,flags,tree'
   behavior: default
   require_changes: false

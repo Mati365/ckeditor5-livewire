@@ -44,6 +44,14 @@
                     </p>
                 </a>
 
+                <a href="{{ route('editors.multiroot') }}"
+                   class="block p-6 border-2 border-gray-200 hover:border-blue-500 dark:border-gray-700 dark:hover:border-blue-400 rounded-lg transition-colors">
+                    <h2 class="mb-2 font-semibold text-xl">Multiroot Editor</h2>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                        Multiple editable roots with a shared toolbar for complex documents.
+                    </p>
+                </a>
+
                 <a href="{{ route('editors.context') }}"
                    class="block p-6 border-2 border-gray-200 hover:border-blue-500 dark:border-gray-700 dark:hover:border-blue-400 rounded-lg transition-colors">
                     <h2 class="mb-2 font-semibold text-xl">Context Editor</h2>

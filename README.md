@@ -42,6 +42,7 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
     - [Classic editor 📝](#classic-editor-)
     - [Inline editor 📝](#inline-editor-)
     - [Decoupled editor 🌐](#decoupled-editor-)
+    - [Multiroot editor 🌳](#multiroot-editor-)
   - [Advanced configuration ⚙️](#advanced-configuration-️)
     - [Basic editor with custom content and merged config 🧑‍💻](#basic-editor-with-custom-content-and-merged-config-)
     - [Custom configuration with plugins and toolbar items ⚙️](#custom-configuration-with-plugins-and-toolbar-items-️)
@@ -49,7 +50,6 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
     - [Basic usage 🔧](#basic-usage--1)
     - [Custom context translations 🌐](#custom-context-translations-)
   - [Custom plugins 🧩](#custom-plugins-)
-    - [Decoupled editor 🌐](#decoupled-editor--1)
   - [Development ⚙️](#development-️)
     - [Running Tests 🧪](#running-tests-)
   - [Psst... 👀](#psst-)
@@ -534,6 +534,66 @@ Flexible editor where toolbar and editing area are completely separated. Provide
 />
 ```
 
+### Multiroot editor 🌳
+
+Advanced editor supporting multiple separate editing areas (roots) with a shared toolbar. Perfect for complex documents with multiple editable sections like headers, sidebars, and main content.
+
+**Features:**
+
+- Multiple independent editable areas
+- Shared toolbar and configuration
+- Ideal for complex document structures
+- Each root can have different content
+
+![CKEditor 5 Multiroot Editor in Livewire application](docs/multiroot-editor.png)
+
+```blade
+<%-- CDN assets in <head> --%>
+<x-ckeditor5-assets />
+
+<%-- Editor instance with multiple roots --%>
+<livewire:ckeditor5
+    editorId="multiroot-editor"
+    editorType="multiroot"
+    :content="[
+        'header' => '<h1>Document Header</h1>',
+        'content' => '<p>Main document content goes here.</p>',
+        'footer' => '<p>Document footer</p>'
+    ]"
+/>
+
+<%-- Shared toolbar --%>
+<livewire:ckeditor5-ui-part
+    name="toolbar"
+    editorId="multiroot-editor"
+    class="mb-4"
+/>
+
+<%-- Header root --%>
+<livewire:ckeditor5-editable
+    editorId="multiroot-editor"
+    rootName="header"
+    class="mb-4 border border-gray-300 rounded"
+    editableClass="p-4"
+/>
+
+<%-- Main content root --%>
+<livewire:ckeditor5-editable
+    editorId="multiroot-editor"
+    rootName="content"
+    class="mb-4 border border-gray-300 rounded"
+    editableClass="p-4"
+/>
+
+<%-- Footer root --%>
+<livewire:ckeditor5-editable
+    editorId="multiroot-editor"
+    rootName="footer"
+    class="border border-gray-300 rounded"
+    editableClass="p-4"
+/>
+```
+
 ## Advanced configuration ⚙️
 
 ### Basic editor with custom content and merged config 🧑‍💻
@@ -666,61 +726,63 @@ These translations will be used in the context's editors, overriding the default
 
 ## Custom plugins 🧩
 
-Minimalist editor that appears directly within content when clicked. Ideal for in-place editing scenarios where the editing interface should be invisible until needed.
+To register a custom plugin, use the `registerCustomEditorPlugin` function. This function takes the plugin name and the plugin _reader_ that returns a class extending `Plugin`.
 
-**Features:**
+```javascript
+import { CustomEditorPluginsRegistry as Registry } from 'ckeditor5-livewire';
 
-- No visible toolbar until content is focused
-- Seamless integration with existing layouts
-- Great for editing headings, captions, or short content
+const unregister = Registry.the.register('MyCustomPlugin', async () => {
+  // It's recommended to use lazy import to
+  // avoid bundling ckeditor code in your application bundle.
+  const { Plugin } = await import('ckeditor5');
 
-![CKEditor 5 Inline Editor in Elixir Phoenix application](docs/inline-editor.png)
+  return class extends Plugin {
+    static get pluginName() {
+      return 'MyCustomPlugin';
+    }
 
-```blade
-<%!-- Inline editor --%>
-<.ckeditor
-  editorType="inline"
-  content="<p>Click here to edit this content</p>"
-  editableHeight="300px"
-/>
+    init() {
+      console.log('MyCustomPlugin initialized');
+      // Custom plugin logic here
+    }
+  };
+});
 ```
 
-**Note:** Inline editors don't work with `<textarea>` elements and may not be suitable for traditional form scenarios.
+In order to use the plugin you need to extend your config in `config/config.exs`:
 
-### Decoupled editor 🌐
+```php
+'presets' => [
+    'default' => [
+        'config' => [
+            'plugins' => [
+                'MyCustomPlugin',
+                // other plugins...
+            ],
+            'toolbar' => [
+                'items' => [
+                    'myCustomButton',
+                    // other toolbar items...
+                ]
+            ]
+        ]
+    ]
+];
+```
 
-Flexible editor where toolbar and editing area are completely separated. Provides maximum layout control for custom interfaces and complex applications.
+It must be called before the editor is initialized. You can unregister the plugin later by calling the returned function:
 
-**Features:**
+```javascript
+unregister();
+// or CustomEditorPluginsRegistry.the.unregister('MyCustomPlugin');
+```
 
-- Complete separation of toolbar and content area
-- Custom positioning and styling of UI elements
-- Full control over editor layout and appearance
+If you want to de-register all registered plugins, you can use the `unregisterAll` method:
 
-![CKEditor 5 Decoupled Editor in Livewire application](docs/decoupled-editor.png)
+```javascript
+import { CustomEditorPluginsRegistry } from 'ckeditor5-livewire';
 
-```blade
-<!-- Editor instance -->
-<livewire:ckeditor5
-    editorId="decoupled-editor"
-    editorType="decoupled"
-    :content="['main' => '<p>This is the initial content of the decoupled editor.</p>']"
-/>
-
-<!-- Separate toolbar -->
-<livewire:ckeditor5-ui-part
-    name="toolbar"
-    editorId="decoupled-editor"
-    class="my-4"
-/>
-
-<!-- Separate editable area -->
-<livewire:ckeditor5-editable
-    editorId="decoupled-editor"
-    class="border border-gray-300 rounded-xs"
-    editableClass="p-4"
-    content="<p>This is the initial content of the decoupled editor editable.</p>"
-/>
+CustomEditorPluginsRegistry.the.unregisterAll();
 ```
 
 ## Development ⚙️

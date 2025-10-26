@@ -204,6 +204,22 @@ class CKEditor5Test extends TestCase
         $this->assertSame('color: red;', $component->style);
     }
 
+    public function testComponentMountWithCustomTranslations(): void
+    {
+        config(['ckeditor5.presets.default' => [
+            'config' => ['toolbar' => ['bold']],
+            'editorType' => 'classic',
+        ]]);
+
+        $translations = ['Save' => 'Zapisz', 'Cancel' => 'Anuluj'];
+
+        $component = Livewire::test(CKEditor5::class, [
+            'customTranslations' => $translations,
+        ]);
+
+        $this->assertSame($translations, $component->preset['customTranslations']);
+    }
+
     public function testComponentRenderReturnsView(): void
     {
         config(['ckeditor5.presets.default' => [

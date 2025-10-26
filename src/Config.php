@@ -58,13 +58,9 @@ final class Config
      */
     public function getRawContexts(): array
     {
+        /** @var array<string, array> $contexts */
         $contexts = $this->config['contexts'] ?? [];
 
-        if (!is_array($contexts)) {
-            return [];
-        }
-
-        /** @var array<string, array> $contexts */
         return $contexts;
     }
 

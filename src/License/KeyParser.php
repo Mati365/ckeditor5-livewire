@@ -100,8 +100,6 @@ final class KeyParser
             return $payload;
         } catch (InvalidLicenseKey $e) {
             throw $e;
-        } catch (\Throwable $e) {
-            throw new InvalidLicenseKey('Failed to decode JWT payload', 0, $e);
         }
     }
 

@@ -145,16 +145,16 @@ Load CKEditor 5 directly from CKSource's CDN - no build configuration required. 
 6. **Use in Blade templates:**
 
    ```blade
-   <-- Load CDN assets in <head> (based on `default` preset) -->
+   <!-- Load CDN assets in <head> (based on `default` preset) -->
    <x-ckeditor5-assets />
 
-   <-- or with specific features (overrides `default` preset) -->
+   <!-- or with specific features (overrides `default` preset) -->
    <x-ckeditor5-assets :translations="['pl', 'de', 'fr']" premium />
 
-   <-- or with specific preset -->
+   <!-- or with specific preset -->
    <x-ckeditor5-assets preset="inline" />
 
-   <-- Use editor anywhere in <body> -->
+   <!-- Use editor anywhere in <body> -->
    <livewire:ckeditor5 content="<p>Hello world!</p>" />
    ```
 
@@ -169,10 +169,10 @@ Get started with the most common usage patterns. These examples show how to rend
 Create a basic editor with default toolbar and features. Perfect for simple content editing without server synchronization.
 
 ```blade
-<-- CDN only: Load assets in <head> -->
+<!-- CDN only: Load assets in <head> -->
 <x-ckeditor5-assets />
 
-<-- Render editor with initial content -->
+<!-- Render editor with initial content -->
 <livewire:ckeditor5
     content="<p>Initial content</p>"
     editableHeight="300px"
@@ -389,7 +389,7 @@ Support multiple languages in the editor UI and content. Learn how to load trans
 Depending on your setup, you can preload translations via CDN or let your bundler handle them automatically using lazy imports.
 
 ```blade
-<-- CDN only: Load specific translations -->
+<!-- CDN only: Load specific translations -->
 <x-ckeditor5-assets :translations="['pl', 'de', 'fr']" />
 
 <livewire:ckeditor5
@@ -458,10 +458,10 @@ Traditional WYSIWYG editor with a fixed toolbar above the editing area. Best for
 - Works well in forms and modal dialogs
 
 ```blade
-<-- CDN assets in <head> -->
+<!-- CDN assets in <head> -->
 <x-ckeditor5-assets />
 
-<-- Classic editor in <body> -->
+<!-- Classic editor in <body> -->
 <livewire:ckeditor5
     editorType="classic"
     content="<p>Initial content here</p>"
@@ -482,10 +482,10 @@ Minimalist editor that appears directly within content when clicked. Ideal for i
 ![CKEditor 5 Inline Editor in Livewire application](docs/inline-editor.png)
 
 ```blade
-<-- CDN assets in <head> -->
+<!-- CDN assets in <head> -->
 <x-ckeditor5-assets />
 
-<-- Inline editor -->
+<!-- Inline editor -->
 <livewire:ckeditor5
     editorType="inline"
     content="<p>Click here to edit this content</p>"
@@ -508,24 +508,24 @@ Flexible editor where toolbar and editing area are completely separated. Provide
 ![CKEditor 5 Decoupled Editor in Livewire application](docs/decoupled-editor.png)
 
 ```blade
-<-- CDN assets in <head> -->
+<!-- CDN assets in <head> -->
 <x-ckeditor5-assets />
 
-<-- Editor instance -->
+<!-- Editor instance -->
 <livewire:ckeditor5
     editorId="decoupled-editor"
     editorType="decoupled"
     :content="['main' => '<p>This is the initial content of the decoupled editor.</p>']"
 />
 
-<-- Separate toolbar -->
+<!-- Separate toolbar -->
 <livewire:ckeditor5-ui-part
     name="toolbar"
     editorId="decoupled-editor"
     class="my-4"
 />
 
-<-- Separate editable area -->
+<!-- Separate editable area -->
 <livewire:ckeditor5-editable
     editorId="decoupled-editor"
     class="border border-gray-300 rounded-xs"
@@ -548,10 +548,10 @@ Advanced editor supporting multiple separate editing areas (roots) with a shared
 ![CKEditor 5 Multiroot Editor in Livewire application](docs/multiroot-editor.png)
 
 ```blade
-<-- CDN assets in <head> -->
+<!-- CDN assets in <head> -->
 <x-ckeditor5-assets />
 
-<-- Editor instance with multiple roots -->
+<!-- Editor instance with multiple roots -->
 <livewire:ckeditor5
     editorId="multiroot-editor"
     editorType="multiroot"
@@ -562,14 +562,14 @@ Advanced editor supporting multiple separate editing areas (roots) with a shared
     ]"
 />
 
-<-- Shared toolbar -->
+<!-- Shared toolbar -->
 <livewire:ckeditor5-ui-part
     name="toolbar"
     editorId="multiroot-editor"
     class="mb-4"
 />
 
-<-- Header root -->
+<!-- Header root -->
 <livewire:ckeditor5-editable
     editorId="multiroot-editor"
     rootName="header"
@@ -577,7 +577,7 @@ Advanced editor supporting multiple separate editing areas (roots) with a shared
     editableClass="p-4"
 />
 
-<-- Main content root -->
+<!-- Main content root -->
 <livewire:ckeditor5-editable
     editorId="multiroot-editor"
     rootName="content"
@@ -585,7 +585,7 @@ Advanced editor supporting multiple separate editing areas (roots) with a shared
     editableClass="p-4"
 />
 
-<-- Footer root -->
+<!-- Footer root -->
 <livewire:ckeditor5-editable
     editorId="multiroot-editor"
     rootName="footer"
@@ -681,16 +681,16 @@ return [
 And use it in your Blade template:
 
 ```blade
-<-- Create a context -->
+<!-- Create a context -->
 <livewire:ckeditor5-context contextId="my-context" />
 
-<-- Editor 1 using the context -->
+<!-- Editor 1 using the context -->
 <livewire:ckeditor5
     contextId="my-context"
     content="Content 1"
 />
 
-<-- Editor 2 using the same context -->
+<!-- Editor 2 using the same context -->
 <livewire:ckeditor5
     class="mt-6"
     contextId="my-context"

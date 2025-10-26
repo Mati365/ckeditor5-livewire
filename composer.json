@@ -30,6 +30,18 @@
   "require-dev": {
     "psalm/plugin-laravel": "^3.0.4",
     "vimeo/psalm": "^6.13",
-    "friendsofphp/php-cs-fixer": "^3.88"
+    "friendsofphp/php-cs-fixer": "^3.88",
+    "phpunit/phpunit": "^11.0",
+    "mockery/mockery": "^1.6",
+    "orchestra/testbench": "^9.0"
+  },
+  "scripts": {
+    "test": "phpunit",
+    "test:coverage": "env XDEBUG_MODE=coverage php -d pcov.enabled=1 -d pcov.directory=. ./vendor/bin/phpunit --coverage-html coverage --coverage-text"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Mati365\\CKEditor5Livewire\\Tests\\": "tests/"
+    }
   }
 }

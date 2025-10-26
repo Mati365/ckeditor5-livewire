@@ -25,6 +25,9 @@ Homestead.json
 /.vagrant
 .phpunit.result.cache
 .phpunit.cache
+coverage/
+coverage.xml
+coverage-xml/
 
 /public/build
 /storage/pail

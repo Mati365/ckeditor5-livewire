@@ -2,6 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-green.svg?style=flat-square)](http://makeapullrequest.com)
+[![Code checks](https://github.com/Mati365/ckeditor5-livewire/actions/workflows/code-checks.yml/badge.svg)](https://github.com/Mati365/ckeditor5-livewire/actions/workflows/code-checks.yml)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/mati365/ckeditor5-livewire?style=flat-square)
 [![GitHub issues](https://img.shields.io/github/issues/mati365/ckeditor5-livewire?style=flat-square)](https://github.com/Mati365/ckeditor5-livewire/issues)
 
@@ -27,6 +28,18 @@ pnpm run dev
 ```
 
 The playground app will be available at [http://localhost:8000](http://localhost:8000).
+
+### Running Tests 🧪
+
+The project includes comprehensive PHP unit tests with 100% code coverage requirement:
+
+```bash
+# Run all tests
+composer test
+
+# Run tests with coverage report (requires pcov)
+composer test:coverage
+```
 
 ## Usage example ✍️
 

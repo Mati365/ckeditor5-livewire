@@ -38,10 +38,22 @@ jobs:
         with:
           php-version: '8.3'
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite
-          coverage: none
+          coverage: pcov
 
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Run PHPUnit tests with coverage
+        run: vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
+
+      - name: Check coverage threshold (100%)
+        run: |
+          coverage=$(php -r '$xml = simplexml_load_file("coverage.xml"); $metrics = $xml->project->metrics; $percent = round(((float)$metrics["coveredstatements"] / (float)$metrics["statements"]) * 100, 2); echo $percent;')
+          echo "Code coverage: $coverage%"
+          if [ $(echo "$coverage < 100.0" | bc) -eq 1 ]; then
+            echo "Error: Code coverage is below 100% (current: $coverage%)"
+            exit 1
+          fi
 
       - name: Run Psalm
         run: vendor/bin/psalm --show-info=true --output-format=github

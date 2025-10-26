@@ -20,7 +20,6 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
 
 - [ckeditor5-livewire](#ckeditor5-livewire)
   - [Table of Contents](#table-of-contents)
-  - [Under Construction 🚧](#under-construction-)
   - [Installation 🚀](#installation-)
     - [🏠 Self-hosted via NPM](#-self-hosted-via-npm)
     - [📡 CDN Distribution](#-cdn-distribution)
@@ -56,10 +55,6 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
   - [Psst... 👀](#psst-)
   - [Trademarks 📜](#trademarks-)
   - [License 📜](#license-)
-
-## Under Construction 🚧
-
-This project is still in development and not production-ready. Features, structure, and APIs may change.
 
 ## Installation 🚀
 

@@ -1,6 +1,6 @@
 {
   "name": "ckeditor5-livewire",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "CKEditor 5 integration for Laravel Livewire",
   "exports": {
     ".": {

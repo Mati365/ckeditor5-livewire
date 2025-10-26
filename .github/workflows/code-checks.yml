@@ -28,6 +28,15 @@ jobs:
       - name: Run tests
         run: pnpm run npm_package:test
 
+      - name: Upload JS coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./npm_package/coverage/lcov.info
+          flags: javascript
+          name: javascript-coverage
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+
   php_checks:
     runs-on: ubuntu-latest
     steps:
@@ -54,6 +63,15 @@ jobs:
             echo "Error: Code coverage is below 100% (current: $coverage%)"
             exit 1
           fi
+
+      - name: Upload PHP coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage.xml
+          flags: php
+          name: php-coverage
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Run Psalm
         run: vendor/bin/psalm --show-info=true --output-format=github

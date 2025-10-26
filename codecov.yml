@@ -1,0 +1,25 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 100%
+        threshold: 0%
+    patch:
+      default:
+        target: 100%
+        threshold: 0%
+
+flags:
+  javascript:
+    paths:
+      - npm_package/
+    carryforward: false
+  php:
+    paths:
+      - src/
+    carryforward: false
+
+comment:
+  layout: "reach,diff,flags,tree"
+  behavior: default
+  require_changes: false

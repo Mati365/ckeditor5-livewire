@@ -18,10 +18,10 @@ export abstract class ClassHook<T extends object = Record<string, unknown>> {
   ) {}
 
   /**
-   * The ephemeral snapshot of the Livewire component.
+   * The canonical snapshot of the Livewire component.
    */
-  get ephemeral(): T {
-    return this.livewireComponent.ephemeral as T;
+  get canonical(): T {
+    return this.livewireComponent.canonical as T;
   }
 
   /**
@@ -54,6 +54,11 @@ export abstract class ClassHook<T extends object = Record<string, unknown>> {
    * Called when the element has been removed from the DOM.
    */
   abstract destroyed(): CanBePromise<void>;
+
+  /**
+   * Called when the component is updated by Livewire.
+   */
+  serverStateUpdated?(): CanBePromise<void>;
 }
 
 /**
@@ -68,20 +73,42 @@ export type ClassHookState = 'mounting' | 'mounted' | 'destroying' | 'destroyed'
  * @param Hook - A class that extends `ClassHook` to handle component lifecycle events.
  */
 export function registerLivewireComponentHook(name: string, Hook: { new(component: LivewireComponent): ClassHook<any>; }) {
-  window.Livewire.hook('component.init', async ({ component, cleanup }) => {
+  /**
+   * A map storing hook instances by component ID.
+   */
+  const hookInstances = new Map<string, ClassHook<any>>();
+
+  window.Livewire?.hook('component.init', async ({ component, cleanup }) => {
     if (component.name !== name) {
       return;
     }
 
     const instance = new Hook(component);
+    hookInstances.set(component.id, instance);
 
     cleanup(async () => {
       instance.state = 'destroying';
+
       await instance.destroyed();
+
       instance.state = 'destroyed';
+      hookInstances.delete(component.id);
     });
 
     await instance.mounted();
     instance.state = 'mounted';
+  });
+
+  // Add hook for updates when content changes from parent
+  window.Livewire?.hook('commit', async ({ component, succeed }) => {
+    if (component.name !== name) {
+      return;
+    }
+
+    succeed(() => {
+      const instance = hookInstances.get(component.id);
+
+      instance?.serverStateUpdated?.();
+    });
   });
 }

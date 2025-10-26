@@ -25,7 +25,7 @@ export class ContextComponentHook extends ClassHook<Snapshot> {
    * Mounts the context component.
    */
   override async mounted() {
-    const { contextId, language, context: contextConfig } = this.ephemeral;
+    const { contextId, language, context: contextConfig } = this.canonical;
     const { customTranslations, watchdogConfig, config: { plugins, ...config } } = contextConfig;
 
     const { loadedPlugins, hasPremium } = await loadEditorPlugins(plugins ?? []);
@@ -74,7 +74,7 @@ export class ContextComponentHook extends ClassHook<Snapshot> {
    * Destroys the context component. Unmounts root from the editor.
    */
   override async destroyed() {
-    const { contextId } = this.ephemeral;
+    const { contextId } = this.canonical;
 
     // Let's hide the element during destruction to prevent flickering.
     this.element.style.display = 'none';

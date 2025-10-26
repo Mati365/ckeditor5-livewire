@@ -172,16 +172,6 @@ class CKEditor5Test extends TestCase
         $this->assertSame(['ui' => 'en', 'content' => 'pl'], $component->language);
     }
 
-    public function testComponentMountWithEmit(): void
-    {
-        $component = Livewire::test(CKEditor5::class, [
-            'emit' => ['change' => true, 'focus' => false],
-        ]);
-
-        $this->assertTrue($component->emit['change']);
-        $this->assertFalse($component->emit['focus']);
-    }
-
     public function testComponentMountWithNameAttribute(): void
     {
         $component = Livewire::test(CKEditor5::class, [
@@ -218,6 +208,17 @@ class CKEditor5Test extends TestCase
         ]);
 
         $this->assertSame($translations, $component->preset['customTranslations']);
+    }
+
+    public function testComponentDispatchesFocusChangeEvent(): void
+    {
+        $component = Livewire::test(CKEditor5::class);
+
+        $component->set('focused', true)
+            ->assertDispatched('editor-focus-changed', editorId: $component->get('editorId'), focused: true);
+
+        $component->set('focused', false)
+            ->assertDispatched('editor-focus-changed', editorId: $component->get('editorId'), focused: false);
     }
 
     public function testComponentRenderReturnsView(): void

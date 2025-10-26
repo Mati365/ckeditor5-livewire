@@ -4,7 +4,7 @@ export type LivewireComponent<E = any> = {
   id: string;
   el: HTMLElement;
   name: string;
-  ephemeral: E;
+  canonical: E;
   $wire: Wire;
   effects: Record<string, unknown>;
   canonical: Record<string, unknown>;
@@ -23,8 +23,14 @@ export type ComponentInitEvent = {
   component: LivewireComponent;
 };
 
+export type ComponentCommitEvent = {
+  component: LivewireComponent;
+  succeed: (cb: VoidFunction) => void;
+};
+
 type Hook = {
   (event: 'component.init', callback: (attrs: ComponentInitEvent) => void): void;
+  (event: 'commit', callback: (attrs: ComponentCommitEvent) => void): void;
   (event: string, callback: (attrs: any) => void): void;
 };
 

@@ -29,6 +29,7 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
       - [How it works ⚙️](#how-it-works-️)
       - [Disabling the watchdog 🚫](#disabling-the-watchdog-)
     - [With Livewire Sync 🔄](#with-livewire-sync-)
+    - [Focus Tracking 👁️](#focus-tracking-️)
   - [Configuration ⚙️](#configuration-️)
     - [Custom Presets 🧩](#custom-presets-)
     - [Dynamic presets 🎯](#dynamic-presets-)
@@ -232,6 +233,54 @@ class Editor extends Component
 - Events are sent automatically when content changes
 - `saveDebounceMs` controls the delay between changes and events (default: 300ms)
 - Higher debounce values improve performance for large content or frequent changes
+
+### Focus Tracking 👁️
+
+You can track the focus and blur events of the editor by listening for the `editor-focus-changed` event. This event is dispatched with the editor ID and a boolean indicating whether the editor is focused.
+
+```php
+// app/Livewire/FocusDemo.php
+namespace App\Livewire;
+
+use Livewire\Component;
+use Livewire\Attributes\On;
+
+class FocusDemo extends Component
+{
+    public bool $isFocused = false;
+    public string $editorId = 'focus-demo-editor';
+
+    #[On('editor-focus-changed')]
+    public function onEditorFocusChanged(string $editorId, bool $focused): void
+    {
+        if ($editorId === $this->editorId) {
+            $this->isFocused = $focused;
+        }
+    }
+
+    public function render()
+    {
+        return view('livewire.focus-demo');
+    }
+}
+```
+
+```blade
+<!-- resources/views/livewire/focus-demo.blade.php -->
+<div>
+    <p class="mb-4">
+        Editor focus state:
+        <span class="font-bold {{ $isFocused ? 'text-green-500' : 'text-red-500' }}">
+            {{ $isFocused ? 'Focused' : 'Not Focused' }}
+        </span>
+    </p>
+
+    <livewire:ckeditor5
+        :editorId="$editorId"
+        content='<p>This editor demonstrates the focus event.</p>'
+    />
+</div>
+```
 
 ## Configuration ⚙️
 

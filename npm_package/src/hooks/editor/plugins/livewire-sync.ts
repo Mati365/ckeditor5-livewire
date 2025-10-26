@@ -1,8 +1,8 @@
 import type { PluginConstructor } from 'ckeditor5';
 
-import type { Wire } from '../../../livewire';
+import type { EditorComponentHook } from '../editor';
 
-import { debounce } from '../../../shared';
+import { debounce, shallowEqual } from '../../../shared';
 import { getEditorRootsValues } from '../utils';
 
 /**
@@ -10,9 +10,8 @@ import { getEditorRootsValues } from '../utils';
  */
 export async function createLivewireSyncPlugin(
   {
-    emit,
     saveDebounceMs,
-    $wire,
+    component,
   }: Attrs,
 ): Promise<PluginConstructor> {
   const { Plugin } = await import('ckeditor5');
@@ -29,13 +28,8 @@ export async function createLivewireSyncPlugin(
      * Initializes the plugin.
      */
     public init(): void {
-      if (emit.change) {
-        this.setupTypingContentPush();
-      }
-
-      if (emit.focus) {
-        this.setupFocusableEventPush();
-      }
+      this.setupTypingContentPush();
+      this.setupFocusableEventPush();
     }
 
     /**
@@ -43,13 +37,19 @@ export async function createLivewireSyncPlugin(
      */
     private setupTypingContentPush() {
       const { model } = this.editor;
+      const { $wire } = component;
 
       const syncContentChange = () => {
-        $wire.set('content', this.getEditorRootsValues());
+        const values = this.getEditorRootsValues();
+
+        // Prevent looping when editor changed content from Livewire.
+        if (!shallowEqual(values, component.canonical.content)) {
+          $wire.set('content', values);
+        }
       };
 
       model.document.on('change:data', debounce(saveDebounceMs, syncContentChange));
-      syncContentChange();
+      this.editor.once('ready', syncContentChange);
     }
 
     /**
@@ -57,10 +57,17 @@ export async function createLivewireSyncPlugin(
      */
     private setupFocusableEventPush() {
       const { ui } = this.editor;
+      const { $wire } = component;
 
       const pushEvent = () => {
+        const values = this.getEditorRootsValues();
+
         $wire.set('focused', ui.focusTracker.isFocused);
-        $wire.set('content', this.getEditorRootsValues());
+
+        // Only push content if it has changed compared to canonical
+        if (!shallowEqual(values, component.canonical.content)) {
+          $wire.set('content', values);
+        }
       };
 
       ui.focusTracker.on('change:isFocused', pushEvent);
@@ -79,7 +86,6 @@ export async function createLivewireSyncPlugin(
  * The attributes required to create the LivewireSync plugin.
  */
 type Attrs = {
-  emit: { change?: boolean; focus?: boolean; };
   saveDebounceMs: number;
-  $wire: Wire;
+  component: EditorComponentHook;
 };

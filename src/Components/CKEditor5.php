@@ -4,6 +4,7 @@ namespace Mati365\CKEditor5Livewire\Components;
 
 use Livewire\Component;
 use Illuminate\View\View;
+use Livewire\Attributes\Modelable;
 use Mati365\CKEditor5Livewire\Config;
 use Mati365\CKEditor5Livewire\Preset\{EditorType, Preset, PresetParser};
 use Mati365\CKEditor5Livewire\Utils\LanguageNormalizer;
@@ -22,7 +23,14 @@ final class CKEditor5 extends Component
      *
      * @var array<string, string> Content sections, e.g., ['main' => '<p>Initial content</p>']
      */
+    #[Modelable]
     public mixed $content;
+
+    /**
+     * Whether the editor is currently focused.
+     * Updated by the JavaScript side when focus changes.
+     */
+    public bool $focused = false;
 
     /**
      * Unique identifier for the editor instance.
@@ -83,26 +91,6 @@ final class CKEditor5 extends Component
     public array $language;
 
     /**
-     * Configuration for which global events should be forwarded to Livewire.
-     *
-     * If enabled the `ckeditor5:${ event }` event will be emitted by the Livewire component
-     * when the corresponding CKEditor event occurs.
-     *
-     * The payload of the emitted event will be an array with the following structure:
-     *
-     * - `editorId` - The unique identifier of the editor instance.
-     * - `data` - Additional data related to the event (if applicable).
-     *
-     * It's enabled by default for the `change` and `focus` events.
-     *
-     * @var array{change: bool, focus: bool}
-     */
-    public array $emit = [
-        'change' => false,
-        'focus' => false,
-    ];
-
-    /**
      * Public serializable preset dump for the view/JS and Livewire snapshot.
      * Stored as array so Livewire will include it in `wire:snapshot`.
      */
@@ -129,8 +117,8 @@ final class CKEditor5 extends Component
      * Mount method called when the component is initialized.
      * Sets up the initial content, configuration, and generates a unique editor ID.
      *
-     * @param string|array<string, string> $content Initial content for the editor
      * @param Preset|string $presetName Preset instance or preset name
+     * @param string|array<string, string>|null $content Initial content for the editor
      * @param ?string $editorId Unique identifier for the editor instance
      * @param ?array $config Configuration array for CKEditor5. It'll override the preset config if provided.
      * @param ?array $mergeConfig Configuration array to be merged with the preset config if provided.
@@ -141,7 +129,6 @@ final class CKEditor5 extends Component
      * @param int $saveDebounceMs Debounce time in milliseconds for saving content changes
      * @param ?int $editableHeight Fixed height for the editor's content area in pixels
      * @param array{ui?: string, content?: string}|string|null $locale Language configuration for UI and content
-     * @param array{change?: bool, focus?: bool} $emit Events to forward to Livewire
      * @param ?string $name Name attribute for the hidden input field (if form submission is needed)
      * @param bool $required Whether the hidden input is required
      * @param ?string $class CSS class for the main wrapper element
@@ -149,8 +136,8 @@ final class CKEditor5 extends Component
      * @return void
      */
     public function mount(
-        array|string $content = ['main' => ''],
         Preset|string $presetName = 'default',
+        array|string|null $content = null,
         ?string $editorId = null,
         ?array $config = null,
         ?array $mergeConfig = null,
@@ -161,7 +148,6 @@ final class CKEditor5 extends Component
         int $saveDebounceMs = 300,
         ?int $editableHeight = null,
         array|string|null $locale = null,
-        array $emit = [],
         ?string $name = null,
         bool $required = false,
         ?string $class = null,
@@ -187,10 +173,12 @@ final class CKEditor5 extends Component
             );
         }
 
-        if (is_string($content)) {
-            $this->content = [ 'main' => $content ];
-        } else {
-            $this->content = $content;
+        if ($content !== null) {
+            if (is_string($content)) {
+                $this->content = [ 'main' => $content ];
+            } else {
+                $this->content = $content;
+            }
         }
 
         $this->editorId = $editorId ?? 'ckeditor-' . uniqid();
@@ -202,9 +190,24 @@ final class CKEditor5 extends Component
         $this->name = $name;
         $this->required = $required;
         $this->language = LanguageNormalizer::normalize($locale);
-        $this->emit = array_merge($this->emit, $emit);
         $this->class = $class;
         $this->style = $style;
+    }
+
+    /**
+     * Called when the focused property is updated.
+     * Dispatches an event to the parent component with the new focused state.
+     *
+     * @param bool $value The new focused state
+     * @return void
+     */
+    public function updatedFocused(bool $value): void
+    {
+        $this->dispatch(
+            'editor-focus-changed',
+            editorId: $this->editorId,
+            focused: $value
+        );
     }
 
     /**

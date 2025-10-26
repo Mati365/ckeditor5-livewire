@@ -6,7 +6,9 @@ use Livewire\Component;
 
 class EditorForm extends Component
 {
-    public string $content = '<p>Initial content from wire:model</p>';
+    public array $content = [
+        'main' => '<p>Initial content</p>',
+    ];
 
     public function render()
     {
@@ -20,6 +22,6 @@ class EditorForm extends Component
 
     public function resetContent()
     {
-        $this->content = '<p>Content has been reset!</p>';
+        $this->content = [ 'main' => '<p>Content has been reset!</p>' ];
     }
 }

@@ -13,12 +13,12 @@ export function queryAllEditorEditables(editorId: EditorId): Record<string, Edit
   return (
     window.Livewire
       .all()
-      .filter(({ name, ephemeral }) => name === 'ckeditor5-editable' && ephemeral['editorId'] === editorId)
-      .reduce<Record<string, EditableItem>>((acc, { ephemeral, el }) => ({
+      .filter(({ name, canonical }) => name === 'ckeditor5-editable' && canonical['editorId'] === editorId)
+      .reduce<Record<string, EditableItem>>((acc, { canonical, el }) => ({
         ...acc,
-        [ephemeral['rootName'] as string]: {
+        [canonical['rootName'] as string]: {
           element: el.querySelector('[data-cke-editable-content]')!,
-          content: ephemeral['content'],
+          content: canonical['content'],
         },
       }), Object.create({}))
   );

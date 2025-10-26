@@ -17,7 +17,7 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
    * Mounts the editable component.
    */
   override mounted() {
-    const { editorId, rootName, content, saveDebounceMs } = this.ephemeral;
+    const { editorId, rootName, content, saveDebounceMs } = this.canonical;
     const input = this.element.querySelector<HTMLInputElement>('input');
 
     // If the editor is not registered yet, we will wait for it to be registered.
@@ -72,10 +72,28 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
   }
 
   /**
+   * Called when the component is updated by Livewire.
+   */
+  override async serverStateUpdated(): Promise<void> {
+    const editor = await this.editorPromise;
+
+    if (!editor) {
+      return;
+    }
+
+    const { content, rootName } = this.canonical;
+    const value = editor.getData({ rootName });
+
+    if (value !== content) {
+      editor.setData(content ?? '');
+    }
+  }
+
+  /**
    * Destroys the editable component. Unmounts root from the editor.
    */
   override async destroyed() {
-    const { rootName } = this.ephemeral;
+    const { rootName } = this.canonical;
 
     // Let's hide the element during destruction to prevent flickering.
     this.element.style.display = 'none';

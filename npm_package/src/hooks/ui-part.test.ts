@@ -41,7 +41,7 @@ describe('ui-part component', () => {
       const { el } = livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-ui-part',
         el: createUIPartHtmlElement(),
-        ephemeral: createUIPartSnapshot('toolbar'),
+        canonical: createUIPartSnapshot('toolbar'),
       });
 
       expect(toolbarElement).toBeTruthy();
@@ -57,7 +57,7 @@ describe('ui-part component', () => {
       const { el } = livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-ui-part',
         el: createUIPartHtmlElement(),
-        ephemeral: createUIPartSnapshot('menubar'),
+        canonical: createUIPartSnapshot('menubar'),
       });
 
       expect(el.children.length).toBeGreaterThan(0);
@@ -73,7 +73,7 @@ describe('ui-part component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-ui-part',
         el: createUIPartHtmlElement(),
-        ephemeral: createUIPartSnapshot('unknown-part'),
+        canonical: createUIPartSnapshot('unknown-part'),
       });
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
@@ -87,7 +87,7 @@ describe('ui-part component', () => {
       const { el } = livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-ui-part',
         el: createUIPartHtmlElement(),
-        ephemeral: createUIPartSnapshot('toolbar'),
+        canonical: createUIPartSnapshot('toolbar'),
       });
 
       appendMultirootEditor();
@@ -110,7 +110,7 @@ describe('ui-part component', () => {
       const { id, el } = livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-ui-part',
         el: createUIPartHtmlElement(),
-        ephemeral: createUIPartSnapshot('toolbar'),
+        canonical: createUIPartSnapshot('toolbar'),
       });
 
       expect(el.children.length).toBeGreaterThan(0);
@@ -125,7 +125,7 @@ describe('ui-part component', () => {
       const { id, el } = livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-ui-part',
         el: createUIPartHtmlElement(),
-        ephemeral: createUIPartSnapshot('toolbar'),
+        canonical: createUIPartSnapshot('toolbar'),
       });
 
       await livewireStub.$internal.unmountComponent(id);
@@ -137,7 +137,7 @@ describe('ui-part component', () => {
       const { id, el } = livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-ui-part',
         el: createUIPartHtmlElement(),
-        ephemeral: createUIPartSnapshot('toolbar'),
+        canonical: createUIPartSnapshot('toolbar'),
       });
 
       await livewireStub.$internal.unmountComponent(id);
@@ -151,7 +151,7 @@ describe('ui-part component', () => {
     livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
       name: 'ckeditor5',
       el: createEditorHtmlElement(),
-      ephemeral: {
+      canonical: {
         ...createEditorSnapshot(),
         preset: createEditorPreset('multiroot'),
         content: initialContent,

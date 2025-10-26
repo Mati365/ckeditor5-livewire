@@ -4,7 +4,7 @@ import type { EditorId, EditorLanguage, EditorPreset, EditorType } from './typin
 import type { EditorCreator } from './utils';
 
 import { ContextsRegistry } from '../../hooks/context';
-import { isEmptyObject, waitFor } from '../../shared';
+import { isEmptyObject, shallowEqual, waitFor } from '../../shared';
 import { ClassHook } from '../hook';
 import { EditorsRegistry } from './editors-registry';
 import {
@@ -13,6 +13,7 @@ import {
 } from './plugins';
 import {
   createEditorInContext,
+  getEditorRootsValues,
   isSingleEditingLikeEditor,
   loadAllEditorTranslations,
   loadEditorConstructor,
@@ -40,7 +41,7 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
    * @inheritdoc
    */
   override async mounted(): Promise<void> {
-    const { editorId } = this.ephemeral;
+    const { editorId } = this.canonical;
 
     EditorsRegistry.the.resetErrors(editorId);
 
@@ -106,6 +107,24 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
   }
 
   /**
+   * Updates the editor content when the component is updated from outside (e.g., via wire:model).
+   */
+  override async serverStateUpdated(): Promise<void> {
+    const editor = await this.editorPromise;
+
+    if (!editor || editor.ui.focusTracker.isFocused) {
+      return;
+    }
+
+    const { content } = this.canonical;
+    const values = getEditorRootsValues(editor);
+
+    if (!shallowEqual(content, values)) {
+      editor.setData(content);
+    }
+  }
+
+  /**
    * Creates the CKEditor instance.
    */
   private async createEditor() {
@@ -114,12 +133,11 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
       editorId,
       contextId,
       editableHeight,
-      emit,
       saveDebounceMs,
       language,
       watchdog,
       content,
-    } = this.ephemeral;
+    } = this.canonical;
 
     const {
       customTranslations,
@@ -156,9 +174,8 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
     loadedPlugins.push(
       await createLivewireSyncPlugin(
         {
-          emit,
           saveDebounceMs,
-          $wire: this.$wire,
+          component: this,
         },
       ),
     );
@@ -346,12 +363,4 @@ export type Snapshot = {
    * The language of the editor UI and content.
    */
   language: EditorLanguage;
-
-  /**
-   * The global events of the editor to forward to Livewire.
-   */
-  emit: {
-    change: boolean;
-    focus: boolean;
-  };
 };

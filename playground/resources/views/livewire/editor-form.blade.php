@@ -12,7 +12,6 @@
         <livewire:ckeditor5
             wire:model="content"
             editorId="editor-with-model"
-            :emit="['change' => true]"
             :mergeConfig="[
                 'menuBar' => [
                     'isVisible' => true
@@ -37,7 +36,7 @@
     <div class="bg-gray-100 dark:bg-gray-900 p-4 rounded-lg">
         <h3 class="mb-2 font-semibold text-gray-700 dark:text-gray-300">Current Content Value:</h3>
         <div class="bg-white dark:bg-gray-800 p-3 border border-gray-300 dark:border-gray-600 rounded font-mono text-sm break-all">
-            {{ $content }}
+            {{ $content['main'] }}
         </div>
     </div>
 

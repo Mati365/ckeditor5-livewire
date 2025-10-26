@@ -43,7 +43,7 @@ describe('editable component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-editable',
         el: createEditableHtmlElement(),
-        ephemeral: createEditableSnapshot('foo', '<p>Initial foo component</p>'),
+        canonical: createEditableSnapshot('foo', '<p>Initial foo component</p>'),
       });
 
       expect(editor.getData({ rootName: 'foo' })).toBe('<p>Initial foo component</p>');
@@ -53,7 +53,7 @@ describe('editable component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-editable',
         el: createEditableHtmlElement(),
-        ephemeral: createEditableSnapshot('bar', '<p>Initial bar content</p>'),
+        canonical: createEditableSnapshot('bar', '<p>Initial bar content</p>'),
       });
 
       appendMultirootEditor({
@@ -65,7 +65,7 @@ describe('editable component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-editable',
         el: createEditableHtmlElement(),
-        ephemeral: createEditableSnapshot('foo', '<p>Initial foo content</p>'),
+        canonical: createEditableSnapshot('foo', '<p>Initial foo content</p>'),
       });
 
       expect(editor.getData({ rootName: 'foo' })).toBe('<p>Initial foo content</p>');
@@ -80,7 +80,7 @@ describe('editable component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-editable',
         el: createEditableHtmlElement(),
-        ephemeral: createEditableSnapshot('bar', '<p>Initial bar content</p>'),
+        canonical: createEditableSnapshot('bar', '<p>Initial bar content</p>'),
       });
 
       const editor = await waitForTestEditor();
@@ -88,7 +88,7 @@ describe('editable component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-editable',
         el: createEditableHtmlElement(),
-        ephemeral: createEditableSnapshot('foo', '<p>Initial foo content</p>'),
+        canonical: createEditableSnapshot('foo', '<p>Initial foo content</p>'),
       });
 
       expect(editor.getData({ rootName: 'foo' })).toBe('<p>Initial foo content</p>');
@@ -103,7 +103,7 @@ describe('editable component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-editable',
         el: createEditableHtmlElement(),
-        ephemeral: createEditableSnapshot('main'),
+        canonical: createEditableSnapshot('main'),
       });
 
       const editor = await waitForTestEditor();
@@ -113,7 +113,7 @@ describe('editable component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-editable',
         el: createEditableHtmlElement(),
-        ephemeral: createEditableSnapshot('main'),
+        canonical: createEditableSnapshot('main'),
       });
 
       expect(editor.getData({ rootName: 'main' })).toBe('<p>Initial main content</p>');
@@ -127,7 +127,7 @@ describe('editable component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-editable',
         el: createEditableHtmlElement(),
-        ephemeral: createEditableSnapshot('main'),
+        canonical: createEditableSnapshot('main'),
       });
 
       const editor = await waitForTestEditor();
@@ -137,7 +137,7 @@ describe('editable component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-editable',
         el: createEditableHtmlElement(),
-        ephemeral: createEditableSnapshot('main', '<p>Updated main content</p>'),
+        canonical: createEditableSnapshot('main', '<p>Updated main content</p>'),
       });
 
       expect(editor.getData({ rootName: 'main' })).toBe('<p>Updated main content</p>');
@@ -163,7 +163,7 @@ describe('editable component', () => {
         el: createEditableHtmlElement({
           withInput: false,
         }),
-        ephemeral: createEditableSnapshot('foo', '<p>Initial foo component</p>'),
+        canonical: createEditableSnapshot('foo', '<p>Initial foo component</p>'),
       });
 
       expect(editor.getData({ rootName: 'foo' })).toBe('<p>Initial foo component</p>');
@@ -175,7 +175,7 @@ describe('editable component', () => {
         el: createEditableHtmlElement({
           id: 'editable-foo',
         }),
-        ephemeral: createEditableSnapshot('foo', '<p>Initial foo component</p>'),
+        canonical: createEditableSnapshot('foo', '<p>Initial foo component</p>'),
       });
 
       const input = queryEditableInput('editable-foo')!;
@@ -189,7 +189,7 @@ describe('editable component', () => {
         el: createEditableHtmlElement({
           id: 'editable-foo',
         }),
-        ephemeral: {
+        canonical: {
           ...createEditableSnapshot('foo', '<p>Initial foo component</p>'),
           saveDebounceMs: 500,
         },
@@ -230,7 +230,7 @@ describe('editable component', () => {
       const { $wire } = livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-editable',
         el: createEditableHtmlElement(),
-        ephemeral: createEditableSnapshot('foo', '<p>Initial foo component</p>'),
+        canonical: createEditableSnapshot('foo', '<p>Initial foo component</p>'),
       });
 
       expect($wire.set).toHaveBeenCalledWith('content', '<p>Initial foo component</p>');
@@ -240,7 +240,7 @@ describe('editable component', () => {
       const { $wire } = livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-editable',
         el: createEditableHtmlElement(),
-        ephemeral: {
+        canonical: {
           ...createEditableSnapshot('foo', '<p>Initial foo component</p>'),
           saveDebounceMs: 500,
         },
@@ -266,7 +266,7 @@ describe('editable component', () => {
     livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
       name: 'ckeditor5',
       el: createEditorHtmlElement(),
-      ephemeral: {
+      canonical: {
         ...createEditorSnapshot(),
         preset: createEditorPreset('multiroot'),
         content: initialContent,

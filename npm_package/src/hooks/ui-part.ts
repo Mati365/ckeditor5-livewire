@@ -14,7 +14,7 @@ export class UIPartComponentHook extends ClassHook<Snapshot> {
    * Mounts the UI part component.
    */
   override async mounted() {
-    const { editorId, name } = this.ephemeral;
+    const { editorId, name } = this.canonical;
 
     // If the editor is not registered yet, we will wait for it to be registered.
     this.mountedPromise = EditorsRegistry.the.execute(editorId, (editor) => {

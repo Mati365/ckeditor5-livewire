@@ -69,4 +69,11 @@
             <livewire:editor-form />
         </div>
     </section>
+
+    <section class="mb-16">
+        <h2 class="mb-4 font-semibold text-xl">Classic Editor with Focus Event</h2>
+        <div class="bg-white dark:bg-gray-800 shadow p-6 rounded-lg">
+            <livewire:focus-demo />
+        </div>
+    </section>
 @endsection

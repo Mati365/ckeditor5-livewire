@@ -43,7 +43,7 @@ describe('context component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-context',
         el: createContextHtmlElement(),
-        ephemeral: createContextSnapshot('my-context'),
+        canonical: createContextSnapshot('my-context'),
       });
 
       const watchdog = await ContextsRegistry.the.waitFor('my-context');
@@ -56,7 +56,7 @@ describe('context component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-context',
         el: createContextHtmlElement(),
-        ephemeral: createContextSnapshot(DEFAULT_TEST_CONTEXT_ID, {
+        canonical: createContextSnapshot(DEFAULT_TEST_CONTEXT_ID, {
           config: {},
         }),
       });
@@ -70,7 +70,7 @@ describe('context component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-context',
         el: createContextHtmlElement(),
-        ephemeral: createContextSnapshot(),
+        canonical: createContextSnapshot(),
       });
 
       const watchdog = await waitForTestContext();
@@ -94,7 +94,7 @@ describe('context component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-context',
         el: createContextHtmlElement(),
-        ephemeral: createContextSnapshot(DEFAULT_TEST_CONTEXT_ID, {
+        canonical: createContextSnapshot(DEFAULT_TEST_CONTEXT_ID, {
           config: {
             plugins: ['CustomPlugin'],
           },
@@ -122,7 +122,7 @@ describe('context component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-context',
         el: createContextHtmlElement(),
-        ephemeral: createContextSnapshot(DEFAULT_TEST_CONTEXT_ID, {
+        canonical: createContextSnapshot(DEFAULT_TEST_CONTEXT_ID, {
           customTranslations: {
             en: {
               HELLO: 'Hello from CustomPlugin',
@@ -156,7 +156,7 @@ describe('context component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-context',
         el: createContextHtmlElement(),
-        ephemeral: createContextSnapshot(
+        canonical: createContextSnapshot(
           DEFAULT_TEST_CONTEXT_ID,
           {
             customTranslations: {
@@ -190,7 +190,7 @@ describe('context component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-context',
         el: createContextHtmlElement(),
-        ephemeral: createContextSnapshot(),
+        canonical: createContextSnapshot(),
       });
 
       const { context } = await waitForTestContext();
@@ -198,7 +198,7 @@ describe('context component', () => {
       livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: 'ckeditor5',
         el: createEditorHtmlElement(),
-        ephemeral: createEditorSnapshot(),
+        canonical: createEditorSnapshot(),
       });
 
       await waitForTestEditor();
@@ -210,7 +210,7 @@ describe('context component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-context',
         el: createContextHtmlElement(),
-        ephemeral: createContextSnapshot(),
+        canonical: createContextSnapshot(),
       });
 
       const { context } = await waitForTestContext();
@@ -218,7 +218,7 @@ describe('context component', () => {
       livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: 'ckeditor5',
         el: createEditorHtmlElement(),
-        ephemeral: {
+        canonical: {
           ...createEditorSnapshot(),
           contextId: DEFAULT_TEST_CONTEXT_ID,
         },
@@ -233,7 +233,7 @@ describe('context component', () => {
       livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: 'ckeditor5',
         el: createEditorHtmlElement(),
-        ephemeral: {
+        canonical: {
           ...createEditorSnapshot(),
           contextId: DEFAULT_TEST_CONTEXT_ID,
         },
@@ -244,7 +244,7 @@ describe('context component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-context',
         el: createContextHtmlElement(),
-        ephemeral: createContextSnapshot(),
+        canonical: createContextSnapshot(),
       });
 
       const { context } = await waitForTestContext();
@@ -257,7 +257,7 @@ describe('context component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-context',
         el: createContextHtmlElement(),
-        ephemeral: createContextSnapshot(),
+        canonical: createContextSnapshot(),
       });
 
       const { context } = await waitForTestContext();
@@ -265,7 +265,7 @@ describe('context component', () => {
       livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: 'ckeditor5',
         el: createEditorHtmlElement({ id: 'editor-1' }),
-        ephemeral: {
+        canonical: {
           ...createEditorSnapshot(),
           editorId: 'editor-1',
           contextId: DEFAULT_TEST_CONTEXT_ID,
@@ -275,7 +275,7 @@ describe('context component', () => {
       livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: 'ckeditor5',
         el: createEditorHtmlElement({ id: 'editor-2' }),
-        ephemeral: {
+        canonical: {
           ...createEditorSnapshot(),
           editorId: 'editor-2',
           contextId: DEFAULT_TEST_CONTEXT_ID,
@@ -297,7 +297,7 @@ describe('context component', () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-context',
         el: createContextHtmlElement(),
-        ephemeral: createContextSnapshot(),
+        canonical: createContextSnapshot(),
       });
 
       const { context } = await waitForTestContext();
@@ -305,7 +305,7 @@ describe('context component', () => {
       const { id: editorId } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: 'ckeditor5',
         el: createEditorHtmlElement(),
-        ephemeral: {
+        canonical: {
           ...createEditorSnapshot(),
           contextId: DEFAULT_TEST_CONTEXT_ID,
         },
@@ -324,7 +324,7 @@ describe('context component', () => {
       const { id } = livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-context',
         el: createContextHtmlElement(),
-        ephemeral: createContextSnapshot('my-context'),
+        canonical: createContextSnapshot('my-context'),
       });
 
       const watchdog = await ContextsRegistry.the.waitFor('my-context');
@@ -341,7 +341,7 @@ describe('context component', () => {
       const { id, el } = livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-context',
         el: createContextHtmlElement(),
-        ephemeral: createContextSnapshot(),
+        canonical: createContextSnapshot(),
       });
 
       await livewireStub.$internal.unmountComponent(id);
@@ -353,7 +353,7 @@ describe('context component', () => {
       const { id, el } = livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-context',
         el: createContextHtmlElement(),
-        ephemeral: createContextSnapshot(),
+        canonical: createContextSnapshot(),
       });
 
       await livewireStub.$internal.unmountComponent(id);
@@ -365,7 +365,7 @@ describe('context component', () => {
       const { id: contextId } = livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-context',
         el: createContextHtmlElement(),
-        ephemeral: createContextSnapshot(),
+        canonical: createContextSnapshot(),
       });
 
       await waitForTestContext();
@@ -373,7 +373,7 @@ describe('context component', () => {
       const { id: editorId } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: 'ckeditor5',
         el: createEditorHtmlElement(),
-        ephemeral: {
+        canonical: {
           ...createEditorSnapshot(),
           contextId: DEFAULT_TEST_CONTEXT_ID,
         },

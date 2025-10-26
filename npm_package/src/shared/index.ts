@@ -7,6 +7,7 @@ export * from './is-empty-object';
 export * from './is-plain-object';
 export * from './map-object-values';
 export * from './once';
+export * from './shallow-equal';
 export * from './timeout';
 export * from './uid';
 export * from './wait-for';

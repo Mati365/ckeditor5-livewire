@@ -53,7 +53,7 @@ describe('editor component', () => {
     livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
       name: 'ckeditor5',
       el: createEditorHtmlElement(),
-      ephemeral: createEditorSnapshot(),
+      canonical: createEditorSnapshot(),
     });
 
     const editor = await EditorsRegistry.the.waitFor(DEFAULT_TEST_EDITOR_ID);
@@ -76,7 +76,7 @@ describe('editor component', () => {
     livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
       name: 'ckeditor5',
       el: createEditorHtmlElement(),
-      ephemeral: {
+      canonical: {
         ...createEditorSnapshot(),
         preset,
       },
@@ -93,7 +93,7 @@ describe('editor component', () => {
         livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
           el: createEditorHtmlElement(),
-          ephemeral: createEditorSnapshot(),
+          canonical: createEditorSnapshot(),
         });
 
         const editor = await waitForTestEditor();
@@ -108,7 +108,7 @@ describe('editor component', () => {
         livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
           el: createEditorHtmlElement(),
-          ephemeral: {
+          canonical: {
             ...createEditorSnapshot(),
             content: {
               main: initialValue,
@@ -125,7 +125,7 @@ describe('editor component', () => {
         livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
           el: createEditorHtmlElement(),
-          ephemeral: {
+          canonical: {
             ...createEditorSnapshot(),
             content: {},
           },
@@ -142,7 +142,7 @@ describe('editor component', () => {
         livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
           el: createEditorHtmlElement(),
-          ephemeral: {
+          canonical: {
             ...createEditorSnapshot(),
             preset: createEditorPreset('inline'),
           },
@@ -160,7 +160,7 @@ describe('editor component', () => {
         livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
           el: createEditorHtmlElement(),
-          ephemeral: {
+          canonical: {
             ...createEditorSnapshot(),
             preset: createEditorPreset('decoupled'),
           },
@@ -169,7 +169,7 @@ describe('editor component', () => {
         livewireStub.$internal.appendComponentToDOM({
           name: 'ckeditor5-editable',
           el: createEditableHtmlElement(),
-          ephemeral: createEditableSnapshot('main', null),
+          canonical: createEditableSnapshot('main', null),
         });
 
         const editor = await waitForTestEditor();
@@ -184,7 +184,7 @@ describe('editor component', () => {
         livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
           el: createEditorHtmlElement(),
-          ephemeral: {
+          canonical: {
             ...createEditorSnapshot(),
             preset: createEditorPreset('decoupled'),
           },
@@ -193,7 +193,7 @@ describe('editor component', () => {
         livewireStub.$internal.appendComponentToDOM({
           name: 'ckeditor5-editable',
           el: createEditableHtmlElement(),
-          ephemeral: createEditableSnapshot('main', initialEditableContent),
+          canonical: createEditableSnapshot('main', initialEditableContent),
         });
 
         const editor = await waitForTestEditor();
@@ -206,7 +206,7 @@ describe('editor component', () => {
         livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
           el: createEditorHtmlElement(),
-          ephemeral: {
+          canonical: {
             ...createEditorSnapshot(),
             preset: createEditorPreset('decoupled'),
           },
@@ -223,7 +223,7 @@ describe('editor component', () => {
         livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
           el: createEditorHtmlElement(),
-          ephemeral: {
+          canonical: {
             ...createEditorSnapshot(),
             preset: createEditorPreset('balloon'),
           },
@@ -241,7 +241,7 @@ describe('editor component', () => {
         livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
           el: createEditorHtmlElement(),
-          ephemeral: {
+          canonical: {
             ...createEditorSnapshot(),
             preset: createEditorPreset('multiroot'),
             content: {},
@@ -257,7 +257,7 @@ describe('editor component', () => {
         livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
           el: createEditorHtmlElement(),
-          ephemeral: {
+          canonical: {
             ...createEditorSnapshot(),
             preset: createEditorPreset('multiroot'),
             content: {
@@ -271,7 +271,7 @@ describe('editor component', () => {
         livewireStub.$internal.appendComponentToDOM({
           name: 'ckeditor5-editable',
           el: createEditableHtmlElement(),
-          ephemeral: createEditableSnapshot('header'),
+          canonical: createEditableSnapshot('header'),
         });
 
         const editor = await waitForTestEditor();
@@ -284,7 +284,7 @@ describe('editor component', () => {
         livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
           el: createEditorHtmlElement(),
-          ephemeral: {
+          canonical: {
             ...createEditorSnapshot(),
             preset: createEditorPreset('multiroot'),
             content: {
@@ -298,7 +298,7 @@ describe('editor component', () => {
         livewireStub.$internal.appendComponentToDOM({
           name: 'ckeditor5-editable',
           el: createEditableHtmlElement(),
-          ephemeral: createEditableSnapshot('header', ''),
+          canonical: createEditableSnapshot('header', ''),
         });
 
         const editor = await waitForTestEditor();
@@ -311,7 +311,7 @@ describe('editor component', () => {
         livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
           el: createEditorHtmlElement(),
-          ephemeral: {
+          canonical: {
             ...createEditorSnapshot(),
             preset: createEditorPreset('multiroot'),
             content: {
@@ -325,7 +325,7 @@ describe('editor component', () => {
         livewireStub.$internal.appendComponentToDOM({
           name: 'ckeditor5-editable',
           el: createEditableHtmlElement(),
-          ephemeral: createEditableSnapshot('header', '<p>Editable content overrides snapshot content</p>'),
+          canonical: createEditableSnapshot('header', '<p>Editable content overrides snapshot content</p>'),
         });
 
         const editor = await waitForTestEditor();
@@ -338,7 +338,7 @@ describe('editor component', () => {
         livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
           el: createEditorHtmlElement(),
-          ephemeral: {
+          canonical: {
             ...createEditorSnapshot(),
             content: {
               main: '<p>Initial content</p>',
@@ -360,7 +360,7 @@ describe('editor component', () => {
       livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: 'ckeditor5',
         el: createEditorHtmlElement(),
-        ephemeral: {
+        canonical: {
           ...createEditorSnapshot(),
           editableHeight: null,
         },
@@ -376,7 +376,7 @@ describe('editor component', () => {
       livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: 'ckeditor5',
         el: createEditorHtmlElement(),
-        ephemeral: {
+        canonical: {
           ...createEditorSnapshot(),
           editableHeight: 400,
         },
@@ -402,13 +402,9 @@ describe('editor component', () => {
       const { $wire } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: 'ckeditor5',
         el: createEditorHtmlElement(),
-        ephemeral: {
+        canonical: {
           ...createEditorSnapshot(),
           saveDebounceMs: 400,
-          emit: {
-            change: true,
-            focus: false,
-          },
         },
       });
 
@@ -430,7 +426,7 @@ describe('editor component', () => {
         el: createEditorHtmlElement({
           withInput: true,
         }),
-        ephemeral: {
+        canonical: {
           ...createEditorSnapshot(),
           saveDebounceMs: 400,
         },
@@ -455,7 +451,7 @@ describe('editor component', () => {
       livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: 'ckeditor5',
         el: createEditorHtmlElement(),
-        ephemeral: {
+        canonical: {
           ...createEditorSnapshot(),
           language: {
             ui: 'pl',
@@ -475,7 +471,7 @@ describe('editor component', () => {
       livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: 'ckeditor5',
         el: createEditorHtmlElement(),
-        ephemeral: {
+        canonical: {
           ...createEditorSnapshot(),
           language: {
             ui: 'pl',
@@ -499,7 +495,7 @@ describe('editor component', () => {
       livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: 'ckeditor5',
         el: createEditorHtmlElement(),
-        ephemeral: {
+        canonical: {
           ...createEditorSnapshot(),
           preset,
           language: {
@@ -520,7 +516,7 @@ describe('editor component', () => {
       livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: 'ckeditor5',
         el: createEditorHtmlElement(),
-        ephemeral: {
+        canonical: {
           ...createEditorSnapshot(),
           watchdog: false,
         },
@@ -538,7 +534,7 @@ describe('editor component', () => {
         el: createEditorHtmlElement({
           id: 'editor-with-watchdog',
         }),
-        ephemeral: {
+        canonical: {
           ...createEditorSnapshot(),
           editorId: 'editor-with-watchdog',
           watchdog: true,
@@ -560,17 +556,11 @@ describe('editor component', () => {
 
   describe('socket sync', () => {
     describe('`emit.focus` snapshot parameter`', () => {
-      it('should sync editor content on focus change if `emit.focus` is true', async () => {
+      it('should sync editor content on focus change', async () => {
         const { $wire } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
           el: createEditorHtmlElement(),
-          ephemeral: {
-            ...createEditorSnapshot(),
-            emit: {
-              change: false,
-              focus: true,
-            },
-          },
+          canonical: createEditorSnapshot(),
         });
 
         const { ui: { focusTracker } } = await waitForTestEditor();
@@ -580,42 +570,12 @@ describe('editor component', () => {
         focusTracker.isFocused = true;
 
         expect($wire.set).toHaveBeenCalledWith('focused', true);
-        expect($wire.set).toHaveBeenCalledWith('content', { main: '<p>Initial content</p>' });
 
         // Blur the editor.
         $wire.set.mockClear();
         focusTracker.isFocused = false;
 
         expect($wire.set).toHaveBeenCalledWith('focused', false);
-        expect($wire.set).toHaveBeenCalledWith('content', { main: '<p>Initial content</p>' });
-      });
-
-      it('should not sync editor content on focus change if `emit.focus` is false', async () => {
-        const { $wire } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
-          name: 'ckeditor5',
-          el: createEditorHtmlElement(),
-          ephemeral: {
-            ...createEditorSnapshot(),
-            emit: {
-              change: false,
-              focus: false,
-            },
-          },
-        });
-
-        const { ui: { focusTracker } } = await waitForTestEditor();
-
-        // Focus the editor.
-        $wire.set.mockClear();
-        focusTracker.isFocused = true;
-
-        expect($wire.set).not.toHaveBeenCalled();
-
-        // Blur the editor.
-        $wire.set.mockClear();
-        focusTracker.isFocused = false;
-
-        expect($wire.set).not.toHaveBeenCalled();
       });
     });
 
@@ -628,17 +588,13 @@ describe('editor component', () => {
         vi.useRealTimers();
       });
 
-      it('should sync editor content on change if `emit.change` is true', async () => {
+      it('should sync editor content', async () => {
         const { $wire } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
           el: createEditorHtmlElement(),
-          ephemeral: {
+          canonical: {
             ...createEditorSnapshot(),
             saveDebounceMs: 0,
-            emit: {
-              change: true,
-              focus: false,
-            },
           },
         });
 
@@ -650,30 +606,6 @@ describe('editor component', () => {
         await vi.advanceTimersByTimeAsync(1);
 
         expect($wire.set).toHaveBeenCalledWith('content', { main: '<p>New content</p>' });
-      });
-
-      it('should not sync editor content on change if `emit.change` is false', async () => {
-        const { $wire } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
-          name: 'ckeditor5',
-          el: createEditorHtmlElement(),
-          ephemeral: {
-            ...createEditorSnapshot(),
-            saveDebounceMs: 0,
-            emit: {
-              change: false,
-              focus: false,
-            },
-          },
-        });
-
-        const editor = await waitForTestEditor();
-
-        $wire.set.mockClear();
-        editor.setData('<p>New content</p>');
-
-        await vi.advanceTimersByTimeAsync(1);
-
-        expect($wire.set).not.toHaveBeenCalled();
       });
     });
   });
@@ -693,7 +625,7 @@ describe('editor component', () => {
         el: createEditorHtmlElement({
           withInput: true,
         }),
-        ephemeral: {
+        canonical: {
           ...createEditorSnapshot(),
           saveDebounceMs: 0,
         },
@@ -714,7 +646,7 @@ describe('editor component', () => {
         el: createEditorHtmlElement({
           withInput: false,
         }),
-        ephemeral: {
+        canonical: {
           ...createEditorSnapshot(),
           saveDebounceMs: 0,
         },
@@ -738,7 +670,7 @@ describe('editor component', () => {
         el: createEditorHtmlElement({
           withInput: true,
         }),
-        ephemeral: {
+        canonical: {
           ...createEditorSnapshot(),
           saveDebounceMs: 5000,
         },
@@ -767,7 +699,7 @@ describe('editor component', () => {
       const component = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: 'ckeditor5',
         el: createEditorHtmlElement(),
-        ephemeral: createEditorSnapshot(),
+        canonical: createEditorSnapshot(),
       });
 
       const editor = await waitForTestEditor();

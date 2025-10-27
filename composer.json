@@ -4,6 +4,22 @@
   "description": "CKEditor 5 integration for Laravel Livewire",
   "type": "library",
   "license": "MIT",
+  "keywords": [
+    "laravel",
+    "livewire",
+    "ckeditor",
+    "ckeditor5",
+    "wysiwyg",
+    "editor",
+    "rich-text-editor",
+    "text-editor",
+    "html-editor",
+    "laravel-livewire",
+    "livewire-component",
+    "laravel-package",
+    "blade",
+    "content-editor"
+  ],
   "autoload": {
     "psr-4": {
       "Mati365\\CKEditor5Livewire\\": "src/"

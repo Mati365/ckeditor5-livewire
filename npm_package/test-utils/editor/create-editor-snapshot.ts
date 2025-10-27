@@ -15,10 +15,6 @@ export function createEditorSnapshot(): Snapshot {
     preset: createEditorPreset(),
     contextId: null,
     editableHeight: null,
-    emit: {
-      change: true,
-      focus: true,
-    },
     language: {
       ui: 'en',
       content: 'en',

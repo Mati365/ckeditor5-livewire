@@ -31,23 +31,61 @@ export async function createLivewireSyncPlugin(
       this.setupTypingContentPush();
       this.setupFocusableEventPush();
       this.setupContentServerSync();
-      this.setupLivewireEventListeners();
     }
 
     /**
      * Setups the content sync from Livewire to the editor.
      */
     private setupContentServerSync() {
-      this.editor.on('afterCommitSynced', () => {
+      const { editor } = this;
+      const { model, ui: { focusTracker } } = editor;
+
+      let pendingContent: Record<string, string> | null = null;
+
+      editor.on('afterCommitSynced', () => {
+        const { content } = component.canonical;
+        const values = this.getEditorRootsValues();
+
         if (!isWireModelConnected(component.element)) {
           return;
         }
 
-        const { content } = component.canonical;
-        const values = this.getEditorRootsValues();
+        // If editor is focused, save the content to apply later when it blurs.
+        if (focusTracker.isFocused) {
+          if (!shallowEqual(content, values)) {
+            pendingContent = content;
+          }
+
+          return;
+        }
 
         if (!shallowEqual(content, values)) {
-          this.editor.setData(content);
+          editor.setData(content);
+        }
+      });
+
+      Livewire.on('set-editor-content', ({ editorId, content }: SetContentPayload) => {
+        if (editorId !== component.canonical.editorId) {
+          return;
+        }
+
+        const currentValues = this.getEditorRootsValues();
+
+        if (!shallowEqual(currentValues, content)) {
+          editor.setData(content);
+        }
+      });
+
+      // Track user changes while focused.
+      model.document.on('change:data', () => {
+        pendingContent = null;
+      });
+
+      // Apply pending content on blur if user didn't make changes.
+      focusTracker.on('change:isFocused', () => {
+        if (!focusTracker.isFocused && pendingContent !== null) {
+          editor.setData(pendingContent);
+          pendingContent = null;
         }
       });
     }
@@ -102,23 +140,6 @@ export async function createLivewireSyncPlugin(
      */
     private getEditorRootsValues(): Record<string, string> {
       return getEditorRootsValues(this.editor);
-    }
-
-    /**
-     * Setups Livewire event listeners for external content updates.
-     */
-    private setupLivewireEventListeners() {
-      Livewire.on('set-editor-content', ({ editorId, content }: SetContentPayload) => {
-        if (editorId !== component.canonical.editorId) {
-          return;
-        }
-
-        const currentValues = this.getEditorRootsValues();
-
-        if (!shallowEqual(currentValues, content)) {
-          this.editor.setData(content);
-        }
-      });
     }
   };
 }

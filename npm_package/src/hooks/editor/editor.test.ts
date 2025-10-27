@@ -794,6 +794,72 @@ describe('editor component', () => {
 
         expect(editor.getData()).toBe('<p>Initial content</p>');
       });
+
+      it('should defer content update if editor is focused during `afterCommitSynced` and apply it on blur', async () => {
+        const { id } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement({
+            wireModel: 'content',
+          }),
+          canonical: {
+            ...createEditorSnapshot(),
+            content: {
+              main: '<p>Initial content</p>',
+            },
+          },
+        });
+
+        const editor = await waitForTestEditor();
+        const { ui: { focusTracker } } = editor;
+
+        focusTracker.isFocused = true;
+
+        await livewireStub.$internal.dispatchComponentCommit<EditorSnapshot>(id, {
+          content: {
+            main: '<p>Updated content from Livewire</p>',
+          },
+        });
+
+        expect(editor.getData()).toBe('<p>Initial content</p>');
+
+        focusTracker.isFocused = false;
+
+        expect(editor.getData()).toBe('<p>Updated content from Livewire</p>');
+      });
+
+      it('should abort content update if editor is focused during `afterCommitSynced` and content changes before blur', async () => {
+        const { id } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement({
+            wireModel: 'content',
+          }),
+          canonical: {
+            ...createEditorSnapshot(),
+            content: {
+              main: '<p>Initial content</p>',
+            },
+          },
+        });
+
+        const editor = await waitForTestEditor();
+        const { ui: { focusTracker } } = editor;
+
+        focusTracker.isFocused = true;
+
+        await livewireStub.$internal.dispatchComponentCommit<EditorSnapshot>(id, {
+          content: {
+            main: '<p>Updated content from Livewire</p>',
+          },
+        });
+
+        expect(editor.getData()).toBe('<p>Initial content</p>');
+
+        editor.setData('<p>Content changed by user</p>');
+
+        focusTracker.isFocused = false;
+
+        expect(editor.getData()).toBe('<p>Content changed by user</p>');
+      });
     });
   });
 

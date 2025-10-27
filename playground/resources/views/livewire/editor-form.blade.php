@@ -10,7 +10,7 @@
             Content (wire:model binding)
         </label>
         <livewire:ckeditor5
-            wire:model="content"
+            wire:model.live="content"
             editorId="editor-with-model"
             :mergeConfig="[
                 'menuBar' => [

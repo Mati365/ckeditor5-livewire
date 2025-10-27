@@ -79,8 +79,10 @@ Bundle CKEditor 5 with your application for full control over assets, custom bui
 2. **Install CKEditor 5 via NPM:**
 
    ```bash
-   npm install ckeditor5 ckeditor5-livewire
+   npm install ckeditor5 ckeditor5-premium-features ckeditor5-livewire
    ```
+
+   **Note:** If you use `esbuild` as your bundler, the `ckeditor5-premium-features` may be not required. However, it is needed for `vite` as it has stricter verification of dependencies. Even if you don't use any premium features, the package depends on it and you can safely install it on free or open-source licenses.
 
 3. **Import integration** in your `resources/js/app.js`:
 

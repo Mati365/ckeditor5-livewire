@@ -74,18 +74,15 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
   /**
    * Called when the component is updated by Livewire.
    */
-  override async serverStateUpdated(): Promise<void> {
-    const editor = await this.editorPromise;
-
-    if (!editor) {
-      return;
-    }
-
+  override async afterCommitSynced(): Promise<void> {
+    const editor = (await this.editorPromise)!;
     const { content, rootName } = this.canonical;
     const value = editor.getData({ rootName });
 
     if (value !== content) {
-      editor.setData(content ?? '');
+      editor.setData({
+        [rootName]: content ?? '',
+      });
     }
   }
 

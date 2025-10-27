@@ -16,6 +16,7 @@ export type LivewireComponent<E = any> = {
 
 export type Wire = {
   set: (key: string | Record<string, any>, value?: any) => CanBePromise<void>;
+  dispatch: (event: string, ...params: any[]) => void;
 };
 
 export type ComponentInitEvent = {

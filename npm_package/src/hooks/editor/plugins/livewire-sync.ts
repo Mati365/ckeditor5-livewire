@@ -3,7 +3,7 @@ import type { PluginConstructor } from 'ckeditor5';
 import type { EditorComponentHook } from '../editor';
 
 import { debounce, shallowEqual } from '../../../shared';
-import { getEditorRootsValues } from '../utils';
+import { getEditorRootsValues, isWireModelConnected } from '../utils';
 
 /**
  * Creates a LivewireSync plugin class.
@@ -30,6 +30,26 @@ export async function createLivewireSyncPlugin(
     public init(): void {
       this.setupTypingContentPush();
       this.setupFocusableEventPush();
+      this.setupContentServerSync();
+      this.setupLivewireEventListeners();
+    }
+
+    /**
+     * Setups the content sync from Livewire to the editor.
+     */
+    private setupContentServerSync() {
+      this.editor.on('afterCommitSynced', () => {
+        if (!isWireModelConnected(component.element)) {
+          return;
+        }
+
+        const { content } = component.canonical;
+        const values = this.getEditorRootsValues();
+
+        if (!shallowEqual(content, values)) {
+          this.editor.setData(content);
+        }
+      });
     }
 
     /**
@@ -45,6 +65,10 @@ export async function createLivewireSyncPlugin(
         // Prevent looping when editor changed content from Livewire.
         if (!shallowEqual(values, component.canonical.content)) {
           $wire.set('content', values);
+          $wire.dispatch('editor-content-changed', {
+            editorId: component.canonical.editorId,
+            content: values,
+          });
         }
       };
 
@@ -79,8 +103,33 @@ export async function createLivewireSyncPlugin(
     private getEditorRootsValues(): Record<string, string> {
       return getEditorRootsValues(this.editor);
     }
+
+    /**
+     * Setups Livewire event listeners for external content updates.
+     */
+    private setupLivewireEventListeners() {
+      Livewire.on('set-editor-content', ({ editorId, content }: SetContentPayload) => {
+        if (editorId !== component.canonical.editorId) {
+          return;
+        }
+
+        const currentValues = this.getEditorRootsValues();
+
+        if (!shallowEqual(currentValues, content)) {
+          this.editor.setData(content);
+        }
+      });
+    }
   };
 }
+
+/**
+ * Payload for setting editor content.
+ */
+type SetContentPayload = {
+  editorId: string;
+  content: Record<string, string>;
+};
 
 /**
  * The attributes required to create the LivewireSync plugin.

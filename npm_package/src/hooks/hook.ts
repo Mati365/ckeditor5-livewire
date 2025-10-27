@@ -58,7 +58,7 @@ export abstract class ClassHook<T extends object = Record<string, unknown>> {
   /**
    * Called when the component is updated by Livewire.
    */
-  serverStateUpdated?(): CanBePromise<void>;
+  afterCommitSynced?(): CanBePromise<void>;
 }
 
 /**
@@ -108,7 +108,9 @@ export function registerLivewireComponentHook(name: string, Hook: { new(componen
     succeed(() => {
       const instance = hookInstances.get(component.id);
 
-      instance?.serverStateUpdated?.();
+      if (instance?.state === 'mounted') {
+        instance?.afterCommitSynced?.();
+      }
     });
   });
 }

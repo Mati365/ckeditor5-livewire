@@ -13,6 +13,7 @@ export function createEditorHtmlElement(
     class: className,
     style,
     content,
+    wireModel,
   }: {
     id?: string;
     name?: string;
@@ -21,6 +22,7 @@ export function createEditorHtmlElement(
     class?: string;
     style?: string;
     content?: string;
+    wireModel?: string;
   } = {},
 ) {
   return html.div(
@@ -28,6 +30,7 @@ export function createEditorHtmlElement(
       id,
       ...(className && { class: className }),
       ...(style && { style }),
+      ...(wireModel && { 'wire:model': wireModel }),
     },
     html.div({
       id: `${id}_editor`,

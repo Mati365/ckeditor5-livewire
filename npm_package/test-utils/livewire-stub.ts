@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 import type { ComponentInitEvent, LivewireComponent, LivewireGlobal } from '../src/livewire';
 import type { CanBePromise } from '../src/types';
 
-import { once, uid } from '../src/shared';
+import { once, timeout, uid } from '../src/shared';
 
 /**
  * Livewire stub class for testing purposes.
@@ -108,10 +108,10 @@ export class LivewireStub implements LivewireGlobal {
       const mappedComponent = {
         id: `component-${uid()}`,
         effects: {},
-        canonical: {},
         reactive: {},
         $wire: {
           set: vi.fn(),
+          dispatch: vi.fn(),
         },
         children: [],
         snapshot: {},
@@ -125,6 +125,42 @@ export class LivewireStub implements LivewireGlobal {
       this.$internal.dispatchHook('component.init', declaration);
 
       return mappedComponent;
+    },
+
+    /**
+     * Simulates the commit event of a Livewire component.
+     * Updates the component's canonical data and triggers the commit hook.
+     *
+     * @param componentId - The ID of the component to commit
+     * @param newCanonical - Partial canonical data to update the component with
+     */
+    dispatchComponentCommit: async <E>(componentId: string, newCanonical?: Partial<E>) => {
+      let component = this.find(componentId);
+
+      if (!component) {
+        component = this.$internal.dispatchComponentInit<E>({
+          id: componentId,
+          name: 'unknown',
+          el: document.createElement('div'),
+          canonical: {} as E,
+        });
+      }
+
+      const event = new ComponentCommitEvent(component);
+
+      this.$internal.dispatchHook('commit', event);
+      await timeout(0);
+
+      // Simulate it's set just before succeed callbacks are called.
+      component.canonical = {
+        ...component.canonical,
+        ...newCanonical,
+      };
+
+      event.$internal.callSucceedCallbacks();
+
+      // Make sure all updates are processed.
+      await timeout(50);
     },
 
     /**
@@ -182,6 +218,40 @@ export class LivewireStub implements LivewireGlobal {
       this.componentsDeclarations.clear();
       this.callbacks.clear();
       this.hooks.clear();
+    },
+  };
+}
+
+/**
+ * Component initialization event implementation.
+ */
+class ComponentCommitEvent implements ComponentCommitEvent {
+  constructor(
+    readonly component: LivewireComponent,
+  ) {}
+
+  private succeedCallbacks: VoidFunction[] = [];
+
+  /**
+   * Registers a callback to be called when the commit succeeds.
+   *
+   * @param cb - The callback function
+   */
+  succeed = (cb: VoidFunction) => {
+    this.succeedCallbacks.push(cb);
+  };
+
+  /**
+   * Internal methods for testing purposes.
+   */
+  readonly $internal = {
+    /**
+     * Calls all registered succeed callbacks.
+     */
+    callSucceedCallbacks: () => {
+      for (const cb of this.succeedCallbacks) {
+        cb();
+      }
     },
   };
 }

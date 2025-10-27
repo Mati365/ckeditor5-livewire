@@ -30,6 +30,9 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
       - [Disabling the watchdog 🚫](#disabling-the-watchdog-)
     - [With Livewire Sync 🔄](#with-livewire-sync-)
     - [Focus Tracking 👁️](#focus-tracking-️)
+    - [Bidirectional Communication 🔄](#bidirectional-communication-)
+      - [Editor → Livewire: Content Change Event 📤](#editor--livewire-content-change-event-)
+      - [Livewire → Editor: Set Content Event 📥](#livewire--editor-set-content-event-)
   - [Configuration ⚙️](#configuration-️)
     - [Custom Presets 🧩](#custom-presets-)
     - [Dynamic presets 🎯](#dynamic-presets-)
@@ -275,6 +278,109 @@ class FocusDemo extends Component
     />
 </div>
 ```
+
+### Bidirectional Communication 🔄
+
+The package provides bidirectional communication between Livewire and the editor through custom events, enabling powerful integrations like template systems, dynamic content updates, and real-time content monitoring.
+
+![CKEditor 5 Livewire Sync demo](docs/livewire-sync.gif)
+
+#### Editor → Livewire: Content Change Event 📤
+
+The editor automatically dispatches the `editor-content-changed` event whenever the content is modified. This event includes the editor ID and the current content of all roots (useful for multi-root editors).
+
+```php
+namespace App\Livewire;
+
+use Livewire\Component;
+use Livewire\Attributes\On;
+
+class ContentMonitor extends Component
+{
+    public array $content = ['main' => '<p>Initial content</p>'];
+    public string $editorId = 'my-editor';
+    public int $changeCount = 0;
+    public ?string $lastUpdate = null;
+
+    #[On('editor-content-changed')]
+    public function onEditorContentChanged(string $editorId, array $content): void
+    {
+        if ($editorId === $this->editorId) {
+            $this->content = $content;
+            $this->changeCount++;
+            $this->lastUpdate = now()->format('H:i:s');
+
+            // Custom logic: validation, auto-save, word count, etc.
+        }
+    }
+
+    public function render()
+    {
+        return view('livewire.content-monitor');
+    }
+}
+```
+
+#### Livewire → Editor: Set Content Event 📥
+
+You can programmatically update the editor content from your Livewire component by dispatching the `set-editor-content` event. This is perfect for implementing template systems, AI-generated content insertion, or dynamic content loading.
+
+```php
+namespace App\Livewire;
+
+use Livewire\Component;
+
+class TemplateSelector extends Component
+{
+    public string $editorId = 'template-editor';
+
+    public array $templates = [
+        'welcome' => '<h2>Welcome!</h2><p>Thanks for joining us.</p>',
+        'newsletter' => '<h1>Newsletter</h1><p>Monthly updates...</p>',
+        'blog' => '<h1>Blog Post</h1><p>Article content...</p>',
+    ];
+
+    public function loadTemplate(string $templateKey): void
+    {
+        if (isset($this->templates[$templateKey])) {
+            $this->dispatch('set-editor-content', [
+                'editorId' => $this->editorId,
+                'content' => ['main' => $this->templates[$templateKey]]
+            ]);
+        }
+    }
+
+    public function render()
+    {
+        return view('livewire.template-selector');
+    }
+}
+```
+
+```blade
+<!-- resources/views/livewire/template-selector.blade.php -->
+<div>
+    <div class="mb-4 space-x-2">
+        <button wire:click="loadTemplate('welcome')"
+                class="px-4 py-2 bg-blue-600 text-white rounded">
+            Load Welcome Template
+        </button>
+        <button wire:click="loadTemplate('newsletter')"
+                class="px-4 py-2 bg-green-600 text-white rounded">
+            Load Newsletter Template
+        </button>
+        <button wire:click="loadTemplate('blog')"
+                class="px-4 py-2 bg-purple-600 text-white rounded">
+            Load Blog Template
+        </button>
+    </div>
+
+    <livewire:ckeditor5 :editorId="$editorId" />
+</div>
+```
+
+> ![IMPORTANT]
+> Do not use `wire:model` together with these events on the same editor instance, as the broadcasted value might be overwritten by Livewire's internal synchronization.
 
 ## Configuration ⚙️
 

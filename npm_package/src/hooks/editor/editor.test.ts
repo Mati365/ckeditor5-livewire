@@ -554,9 +554,9 @@ describe('editor component', () => {
     });
   });
 
-  describe('socket sync', () => {
-    describe('`emit.focus` snapshot parameter`', () => {
-      it('should sync editor content on focus change', async () => {
+  describe('livewire <> editor synchronization', () => {
+    describe('`$wire.set` calls on editor snapshot', () => {
+      it('should set `focused` state on focus change', async () => {
         const { $wire } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
           el: createEditorHtmlElement(),
@@ -577,18 +577,10 @@ describe('editor component', () => {
 
         expect($wire.set).toHaveBeenCalledWith('focused', false);
       });
-    });
 
-    describe('`emit.change` snapshot parameter`', () => {
-      beforeEach(() => {
+      it('should set `content` state on change', async () => {
         vi.useFakeTimers();
-      });
 
-      afterEach(() => {
-        vi.useRealTimers();
-      });
-
-      it('should sync editor content', async () => {
         const { $wire } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
           el: createEditorHtmlElement(),
@@ -606,6 +598,201 @@ describe('editor component', () => {
         await vi.advanceTimersByTimeAsync(1);
 
         expect($wire.set).toHaveBeenCalledWith('content', { main: '<p>New content</p>' });
+        vi.useRealTimers();
+      });
+
+      it('should sync `content` if changed at the same time as focus change', async () => {
+        vi.useFakeTimers();
+
+        const { $wire } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement(),
+          canonical: {
+            ...createEditorSnapshot(),
+            saveDebounceMs: 0,
+          },
+        });
+
+        const editor = await waitForTestEditor();
+        const { ui: { focusTracker } } = editor;
+
+        $wire.set.mockClear();
+        editor.setData('<p>Updated content</p>');
+        focusTracker.isFocused = true;
+
+        await vi.advanceTimersByTimeAsync(1);
+
+        expect($wire.set).toHaveBeenCalledWith('content', { main: '<p>Updated content</p>' });
+        expect($wire.set).toHaveBeenCalledWith('focused', true);
+
+        vi.useRealTimers();
+      });
+    });
+
+    describe('dispatch / receive events', () => {
+      it('should dispatch `editor-content-changed` event on content change', async () => {
+        vi.useFakeTimers();
+
+        const { $wire } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement(),
+          canonical: {
+            ...createEditorSnapshot(),
+            saveDebounceMs: 0,
+          },
+        });
+
+        const editor = await waitForTestEditor();
+
+        $wire.dispatch.mockClear();
+        editor.setData('<p>Content change event test</p>');
+
+        await vi.advanceTimersByTimeAsync(1);
+
+        expect($wire.dispatch).toHaveBeenCalledExactlyOnceWith('editor-content-changed', {
+          editorId: DEFAULT_TEST_EDITOR_ID,
+          content: { main: '<p>Content change event test</p>' },
+        });
+
+        vi.useRealTimers();
+      });
+
+      it('should receive `set-editor-content` event and update editor content', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement(),
+          canonical: createEditorSnapshot(),
+        });
+
+        const editor = await waitForTestEditor();
+
+        livewireStub.dispatch('set-editor-content', {
+          editorId: DEFAULT_TEST_EDITOR_ID,
+          content: {
+            main: '<p>New content from event</p>',
+          },
+        });
+
+        expect(editor.getData()).toBe('<p>New content from event</p>');
+      });
+
+      it('should not set editor content on `set-editor-content` event if content is the same', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement(),
+          canonical: {
+            ...createEditorSnapshot(),
+            content: {
+              main: '<p>Initial content</p>',
+            },
+          },
+        });
+
+        const editor = await waitForTestEditor();
+        const setDataSpy = vi.spyOn(editor, 'setData');
+
+        livewireStub.dispatch('set-editor-content', {
+          editorId: DEFAULT_TEST_EDITOR_ID,
+          content: {
+            main: '<p>Initial content</p>',
+          },
+        });
+
+        expect(setDataSpy).not.toHaveBeenCalled();
+      });
+
+      it('should not set editor content on `set-editor-content` event if editor is not found', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement(),
+          canonical: createEditorSnapshot(),
+        });
+
+        const editor = await waitForTestEditor();
+
+        livewireStub.dispatch('set-editor-content', {
+          editorId: 'non-existing-editor-id',
+          content: {
+            main: '<p>New content from event</p>',
+          },
+        });
+
+        expect(editor.getData()).toBe('<p>Initial content</p>');
+      });
+    });
+
+    describe('sync editor content after commit', () => {
+      it('should update editor content after `afterCommitSynced` event if content changed in Livewire (`wire:model` is present)', async () => {
+        const { id } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement({
+            wireModel: 'content',
+          }),
+          canonical: {
+            ...createEditorSnapshot(),
+            content: {
+              main: '<p>Initial content</p>',
+            },
+          },
+        });
+
+        const editor = await waitForTestEditor();
+
+        await livewireStub.$internal.dispatchComponentCommit<EditorSnapshot>(id, {
+          content: {
+            main: '<p>Updated content from Livewire</p>',
+          },
+        });
+
+        await vi.waitFor(async () => {
+          expect(editor.getData()).toBe('<p>Updated content from Livewire</p>');
+        });
+      });
+
+      it('should not update editor content after `afterCommitSynced` event if content changed in Livewire (`wire:model` is not present)', async () => {
+        const { id } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement(),
+          canonical: {
+            ...createEditorSnapshot(),
+            content: {
+              main: '<p>Initial content</p>',
+            },
+          },
+        });
+
+        const editor = await waitForTestEditor();
+
+        await livewireStub.$internal.dispatchComponentCommit<EditorSnapshot>(id, {
+          content: {
+            main: '<p>Updated content</p>',
+          },
+        });
+
+        expect(editor.getData()).toBe('<p>Initial content</p>');
+      });
+
+      it('should ignore dispatched `afterCommitSynced` if editor is not found', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement(),
+          canonical: {
+            ...createEditorSnapshot(),
+            content: {
+              main: '<p>Initial content</p>',
+            },
+          },
+        });
+
+        const editor = await waitForTestEditor();
+
+        await livewireStub.$internal.dispatchComponentCommit<EditorSnapshot>('non-existing-editor-id', {
+          content: {
+            main: '<p>Updated content</p>',
+          },
+        });
+
+        expect(editor.getData()).toBe('<p>Initial content</p>');
       });
     });
   });

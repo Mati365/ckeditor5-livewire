@@ -76,4 +76,18 @@
             <livewire:focus-demo />
         </div>
     </section>
+
+    <section class="mb-16">
+        <h2 class="mb-4 font-semibold text-xl">Classic Editor with Content Dispatch Event</h2>
+        <div class="bg-white dark:bg-gray-800 shadow p-6 rounded-lg">
+            <livewire:content-dispatch-demo />
+        </div>
+    </section>
+
+    <section class="mb-16">
+        <h2 class="mb-4 font-semibold text-xl">Template System Demo (Livewire ↔ Editor Communication)</h2>
+        <div class="bg-white dark:bg-gray-800 shadow p-6 rounded-lg">
+            <livewire:template-demo />
+        </div>
+    </section>
 @endsection

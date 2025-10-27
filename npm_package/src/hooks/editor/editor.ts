@@ -4,7 +4,7 @@ import type { EditorId, EditorLanguage, EditorPreset, EditorType } from './typin
 import type { EditorCreator } from './utils';
 
 import { ContextsRegistry } from '../../hooks/context';
-import { isEmptyObject, shallowEqual, waitFor } from '../../shared';
+import { isEmptyObject, waitFor } from '../../shared';
 import { ClassHook } from '../hook';
 import { EditorsRegistry } from './editors-registry';
 import {
@@ -13,7 +13,6 @@ import {
 } from './plugins';
 import {
   createEditorInContext,
-  getEditorRootsValues,
   isSingleEditingLikeEditor,
   loadAllEditorTranslations,
   loadEditorConstructor,
@@ -107,21 +106,12 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
   }
 
   /**
-   * Updates the editor content when the component is updated from outside (e.g., via wire:model).
+   * Updates the editor content when the component is updated after commit changes.
    */
-  override async serverStateUpdated(): Promise<void> {
+  override async afterCommitSynced(): Promise<void> {
     const editor = await this.editorPromise;
 
-    if (!editor || editor.ui.focusTracker.isFocused) {
-      return;
-    }
-
-    const { content } = this.canonical;
-    const values = getEditorRootsValues(editor);
-
-    if (!shallowEqual(content, values)) {
-      editor.setData(content);
-    }
+    editor?.fire('afterCommitSynced');
   }
 
   /**

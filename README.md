@@ -331,7 +331,7 @@ class TemplateSelector extends Component
 </div>
 ```
 
-> ![IMPORTANT]
+> [!IMPORTANT]
 > Do not use `wire:model` together with these events on the same editor instance, as the broadcasted value might be overwritten by Livewire's internal synchronization.
 
 ### Focus Tracking 👁️

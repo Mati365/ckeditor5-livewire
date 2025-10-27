@@ -281,53 +281,89 @@ You can programmatically update the editor content from your Livewire component 
 namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\Attributes\On;
 
-class TemplateSelector extends Component
+class TemplateDemo extends Component
 {
-    public string $editorId = 'template-editor';
+    public array $content = [
+        'main' => '<p>Select a template to load it into the editor...</p>',
+    ];
+
+    public string $editorId = 'template-demo-editor';
 
     public array $templates = [
-        'welcome' => '<h2>Welcome!</h2><p>Thanks for joining us.</p>',
-        'newsletter' => '<h1>Newsletter</h1><p>Monthly updates...</p>',
-        'blog' => '<h1>Blog Post</h1><p>Article content...</p>',
+        'welcome_email' => [
+            'name' => 'Welcome Email',
+            'content' => '<h2>Welcome to our platform!</h2><p>Dear {{name}},</p><p>We\'re excited to have you on board.</p>',
+        ],
+        'newsletter' => [
+            'name' => 'Newsletter Template',
+            'content' => '<h1>Monthly Newsletter</h1><h2>{{month}} {{year}}</h2><p>Lorem ipsum dolor sit amet...</p>',
+        ],
     ];
+
+    public ?string $selectedTemplate = null;
 
     public function loadTemplate(string $templateKey): void
     {
-        if (isset($this->templates[$templateKey])) {
-            $this->dispatch('set-editor-content', [
-                'editorId' => $this->editorId,
-                'content' => ['main' => $this->templates[$templateKey]]
-            ]);
+        if (!isset($this->templates[$templateKey])) {
+            return;
         }
+
+        $this->selectedTemplate = $templateKey;
+        $this->dispatch(
+            'set-editor-content',
+            editorId: $this->editorId,
+            content: ['main' => $this->templates[$templateKey]['content']]
+        );
+    }
+
+    #[On('editor-content-changed')]
+    public function onEditorContentChanged(string $editorId, array $content): void
+    {
+        if ($editorId === $this->editorId) {
+            $this->content = $content;
+        }
+    }
+
+    public function clearEditor(): void
+    {
+        $this->selectedTemplate = null;
+        $this->dispatch(
+            'set-editor-content',
+            editorId: $this->editorId,
+            content: ['main' => '<p>Select a template to load it into the editor...</p>']
+        );
     }
 
     public function render()
     {
-        return view('livewire.template-selector');
+        return view('livewire.template-demo');
     }
 }
 ```
 
 ```blade
-<!-- resources/views/livewire/template-selector.blade.php -->
+<!-- resources/views/livewire/template-demo.blade.php -->
 <div>
     <div class="mb-4 space-x-2">
-        <button wire:click="loadTemplate('welcome')"
-                class="px-4 py-2 bg-blue-600 text-white rounded">
-            Load Welcome Template
-        </button>
-        <button wire:click="loadTemplate('newsletter')"
-                class="px-4 py-2 bg-green-600 text-white rounded">
-            Load Newsletter Template
-        </button>
-        <button wire:click="loadTemplate('blog')"
-                class="px-4 py-2 bg-purple-600 text-white rounded">
-            Load Blog Template
+        @foreach($templates as $key => $template)
+            <button
+                wire:click="loadTemplate('{{ $key }}')"
+                class="px-4 py-2 rounded {{ $selectedTemplate === $key ? 'bg-blue-600 text-white' : 'bg-gray-200' }}">
+                {{ $template['name'] }}
+            </button>
+        @endforeach
+
+        <button wire:click="clearEditor" class="px-4 py-2 bg-red-100 rounded">
+            Clear Editor
         </button>
     </div>
 
-    <livewire:ckeditor5 :editorId="$editorId" />
+    <livewire:ckeditor5
+        :content="$content"
+        :editorId="$editorId"
+    />
 </div>
 ```
 

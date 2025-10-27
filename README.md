@@ -28,11 +28,11 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
     - [Watchdog prop 🐶](#watchdog-prop-)
       - [How it works ⚙️](#how-it-works-️)
       - [Disabling the watchdog 🚫](#disabling-the-watchdog-)
-    - [With Livewire Sync 🔄](#with-livewire-sync-)
+    - [Livewire Sync 🔄](#livewire-sync-)
+      - [Bidirectional Communication 🔄](#bidirectional-communication-)
+        - [Editor → Livewire: Content Change Event 📤](#editor--livewire-content-change-event-)
+        - [Livewire → Editor: Set Content Event 📥](#livewire--editor-set-content-event-)
     - [Focus Tracking 👁️](#focus-tracking-️)
-    - [Bidirectional Communication 🔄](#bidirectional-communication-)
-      - [Editor → Livewire: Content Change Event 📤](#editor--livewire-content-change-event-)
-      - [Livewire → Editor: Set Content Event 📥](#livewire--editor-set-content-event-)
   - [Configuration ⚙️](#configuration-️)
     - [Custom Presets 🧩](#custom-presets-)
     - [Dynamic presets 🎯](#dynamic-presets-)
@@ -206,9 +206,11 @@ The watchdog is enabled by default. To disable it, set the `watchdog` attribute 
 />
 ```
 
-### With Livewire Sync 🔄
+### Livewire Sync 🔄
 
-Enable real-time synchronization between the editor and your LiveView. Content changes are automatically sent to the server with configurable debouncing for performance optimization.
+Enable real-time synchronization between the editor and your Livewire component. Content changes are automatically sent to the server with configurable debouncing for performance optimization.
+
+![CKEditor 5 Livewire Sync demo](docs/livewire-sync.gif)
 
 ```blade
 <livewire:ckeditor5
@@ -231,61 +233,11 @@ class Editor extends Component
 }
 ```
 
-### Focus Tracking 👁️
-
-You can track the focus and blur events of the editor by listening for the `editor-focus-changed` event. This event is dispatched with the editor ID and a boolean indicating whether the editor is focused.
-
-```php
-// app/Livewire/FocusDemo.php
-namespace App\Livewire;
-
-use Livewire\Component;
-use Livewire\Attributes\On;
-
-class FocusDemo extends Component
-{
-    public bool $isFocused = false;
-    public string $editorId = 'focus-demo-editor';
-
-    #[On('editor-focus-changed')]
-    public function onEditorFocusChanged(string $editorId, bool $focused): void
-    {
-        if ($editorId === $this->editorId) {
-            $this->isFocused = $focused;
-        }
-    }
-
-    public function render()
-    {
-        return view('livewire.focus-demo');
-    }
-}
-```
-
-```blade
-<!-- resources/views/livewire/focus-demo.blade.php -->
-<div>
-    <p class="mb-4">
-        Editor focus state:
-        <span class="font-bold {{ $isFocused ? 'text-green-500' : 'text-red-500' }}">
-            {{ $isFocused ? 'Focused' : 'Not Focused' }}
-        </span>
-    </p>
-
-    <livewire:ckeditor5
-        :editorId="$editorId"
-        content='<p>This editor demonstrates the focus event.</p>'
-    />
-</div>
-```
-
-### Bidirectional Communication 🔄
+#### Bidirectional Communication 🔄
 
 The package provides bidirectional communication between Livewire and the editor through custom events, enabling powerful integrations like template systems, dynamic content updates, and real-time content monitoring.
 
-![CKEditor 5 Livewire Sync demo](docs/livewire-sync.gif)
-
-#### Editor → Livewire: Content Change Event 📤
+##### Editor → Livewire: Content Change Event 📤
 
 The editor automatically dispatches the `editor-content-changed` event whenever the content is modified. This event includes the editor ID and the current content of all roots (useful for multi-root editors).
 
@@ -321,7 +273,7 @@ class ContentMonitor extends Component
 }
 ```
 
-#### Livewire → Editor: Set Content Event 📥
+##### Livewire → Editor: Set Content Event 📥
 
 You can programmatically update the editor content from your Livewire component by dispatching the `set-editor-content` event. This is perfect for implementing template systems, AI-generated content insertion, or dynamic content loading.
 
@@ -381,6 +333,54 @@ class TemplateSelector extends Component
 
 > ![IMPORTANT]
 > Do not use `wire:model` together with these events on the same editor instance, as the broadcasted value might be overwritten by Livewire's internal synchronization.
+
+### Focus Tracking 👁️
+
+You can track the focus and blur events of the editor by listening for the `editor-focus-changed` event. This event is dispatched with the editor ID and a boolean indicating whether the editor is focused.
+
+```php
+// app/Livewire/FocusDemo.php
+namespace App\Livewire;
+
+use Livewire\Component;
+use Livewire\Attributes\On;
+
+class FocusDemo extends Component
+{
+    public bool $isFocused = false;
+    public string $editorId = 'focus-demo-editor';
+
+    #[On('editor-focus-changed')]
+    public function onEditorFocusChanged(string $editorId, bool $focused): void
+    {
+        if ($editorId === $this->editorId) {
+            $this->isFocused = $focused;
+        }
+    }
+
+    public function render()
+    {
+        return view('livewire.focus-demo');
+    }
+}
+```
+
+```blade
+<!-- resources/views/livewire/focus-demo.blade.php -->
+<div>
+    <p class="mb-4">
+        Editor focus state:
+        <span class="font-bold {{ $isFocused ? 'text-green-500' : 'text-red-500' }}">
+            {{ $isFocused ? 'Focused' : 'Not Focused' }}
+        </span>
+    </p>
+
+    <livewire:ckeditor5
+        :editorId="$editorId"
+        content='<p>This editor demonstrates the focus event.</p>'
+    />
+</div>
+```
 
 ## Configuration ⚙️
 

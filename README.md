@@ -30,10 +30,6 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
     - [Watchdog prop 🐶](#watchdog-prop-)
       - [How it works ⚙️](#how-it-works-️)
       - [Disabling the watchdog 🚫](#disabling-the-watchdog-)
-    - [Livewire Sync 🔄](#livewire-sync-)
-      - [Bidirectional Communication 🔄](#bidirectional-communication-)
-        - [Editor → Livewire: Content Change Event 📤](#editor--livewire-content-change-event-)
-        - [Livewire → Editor: Set Content Event 📥](#livewire--editor-set-content-event-)
     - [Focus Tracking 👁️](#focus-tracking-️)
   - [Configuration ⚙️](#configuration-️)
     - [Custom Presets 🧩](#custom-presets-)
@@ -47,6 +43,10 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
   - [Editor Types 🖊️](#editor-types-️)
     - [Classic editor 📝](#classic-editor-)
     - [Inline editor 📝](#inline-editor-)
+    - [Livewire Sync 🔄](#livewire-sync-)
+      - [Bidirectional Communication 🔄](#bidirectional-communication-)
+        - [Editor → Livewire: Content Change Event 📤](#editor--livewire-content-change-event-)
+        - [Livewire → Editor: Set Content Event 📥](#livewire--editor-set-content-event-)
     - [Decoupled editor 🌐](#decoupled-editor-)
     - [Multiroot editor 🌳](#multiroot-editor-)
   - [Advanced configuration ⚙️](#advanced-configuration-️)
@@ -209,170 +209,6 @@ The watchdog is enabled by default. To disable it, set the `watchdog` attribute 
     :watchdog="false"
 />
 ```
-
-### Livewire Sync 🔄
-
-Enable real-time synchronization between the editor and your Livewire component. Content changes are automatically sent to the server with configurable debouncing for performance optimization.
-
-![CKEditor 5 Livewire Sync demo](docs/livewire-sync.gif)
-
-```blade
-<livewire:ckeditor5
-    wire:model="content"
-    :saveDebounceMs="500"
-/>
-```
-
-Handle content changes in your Livewire component:
-
-```php
-class Editor extends Component
-{
-    public $content = '<p>Initial content</p>';
-
-    public function render()
-    {
-        return view('livewire.editor');
-    }
-}
-```
-
-#### Bidirectional Communication 🔄
-
-The package provides bidirectional communication between Livewire and the editor through custom events, enabling powerful integrations like template systems, dynamic content updates, and real-time content monitoring.
-
-##### Editor → Livewire: Content Change Event 📤
-
-The editor automatically dispatches the `editor-content-changed` event whenever the content is modified. This event includes the editor ID and the current content of all roots (useful for multi-root editors).
-
-```php
-namespace App\Livewire;
-
-use Livewire\Component;
-use Livewire\Attributes\On;
-
-class ContentMonitor extends Component
-{
-    public array $content = ['main' => '<p>Initial content</p>'];
-    public string $editorId = 'my-editor';
-    public int $changeCount = 0;
-    public ?string $lastUpdate = null;
-
-    #[On('editor-content-changed')]
-    public function onEditorContentChanged(string $editorId, array $content): void
-    {
-        if ($editorId === $this->editorId) {
-            $this->content = $content;
-            $this->changeCount++;
-            $this->lastUpdate = now()->format('H:i:s');
-
-            // Custom logic: validation, auto-save, word count, etc.
-        }
-    }
-
-    public function render()
-    {
-        return view('livewire.content-monitor');
-    }
-}
-```
-
-##### Livewire → Editor: Set Content Event 📥
-
-You can programmatically update the editor content from your Livewire component by dispatching the `set-editor-content` event. This is perfect for implementing template systems, AI-generated content insertion, or dynamic content loading.
-
-```php
-namespace App\Livewire;
-
-use Livewire\Component;
-use Livewire\Attributes\On;
-
-class TemplateDemo extends Component
-{
-    public array $content = [
-        'main' => '<p>Select a template to load it into the editor...</p>',
-    ];
-
-    public string $editorId = 'template-demo-editor';
-
-    public array $templates = [
-        'welcome_email' => [
-            'name' => 'Welcome Email',
-            'content' => '<h2>Welcome to our platform!</h2><p>Dear {{name}},</p><p>We\'re excited to have you on board.</p>',
-        ],
-        'newsletter' => [
-            'name' => 'Newsletter Template',
-            'content' => '<h1>Monthly Newsletter</h1><h2>{{month}} {{year}}</h2><p>Lorem ipsum dolor sit amet...</p>',
-        ],
-    ];
-
-    public ?string $selectedTemplate = null;
-
-    public function loadTemplate(string $templateKey): void
-    {
-        if (!isset($this->templates[$templateKey])) {
-            return;
-        }
-
-        $this->selectedTemplate = $templateKey;
-        $this->dispatch(
-            'set-editor-content',
-            editorId: $this->editorId,
-            content: ['main' => $this->templates[$templateKey]['content']]
-        );
-    }
-
-    #[On('editor-content-changed')]
-    public function onEditorContentChanged(string $editorId, array $content): void
-    {
-        if ($editorId === $this->editorId) {
-            $this->content = $content;
-        }
-    }
-
-    public function clearEditor(): void
-    {
-        $this->selectedTemplate = null;
-        $this->dispatch(
-            'set-editor-content',
-            editorId: $this->editorId,
-            content: ['main' => '<p>Select a template to load it into the editor...</p>']
-        );
-    }
-
-    public function render()
-    {
-        return view('livewire.template-demo');
-    }
-}
-```
-
-```blade
-<!-- resources/views/livewire/template-demo.blade.php -->
-<div>
-    <div class="mb-4 space-x-2">
-        @foreach($templates as $key => $template)
-            <button
-                wire:click="loadTemplate('{{ $key }}')"
-                class="px-4 py-2 rounded {{ $selectedTemplate === $key ? 'bg-blue-600 text-white' : 'bg-gray-200' }}">
-                {{ $template['name'] }}
-            </button>
-        @endforeach
-
-        <button wire:click="clearEditor" class="px-4 py-2 bg-red-100 rounded">
-            Clear Editor
-        </button>
-    </div>
-
-    <livewire:ckeditor5
-        :content="$content"
-        :editorId="$editorId"
-    />
-</div>
-```
-
-> [!IMPORTANT]
-> Do not use `wire:model` together with these events on the same editor instance, as the broadcasted value might be overwritten by Livewire's internal synchronization.
 
 ### Focus Tracking 👁️
 
@@ -683,6 +519,109 @@ Minimalist editor that appears directly within content when clicked. Ideal for i
 ```
 
 **Note:** Inline editors don't work with `<textarea>` elements and may not be suitable for traditional form scenarios.
+
+### Livewire Sync 🔄
+
+Enable real-time synchronization between the editor and your Livewire component. Content changes are automatically sent to the server with configurable debouncing for performance optimization.
+
+![CKEditor 5 Livewire Sync demo](docs/livewire-sync.gif)
+
+```blade
+<livewire:ckeditor5
+    wire:model.live="content"
+    :saveDebounceMs="500"
+/>
+```
+
+Handle content changes in your Livewire component:
+
+```php
+class Editor extends Component
+{
+    public $content = '<p>Initial content</p>';
+
+    public function render()
+    {
+        return view('livewire.editor');
+    }
+}
+```
+
+#### Bidirectional Communication 🔄
+
+The package provides bidirectional communication between Livewire and the editor through custom events.
+
+##### Editor → Livewire: Content Change Event 📤
+
+The editor automatically dispatches the `editor-content-changed` event whenever the content is modified.
+
+```php
+namespace App\Livewire;
+
+use Livewire\Component;
+use Livewire\Attributes\On;
+
+class ContentMonitor extends Component
+{
+    public array $content = ['main' => '<p>Initial content</p>'];
+    public string $editorId = 'my-editor';
+
+    #[On('editor-content-changed')]
+    public function onEditorContentChanged(string $editorId, array $content): void
+    {
+        if ($editorId === $this->editorId) {
+            $this->content = $content;
+            // Your custom logic here
+        }
+    }
+
+    public function render()
+    {
+        return view('livewire.content-monitor');
+    }
+}
+```
+
+##### Livewire → Editor: Set Content Event 📥
+
+Update the editor content from your Livewire component by dispatching the `set-editor-content` event.
+
+```php
+namespace App\Livewire;
+
+use Livewire\Component;
+
+class EditorDemo extends Component
+{
+    public string $editorId = 'my-editor';
+
+    public function loadContent(): void
+    {
+        $this->dispatch(
+            'set-editor-content',
+            editorId: $this->editorId,
+            content: ['main' => '<p>New content loaded!</p>']
+        );
+    }
+
+    public function render()
+    {
+        return view('livewire.editor-demo');
+    }
+}
+```
+
+```blade
+<!-- resources/views/livewire/editor-demo.blade.php -->
+<div>
+    <button wire:click="loadContent">Load Content</button>
+
+    <livewire:ckeditor5 :editorId="$editorId" />
+</div>
+```
+
+> [!IMPORTANT]
+> Do not use `wire:model` together with these events on the same editor instance, as the broadcasted value might be overwritten by Livewire's internal synchronization.
 
 ### Decoupled editor 🌐
 

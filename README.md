@@ -356,6 +356,8 @@ class Editor extends Component
 }
 ```
 
+You can then pass the dynamic preset to the component:
+
 ```blade
 <livewire:ckeditor5 :preset="$preset" />
 ```

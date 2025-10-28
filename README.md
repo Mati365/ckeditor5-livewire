@@ -43,13 +43,13 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
   - [Editor Types 🖊️](#editor-types-️)
     - [Classic editor 📝](#classic-editor-)
     - [Inline editor 📝](#inline-editor-)
+    - [Decoupled editor 🌐](#decoupled-editor-)
+    - [Multiroot editor 🌳](#multiroot-editor-)
+  - [Advanced configuration ⚙️](#advanced-configuration-️)
     - [Livewire Sync 🔄](#livewire-sync-)
       - [Bidirectional Communication 🔄](#bidirectional-communication-)
         - [Editor → Livewire: Content Change Event 📤](#editor--livewire-content-change-event-)
         - [Livewire → Editor: Set Content Event 📥](#livewire--editor-set-content-event-)
-    - [Decoupled editor 🌐](#decoupled-editor-)
-    - [Multiroot editor 🌳](#multiroot-editor-)
-  - [Advanced configuration ⚙️](#advanced-configuration-️)
     - [Basic editor with custom content and merged config 🧑‍💻](#basic-editor-with-custom-content-and-merged-config-)
     - [Custom configuration with plugins and toolbar items ⚙️](#custom-configuration-with-plugins-and-toolbar-items-️)
   - [Context 🤝](#context-)
@@ -520,6 +520,107 @@ Minimalist editor that appears directly within content when clicked. Ideal for i
 
 **Note:** Inline editors don't work with `<textarea>` elements and may not be suitable for traditional form scenarios.
 
+### Decoupled editor 🌐
+
+Flexible editor where toolbar and editing area are completely separated. Provides maximum layout control for custom interfaces and complex applications.
+
+**Features:**
+
+- Complete separation of toolbar and content area
+- Custom positioning and styling of UI elements
+- Full control over editor layout and appearance
+
+![CKEditor 5 Decoupled Editor in Livewire application](docs/decoupled-editor.png)
+
+```blade
+<!-- CDN assets in <head> -->
+<x-ckeditor5-assets />
+
+<!-- Editor instance -->
+<livewire:ckeditor5
+    editorId="decoupled-editor"
+    editorType="decoupled"
+    :content="['main' => '<p>This is the initial content of the decoupled editor.</p>']"
+/>
+
+<!-- Separate toolbar -->
+<livewire:ckeditor5-ui-part
+    name="toolbar"
+    editorId="decoupled-editor"
+    class="my-4"
+/>
+
+<!-- Separate editable area -->
+<livewire:ckeditor5-editable
+    editorId="decoupled-editor"
+    class="border border-gray-300 rounded-xs"
+    editableClass="p-4"
+    content="<p>This is the initial content of the decoupled editor editable.</p>"
+/>
+```
+
+### Multiroot editor 🌳
+
+Advanced editor supporting multiple separate editing areas (roots) with a shared toolbar. Perfect for complex documents with multiple editable sections like headers, sidebars, and main content.
+
+**Features:**
+
+- Multiple independent editable areas
+- Shared toolbar and configuration
+- Ideal for complex document structures
+- Each root can have different content
+
+![CKEditor 5 Multiroot Editor in Livewire application](docs/multiroot-editor.png)
+
+```blade
+<!-- CDN assets in <head> -->
+<x-ckeditor5-assets />
+
+<!-- Editor instance with multiple roots -->
+<livewire:ckeditor5
+    editorId="multiroot-editor"
+    editorType="multiroot"
+    :content="[
+        'header' => '<h1>Document Header</h1>',
+        'content' => '<p>Main document content goes here.</p>',
+        'footer' => '<p>Document footer</p>'
+    ]"
+/>
+
+<!-- Shared toolbar -->
+<livewire:ckeditor5-ui-part
+    name="toolbar"
+    editorId="multiroot-editor"
+    class="mb-4"
+/>
+
+<!-- Header root -->
+<livewire:ckeditor5-editable
+    editorId="multiroot-editor"
+    rootName="header"
+    class="mb-4 border border-gray-300 rounded"
+    editableClass="p-4"
+/>
+
+<!-- Main content root -->
+<livewire:ckeditor5-editable
+    editorId="multiroot-editor"
+    rootName="content"
+    class="mb-4 border border-gray-300 rounded"
+    editableClass="p-4"
+/>
+
+<!-- Footer root -->
+<livewire:ckeditor5-editable
+    editorId="multiroot-editor"
+    rootName="footer"
+    class="border border-gray-300 rounded"
+    editableClass="p-4"
+/>
+```
+
+## Advanced configuration ⚙️
+
 ### Livewire Sync 🔄
 
 Enable real-time synchronization between the editor and your Livewire component. Content changes are automatically sent to the server with configurable debouncing for performance optimization.
@@ -622,107 +723,6 @@ class EditorDemo extends Component
 
 > [!IMPORTANT]
 > Do not use `wire:model` together with these events on the same editor instance, as the broadcasted value might be overwritten by Livewire's internal synchronization.
-
-### Decoupled editor 🌐
-
-Flexible editor where toolbar and editing area are completely separated. Provides maximum layout control for custom interfaces and complex applications.
-
-**Features:**
-
-- Complete separation of toolbar and content area
-- Custom positioning and styling of UI elements
-- Full control over editor layout and appearance
-
-![CKEditor 5 Decoupled Editor in Livewire application](docs/decoupled-editor.png)
-
-```blade
-<!-- CDN assets in <head> -->
-<x-ckeditor5-assets />
-
-<!-- Editor instance -->
-<livewire:ckeditor5
-    editorId="decoupled-editor"
-    editorType="decoupled"
-    :content="['main' => '<p>This is the initial content of the decoupled editor.</p>']"
-/>
-
-<!-- Separate toolbar -->
-<livewire:ckeditor5-ui-part
-    name="toolbar"
-    editorId="decoupled-editor"
-    class="my-4"
-/>
-
-<!-- Separate editable area -->
-<livewire:ckeditor5-editable
-    editorId="decoupled-editor"
-    class="border border-gray-300 rounded-xs"
-    editableClass="p-4"
-    content="<p>This is the initial content of the decoupled editor editable.</p>"
-/>
-```
-
-### Multiroot editor 🌳
-
-Advanced editor supporting multiple separate editing areas (roots) with a shared toolbar. Perfect for complex documents with multiple editable sections like headers, sidebars, and main content.
-
-**Features:**
-
-- Multiple independent editable areas
-- Shared toolbar and configuration
-- Ideal for complex document structures
-- Each root can have different content
-
-![CKEditor 5 Multiroot Editor in Livewire application](docs/multiroot-editor.png)
-
-```blade
-<!-- CDN assets in <head> -->
-<x-ckeditor5-assets />
-
-<!-- Editor instance with multiple roots -->
-<livewire:ckeditor5
-    editorId="multiroot-editor"
-    editorType="multiroot"
-    :content="[
-        'header' => '<h1>Document Header</h1>',
-        'content' => '<p>Main document content goes here.</p>',
-        'footer' => '<p>Document footer</p>'
-    ]"
-/>
-
-<!-- Shared toolbar -->
-<livewire:ckeditor5-ui-part
-    name="toolbar"
-    editorId="multiroot-editor"
-    class="mb-4"
-/>
-
-<!-- Header root -->
-<livewire:ckeditor5-editable
-    editorId="multiroot-editor"
-    rootName="header"
-    class="mb-4 border border-gray-300 rounded"
-    editableClass="p-4"
-/>
-
-<!-- Main content root -->
-<livewire:ckeditor5-editable
-    editorId="multiroot-editor"
-    rootName="content"
-    class="mb-4 border border-gray-300 rounded"
-    editableClass="p-4"
-/>
-
-<!-- Footer root -->
-<livewire:ckeditor5-editable
-    editorId="multiroot-editor"
-    rootName="footer"
-    class="border border-gray-300 rounded"
-    editableClass="p-4"
-/>
-```
-
-## Advanced configuration ⚙️
 
 ### Basic editor with custom content and merged config 🧑‍💻
 

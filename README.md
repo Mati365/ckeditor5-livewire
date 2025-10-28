@@ -27,10 +27,6 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
     - [📡 CDN Distribution](#-cdn-distribution)
   - [Basic Usage 🏁](#basic-usage-)
     - [Simple Editor ✏️](#simple-editor-️)
-    - [Watchdog prop 🐶](#watchdog-prop-)
-      - [How it works ⚙️](#how-it-works-️)
-      - [Disabling the watchdog 🚫](#disabling-the-watchdog-)
-    - [Focus Tracking 👁️](#focus-tracking-️)
   - [Configuration ⚙️](#configuration-️)
     - [Custom Presets 🧩](#custom-presets-)
     - [Dynamic presets 🎯](#dynamic-presets-)
@@ -50,6 +46,10 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
       - [Bidirectional Communication 🔄](#bidirectional-communication-)
         - [Editor → Livewire: Content Change Event 📤](#editor--livewire-content-change-event-)
         - [Livewire → Editor: Set Content Event 📥](#livewire--editor-set-content-event-)
+    - [Focus Tracking 👁️](#focus-tracking-️)
+    - [Watchdog prop 🐶](#watchdog-prop-)
+      - [How it works ⚙️](#how-it-works-️)
+      - [Disabling the watchdog 🚫](#disabling-the-watchdog-)
     - [Basic editor with custom content and merged config 🧑‍💻](#basic-editor-with-custom-content-and-merged-config-)
     - [Custom configuration with plugins and toolbar items ⚙️](#custom-configuration-with-plugins-and-toolbar-items-️)
   - [Context 🤝](#context-)
@@ -185,77 +185,9 @@ Create a basic editor with default toolbar and features. Perfect for simple cont
     content="<p>Initial content</p>"
     editableHeight="300px"
 />
-```
 
-### Watchdog prop 🐶
-
-By default, the `<livewire:ckeditor5>` component uses a built-in watchdog mechanism to automatically restart the editor if it crashes (e.g., due to a JavaScript error). The watchdog periodically saves the editor's content and restores it after a crash, minimizing the risk of data loss for users.
-
-#### How it works ⚙️
-
-- If the editor crashes, it is automatically restarted without requiring a page reload.
-- The editor's content is periodically saved in the browser's memory.
-- After a restart, the last saved content is automatically restored.
-
-This feature is especially useful in applications where reliability and data safety are important.
-
-#### Disabling the watchdog 🚫
-
-The watchdog is enabled by default. To disable it, set the `watchdog` attribute to `false`:
-
-```blade
-<livewire:ckeditor5
-    content="<p>Initial content</p>"
-    :watchdog="false"
-/>
-```
-
-### Focus Tracking 👁️
-
-You can track the focus and blur events of the editor by listening for the `editor-focus-changed` event. This event is dispatched with the editor ID and a boolean indicating whether the editor is focused.
-
-```php
-// app/Livewire/FocusDemo.php
-namespace App\Livewire;
-
-use Livewire\Component;
-use Livewire\Attributes\On;
-
-class FocusDemo extends Component
-{
-    public bool $isFocused = false;
-    public string $editorId = 'focus-demo-editor';
-
-    #[On('editor-focus-changed')]
-    public function onEditorFocusChanged(string $editorId, bool $focused): void
-    {
-        if ($editorId === $this->editorId) {
-            $this->isFocused = $focused;
-        }
-    }
-
-    public function render()
-    {
-        return view('livewire.focus-demo');
-    }
-}
-```
-
-```blade
-<!-- resources/views/livewire/focus-demo.blade.php -->
-<div>
-    <p class="mb-4">
-        Editor focus state:
-        <span class="font-bold {{ $isFocused ? 'text-green-500' : 'text-red-500' }}">
-            {{ $isFocused ? 'Focused' : 'Not Focused' }}
-        </span>
-    </p>
-
-    <livewire:ckeditor5
-        :editorId="$editorId"
-        content='<p>This editor demonstrates the focus event.</p>'
-    />
-</div>
+<!-- You can also use Livewire model binding for real-time sync -->
+<livewire:ckeditor5 wire:model.live="content" />
 ```
 
 ## Configuration ⚙️
@@ -723,6 +655,77 @@ class EditorDemo extends Component
 
 > [!IMPORTANT]
 > Do not use `wire:model` together with these events on the same editor instance, as the broadcasted value might be overwritten by Livewire's internal synchronization.
+
+### Focus Tracking 👁️
+
+You can track the focus and blur events of the editor by listening for the `editor-focus-changed` event. This event is dispatched with the editor ID and a boolean indicating whether the editor is focused.
+
+```php
+// app/Livewire/FocusDemo.php
+namespace App\Livewire;
+
+use Livewire\Component;
+use Livewire\Attributes\On;
+
+class FocusDemo extends Component
+{
+    public bool $isFocused = false;
+    public string $editorId = 'focus-demo-editor';
+
+    #[On('editor-focus-changed')]
+    public function onEditorFocusChanged(string $editorId, bool $focused): void
+    {
+        if ($editorId === $this->editorId) {
+            $this->isFocused = $focused;
+        }
+    }
+
+    public function render()
+    {
+        return view('livewire.focus-demo');
+    }
+}
+```
+
+```blade
+<!-- resources/views/livewire/focus-demo.blade.php -->
+<div>
+    <p class="mb-4">
+        Editor focus state:
+        <span class="font-bold {{ $isFocused ? 'text-green-500' : 'text-red-500' }}">
+            {{ $isFocused ? 'Focused' : 'Not Focused' }}
+        </span>
+    </p>
+
+    <livewire:ckeditor5
+        :editorId="$editorId"
+        content='<p>This editor demonstrates the focus event.</p>'
+    />
+</div>
+```
+
+### Watchdog prop 🐶
+
+By default, the `<livewire:ckeditor5>` component uses a built-in watchdog mechanism to automatically restart the editor if it crashes (e.g., due to a JavaScript error). The watchdog periodically saves the editor's content and restores it after a crash, minimizing the risk of data loss for users.
+
+#### How it works ⚙️
+
+- If the editor crashes, it is automatically restarted without requiring a page reload.
+- The editor's content is periodically saved in the browser's memory.
+- After a restart, the last saved content is automatically restored.
+
+This feature is especially useful in applications where reliability and data safety are important.
+
+#### Disabling the watchdog 🚫
+
+The watchdog is enabled by default. To disable it, set the `watchdog` attribute to `false`:
+
+```blade
+<livewire:ckeditor5
+    content="<p>Initial content</p>"
+    :watchdog="false"
+/>
+```
 
 ### Basic editor with custom content and merged config 🧑‍💻
 

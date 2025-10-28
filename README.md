@@ -795,8 +795,8 @@ return [
                     'CustomContextPlugin'
                 ]
             ],
-            'watchdog' => [
-                'crash_number_limit' => 20
+            'watchdogConfig' => [
+                'crashNumberLimit' => 20
             ]
         ]
     ],

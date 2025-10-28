@@ -879,7 +879,7 @@ const unregister = Registry.the.register('MyCustomPlugin', async () => {
 });
 ```
 
-In order to use the plugin you need to extend your config in `config/config.exs`:
+In order to use the plugin you need to extend your config in `config/config.php`:
 
 ```php
 'presets' => [

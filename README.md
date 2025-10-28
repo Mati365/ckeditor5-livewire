@@ -28,10 +28,11 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
   - [Basic Usage 🏁](#basic-usage-)
     - [Simple Editor ✏️](#simple-editor-️)
   - [Configuration ⚙️](#configuration-️)
-    - [Custom Presets 🧩](#custom-presets-)
+    - [Override default preset configuration 🧑‍💻](#override-default-preset-configuration-)
+    - [Define your configuration directly in the view 💻](#define-your-configuration-directly-in-the-view-)
+    - [Define reusable configuration presets 🧩](#define-reusable-configuration-presets-)
     - [Dynamic presets 🎯](#dynamic-presets-)
-    - [Use Custom Preset 🧩](#use-custom-preset-)
-    - [Providing the License Key 🗝️](#providing-the-license-key-️)
+  - [Providing the License Key 🗝️](#providing-the-license-key-️)
   - [Localization 🌍](#localization-)
     - [CDN Translation Loading 🌐](#cdn-translation-loading-)
     - [Global Translation Config 🛠️](#global-translation-config-️)
@@ -47,11 +48,9 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
         - [Editor → Livewire: Content Change Event 📤](#editor--livewire-content-change-event-)
         - [Livewire → Editor: Set Content Event 📥](#livewire--editor-set-content-event-)
     - [Focus Tracking 👁️](#focus-tracking-️)
-    - [Watchdog prop 🐶](#watchdog-prop-)
+    - [Watchdog 🐶](#watchdog-)
       - [How it works ⚙️](#how-it-works-️)
       - [Disabling the watchdog 🚫](#disabling-the-watchdog-)
-    - [Basic editor with custom content and merged config 🧑‍💻](#basic-editor-with-custom-content-and-merged-config-)
-    - [Custom configuration with plugins and toolbar items ⚙️](#custom-configuration-with-plugins-and-toolbar-items-️)
   - [Context 🤝](#context-)
     - [Basic usage 🔧](#basic-usage--1)
     - [Custom context translations 🌐](#custom-context-translations-)
@@ -194,7 +193,57 @@ Create a basic editor with default toolbar and features. Perfect for simple cont
 
 You can configure the editor _presets_ in your `config/ckeditor5.php` file. The default preset is `default`, which provides a basic configuration with a toolbar and essential plugins. The preset is an array that contains the editor configuration, including the toolbar items and plugins. There can be multiple presets, and you can switch between them by passing the `preset` attribute to the component.
 
-### Custom Presets 🧩
+### Override default preset configuration 🧑‍💻
+
+You can pass initial content and merge additional configuration. In scenario below, the `mergeConfig` will extend the `default` preset configuration to make the menu bar visible. It's only shallow merge, so nested arrays will be replaced, not merged.
+
+```blade
+<livewire:ckeditor5
+    content='<p>This is the initial content of the editor.</p>'
+    :mergeConfig="[
+        'menuBar' => [
+            'isVisible' => true
+        ]
+    ]"
+/>
+```
+
+### Define your configuration directly in the view 💻
+
+Override the default configuration with custom plugins and toolbar items. In this example, the editor will only have `Essentials`, `Paragraph`, `Bold`, `Italic`, `Link`, and `Undo` plugins, and the toolbar will contain only bold, italic, link, undo, and redo buttons. The editor locale is set to Polish (`pl`), and a custom translation for the "Bold" label is provided.
+
+```blade
+<livewire:ckeditor5
+    locale="pl"
+    content="<p>This editor has a custom configuration.</p>"
+    :customTranslations="[
+        'pl' => [
+            'Bold' => 'Grubo'
+        ]
+    ]"
+    :config="[
+        'plugins' => [
+            'Essentials',
+            'Paragraph',
+            'Bold',
+            'Italic',
+            'Link',
+            'Undo'
+        ],
+        'toolbar' => [
+            'items' => [
+                'bold',
+                'italic',
+                'link',
+                'undo',
+                'redo'
+            ]
+        ]
+    ]"
+/>
+```
+
+### Define reusable configuration presets 🧩
 
 In order to override the default preset or add custom presets, publish the configuration file:
 
@@ -270,6 +319,12 @@ return [
 ];
 ```
 
+You can use these presets by passing the `preset` attribute to the `<livewire:ckeditor5>` component.
+
+```blade
+<livewire:ckeditor5 preset="minimal" content="<p>Simple editor</p>" />
+```
+
 ### Dynamic presets 🎯
 
 You can also create dynamic presets that can be modified at runtime. This is useful if you want to change the editor configuration based on user input or other conditions.
@@ -305,15 +360,7 @@ class Editor extends Component
 <livewire:ckeditor5 :preset="$preset" />
 ```
 
-### Use Custom Preset 🧩
-
-To use a custom preset, pass the `preset` attribute to the component. For example, to use the `minimal` preset defined above:
-
-```blade
-<livewire:ckeditor5 preset="minimal" content="<p>Simple editor</p>" />
-```
-
-### Providing the License Key 🗝️
+## Providing the License Key 🗝️
 
 CKEditor 5 requires a license key when using the official CDN or premium features. You can provide the license key in two simple ways:
 
@@ -704,7 +751,7 @@ class FocusDemo extends Component
 </div>
 ```
 
-### Watchdog prop 🐶
+### Watchdog 🐶
 
 By default, the `<livewire:ckeditor5>` component uses a built-in watchdog mechanism to automatically restart the editor if it crashes (e.g., due to a JavaScript error). The watchdog periodically saves the editor's content and restores it after a crash, minimizing the risk of data loss for users.
 
@@ -724,56 +771,6 @@ The watchdog is enabled by default. To disable it, set the `watchdog` attribute 
 <livewire:ckeditor5
     content="<p>Initial content</p>"
     :watchdog="false"
-/>
-```
-
-### Basic editor with custom content and merged config 🧑‍💻
-
-You can pass initial content and merge additional configuration. In scenario below, the `mergeConfig` will extend the `default` preset configuration to make the menu bar visible. It's only shallow merge, so nested arrays will be replaced, not merged.
-
-```blade
-<livewire:ckeditor5
-    content='<p>This is the initial content of the editor.</p>'
-    :mergeConfig="[
-        'menuBar' => [
-            'isVisible' => true
-        ]
-    ]"
-/>
-```
-
-### Custom configuration with plugins and toolbar items ⚙️
-
-Override the default configuration with custom plugins and toolbar items. In this example, the editor will only have `Essentials`, `Paragraph`, `Bold`, `Italic`, `Link`, and `Undo` plugins, and the toolbar will contain only bold, italic, link, undo, and redo buttons. The editor locale is set to Polish (`pl`), and a custom translation for the "Bold" label is provided.
-
-```blade
-<livewire:ckeditor5
-    locale="pl"
-    content="<p>This editor has a custom configuration.</p>"
-    :customTranslations="[
-        'pl' => [
-            'Bold' => 'Grubo'
-        ]
-    ]"
-    :config="[
-        'plugins' => [
-            'Essentials',
-            'Paragraph',
-            'Bold',
-            'Italic',
-            'Link',
-            'Undo'
-        ],
-        'toolbar' => [
-            'items' => [
-                'bold',
-                'italic',
-                'link',
-                'undo',
-                'redo'
-            ]
-        ]
-    ]"
 />
 ```
 

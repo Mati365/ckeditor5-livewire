@@ -1,7 +1,7 @@
 import tailwindcss from '@tailwindcss/vite';
+import { viteCKEditorExternalize } from 'ckeditor5-livewire/bundler/vite-ckeditor5-externalize';
 import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
-import externalize from 'vite-plugin-externalize-dependencies';
 
 export default defineConfig({
   plugins: [
@@ -10,9 +10,7 @@ export default defineConfig({
       refresh: true,
     }),
     tailwindcss(),
-    externalize({
-      externals: ['ckeditor5', 'ckeditor5-premium-features'],
-    }),
+    viteCKEditorExternalize(),
   ],
   server: {
     host: '127.0.0.1',

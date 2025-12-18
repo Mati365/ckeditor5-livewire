@@ -98,9 +98,6 @@ importers:
       tailwindcss:
         specifier: ^4.0.7
         version: 4.1.14
-      vite-plugin-externalize-dependencies:
-        specifier: ^1.0.1
-        version: 1.0.1
 
 packages:
 
@@ -3637,9 +3634,6 @@ packages:
     peerDependenciesMeta:
       vite:
         optional: true
-
-  vite-plugin-externalize-dependencies@1.0.1:
-    resolution: {integrity: sha512-kRIizv+YcrXFwzjde1iqayKTOKLR0JE3JPVrwm/6bsrXnwGSz+3Q+pKOgamAtlASPXx13JpXB50/OfQ0GqiIUw==}
 
   vite-plugin-full-reload@1.2.0:
     resolution: {integrity: sha512-kz18NW79x0IHbxRSHm0jttP4zoO9P9gXh+n6UTwlNKnviTTEpOlum6oS9SmecrTtSr+muHEn5TUuC75UovQzcA==}
@@ -8688,8 +8682,6 @@ snapshots:
       - '@types/node'
       - rollup
       - supports-color
-
-  vite-plugin-externalize-dependencies@1.0.1: {}
 
   vite-plugin-full-reload@1.2.0:
     dependencies:

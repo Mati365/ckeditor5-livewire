@@ -11,9 +11,16 @@ export default defineConfig({
     dts({
       insertTypesEntry: true,
       exclude: ['**/*.test.ts'],
-      include: ['src/**/*.ts'],
-      compilerOptions: {
-        rootDir: 'src/',
+      include: ['src/**/*.ts', 'bundler/**/*.ts'],
+      beforeWriteFile: (filePath, content) => {
+        if (filePath.includes('/dist/src/')) {
+          return {
+            filePath: filePath.replace('/dist/src/', '/dist/'),
+            content,
+          };
+        }
+
+        return { filePath, content };
       },
     }),
     tsconfigPaths(),
@@ -21,10 +28,13 @@ export default defineConfig({
   build: {
     sourcemap: true,
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
+      entry: {
+        'index': resolve(__dirname, 'src/index.ts'),
+        'bundler/vite-ckeditor5-externalize': resolve(__dirname, 'bundler/vite-ckeditor5-externalize.ts'),
+      },
       name: 'CKEditor5Livewire',
       formats: ['es', 'cjs'],
-      fileName: format => `index.${format === 'es' ? 'mjs' : 'cjs'}`,
+      fileName: (format, entryName) => `${entryName}.${format === 'es' ? 'mjs' : 'cjs'}`,
     },
     rollupOptions: {
       external: isExternalModule,
@@ -55,6 +65,7 @@ export default defineConfig({
         './src/**/index.ts',
         '**/test-utils/**',
         './scripts/**',
+        './bundler/**',
       ],
     },
   },

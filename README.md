@@ -130,9 +130,9 @@ Load CKEditor 5 directly from CKSource's CDN - no build configuration required. 
 4. **Exclude CKEditor from bundler** in your `vite.config.js`:
 
    ```javascript
+   import { viteCKEditorExternalize } from 'ckeditor5-livewire/bundler/vite-ckeditor5-externalize';
    import laravel from 'laravel-vite-plugin';
    import { defineConfig } from 'vite';
-   import externalize from 'vite-plugin-externalize-dependencies';
 
    export default defineConfig({
      plugins: [
@@ -140,9 +140,7 @@ Load CKEditor 5 directly from CKSource's CDN - no build configuration required. 
          input: ['resources/css/app.css', 'resources/js/app.js'],
          refresh: true,
        }),
-       externalize({
-         externals: ['ckeditor5', 'ckeditor5-premium-features'],
-       }),
+       viteCKEditorExternalize()
      ],
    });
    ```

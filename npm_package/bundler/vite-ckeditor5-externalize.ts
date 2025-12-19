@@ -19,8 +19,6 @@ export function viteCKEditorExternalize(): Plugin {
         'ckeditor5',
         'ckeditor5-premium-features',
         'ckeditor5-livewire',
-        /^ckeditor5\/.*/ as any,
-        /^ckeditor5-premium-features\/.*/ as any,
       ];
 
       config.build ??= {};
@@ -38,7 +36,7 @@ export function viteCKEditorExternalize(): Plugin {
         name: 'remove-id-prefix',
         transform: (code: string) => {
           if (typeof code === 'string') {
-            return code.replace(/\/@id\/ckeditor5[^'"]*/g, 'ckeditor5');
+            return code.replace(/\/@id\/ckeditor5/g, 'ckeditor5');
           }
           return null;
         },

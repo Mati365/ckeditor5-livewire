@@ -62,6 +62,7 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
       }
     }
     catch (error: any) {
+      console.error(`Error initializing CKEditor5 instance with ID "${editorId}":`, error);
       this.editorPromise = null;
       EditorsRegistry.the.error(editorId, error);
     }

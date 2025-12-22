@@ -945,6 +945,9 @@ If you're looking for similar stuff, check these out:
 - [ckeditor5-rails](https://github.com/Mati365/ckeditor5-rails)
   Smooth CKEditor 5 integration for Ruby on Rails. Works with standard forms, Turbo, and Hotwire. Easy setup, custom builds, and localization support.
 
+- [ckeditor5-symfony](https://github.com/Mati365/ckeditor5-symfony)
+  Native CKEditor 5 integration for Symfony. Works with Symfony 6.x+, standard forms and Twig. Supports custom builds, multiple editor configurations, asset management, and localization. Designed to be simple, predictable, and framework-native.
+  
 ## Trademarks 📜
 
 CKEditor® is a trademark of [CKSource Holding sp. z o.o.](https://cksource.com/) All rights reserved. For more information about the license of CKEditor® please visit [CKEditor's licensing page](https://ckeditor.com/legal/ckeditor-oss-license/).

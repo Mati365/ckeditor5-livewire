@@ -4,8 +4,6 @@ namespace Mati365\CKEditor5Livewire\Tests\Feature\Components;
 
 use Mati365\CKEditor5Livewire\Tests\TestCase;
 use Mati365\CKEditor5Livewire\Components\CKEditor5Assets;
-use Mati365\CKEditor5Livewire\Cloud\Cloud;
-use Illuminate\View\ComponentAttributeBag;
 
 class CKEditor5AssetsTest extends TestCase
 {

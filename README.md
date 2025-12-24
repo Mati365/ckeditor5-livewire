@@ -460,12 +460,6 @@ Traditional WYSIWYG editor with a fixed toolbar above the editing area. Best for
 
 ![CKEditor 5 Classic Editor in Livewire application](docs/classic.png)
 
-**Features:**
-
-- Fixed toolbar with all editing tools
-- Familiar interface similar to desktop word processors
-- Works well in forms and modal dialogs
-
 ```blade
 <!-- CDN assets in <head> -->
 <x-ckeditor5-assets />
@@ -481,12 +475,6 @@ Traditional WYSIWYG editor with a fixed toolbar above the editing area. Best for
 ### Inline editor 📝
 
 Minimalist editor that appears directly within content when clicked. Ideal for in-place editing scenarios where the editing interface should be invisible until needed.
-
-**Features:**
-
-- No visible toolbar until content is focused
-- Seamless integration with existing layouts
-- Great for editing headings, captions, or short content
 
 ![CKEditor 5 Inline Editor in Livewire application](docs/inline-editor.png)
 
@@ -507,12 +495,6 @@ Minimalist editor that appears directly within content when clicked. Ideal for i
 ### Decoupled editor 🌐
 
 Flexible editor where toolbar and editing area are completely separated. Provides maximum layout control for custom interfaces and complex applications.
-
-**Features:**
-
-- Complete separation of toolbar and content area
-- Custom positioning and styling of UI elements
-- Full control over editor layout and appearance
 
 ![CKEditor 5 Decoupled Editor in Livewire application](docs/decoupled-editor.png)
 
@@ -546,13 +528,6 @@ Flexible editor where toolbar and editing area are completely separated. Provide
 ### Multiroot editor 🌳
 
 Advanced editor supporting multiple separate editing areas (roots) with a shared toolbar. Perfect for complex documents with multiple editable sections like headers, sidebars, and main content.
-
-**Features:**
-
-- Multiple independent editable areas
-- Shared toolbar and configuration
-- Ideal for complex document structures
-- Each root can have different content
 
 ![CKEditor 5 Multiroot Editor in Livewire application](docs/multiroot-editor.png)
 

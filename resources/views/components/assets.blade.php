@@ -1,16 +1,19 @@
 {{-- Importmap for ESM assets --}}
 @php
     $esmAssets = array_filter($bundle->js, fn($js) => $js->type === \Mati365\CKEditor5Livewire\Cloud\Bundle\JSAssetType::ESM);
-    $importMap = [];
+    $generatedImportMap = [];
+
     foreach ($esmAssets as $asset) {
-        $importMap[$asset->name] = $asset->url;
+        $generatedImportMap[$asset->name] = $asset->url;
     }
+
+    $finalImportMap = array_merge($generatedImportMap, $importMap ?? []);
 @endphp
 
-@if(!empty($importMap))
+@if($useImportMap && !empty($finalImportMap))
     <script type="importmap" @if($nonce) nonce="{{ $nonce }}" @endif>
     {
-        "imports": {!! json_encode($importMap) !!}
+        "imports": {!! json_encode($finalImportMap) !!}
     }
     </script>
 @endif
@@ -29,6 +32,8 @@
 @endforeach
 
 {{-- Module preload for ESM assets --}}
-@foreach($esmAssets as $asset)
-    <link rel="modulepreload" href="{{ $asset->url }}" crossorigin="anonymous" @if($nonce) nonce="{{ $nonce }}" @endif>
-@endforeach
+@if($useImportMap)
+    @foreach($esmAssets as $asset)
+        <link rel="modulepreload" href="{{ $asset->url }}" crossorigin="anonymous" @if($nonce) nonce="{{ $nonce }}" @endif>
+    @endforeach
+@endif

@@ -23,6 +23,8 @@ final class CKEditor5Assets extends Component
      * @param string[]|null $translations Override translations from preset
      * @param ?string $ckboxVersion Override CKBox version (creates CKBox instance if provided)
      * @param ?string $ckboxTheme Override CKBox theme
+     * @param bool $useImportMap Whether to render the importmap
+     * @param array|null $importMap Additional import map entries
      */
     public function __construct(
         private Config $configService,
@@ -33,6 +35,8 @@ final class CKEditor5Assets extends Component
         private ?array $translations = null,
         private ?string $ckboxVersion = null,
         private ?string $ckboxTheme = null,
+        private bool $useImportMap = true,
+        private ?array $importMap = null,
     ) {
         $this->componentName = 'ckeditor5-assets';
         $this->attributes = new ComponentAttributeBag();
@@ -80,6 +84,8 @@ final class CKEditor5Assets extends Component
         return view('ckeditor5::components.assets')->with([
             'bundle' => $bundle,
             'nonce' => $this->nonce,
+            'useImportMap' => $this->useImportMap,
+            'importMap' => $this->importMap,
         ]);
     }
 }

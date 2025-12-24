@@ -222,4 +222,36 @@ class CKEditor5AssetsTest extends TestCase
         $this->assertStringContainsString('ckeditor5-premium-features', $allJsUrls);
         $this->assertStringContainsString('ckbox', $allJsUrls);
     }
+
+    public function testComponentWithoutImportMap(): void
+    {
+        $component = $this->app->make(CKEditor5Assets::class, [
+            'preset' => 'default',
+            'useImportMap' => false,
+        ]);
+
+        $view = $component->render();
+        $data = $view->getData();
+
+        $this->assertArrayHasKey('useImportMap', $data);
+        $this->assertFalse($data['useImportMap']);
+    }
+
+    public function testComponentWithCustomImportMap(): void
+    {
+        $customImportMap = [
+            'custom-module' => 'https://example.com/custom-module.js',
+        ];
+
+        $component = $this->app->make(CKEditor5Assets::class, [
+            'preset' => 'default',
+            'importMap' => $customImportMap,
+        ]);
+
+        $view = $component->render();
+        $data = $view->getData();
+
+        $this->assertArrayHasKey('importMap', $data);
+        $this->assertSame($customImportMap, $data['importMap']);
+    }
 }

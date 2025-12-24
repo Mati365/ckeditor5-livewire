@@ -2,7 +2,6 @@
 
 namespace Mati365\CKEditor5Livewire\License;
 
-use Illuminate\Support\Facades\Log;
 use Mati365\CKEditor5Livewire\Exceptions\InvalidLicenseKey;
 
 /**

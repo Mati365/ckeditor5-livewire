@@ -154,10 +154,15 @@ Load CKEditor 5 directly from CKSource's CDN - no build configuration required. 
    <x-ckeditor5-assets />
 
    <!-- or with specific features (overrides `default` preset) -->
-   <x-ckeditor5-assets :translations="['pl', 'de', 'fr']" premium />
-
-   <!-- or with specific preset -->
-   <x-ckeditor5-assets preset="inline" />
+   <x-ckeditor5-assets
+       preset="default"
+       editorVersion="43.0.0"
+       :translations="['pl', 'de']"
+       ckboxVersion="2.6.0"
+       ckboxTheme="lark"
+       nonce="csp-nonce"
+       premium
+   />
 
    <!-- Use editor anywhere in <body> -->
    <livewire:ckeditor5 content="<p>Hello world!</p>" />

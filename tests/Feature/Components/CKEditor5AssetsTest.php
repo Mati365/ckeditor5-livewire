@@ -4,6 +4,7 @@ namespace Mati365\CKEditor5Livewire\Tests\Feature\Components;
 
 use Mati365\CKEditor5Livewire\Tests\TestCase;
 use Mati365\CKEditor5Livewire\Components\CKEditor5Assets;
+use Mati365\CKEditor5Livewire\Exceptions\NoCloudConfig;
 
 class CKEditor5AssetsTest extends TestCase
 {
@@ -191,7 +192,7 @@ class CKEditor5AssetsTest extends TestCase
             'preset' => 'no-cloud',
         ]);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(NoCloudConfig::class);
         $this->expectExceptionMessage('Cannot render CKEditor5 assets without cloud configuration.');
 
         $component->render();

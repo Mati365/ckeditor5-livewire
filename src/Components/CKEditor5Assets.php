@@ -6,6 +6,7 @@ use Illuminate\View\{View, Component, ComponentAttributeBag};
 use Mati365\CKEditor5Livewire\Config;
 use Mati365\CKEditor5Livewire\Cloud\CloudBundleBuilder;
 use Mati365\CKEditor5Livewire\Cloud\CKBox\CKBox;
+use Mati365\CKEditor5Livewire\Exceptions\NoCloudConfig;
 
 /**
  * Blade component for including CKEditor5 assets.
@@ -51,12 +52,11 @@ final class CKEditor5Assets extends Component
     public function render(): View
     {
         $resolvedPreset = $this->configService->resolvePresetOrThrow($this->preset);
-
-        if ($resolvedPreset->cloud == null) {
-            throw new \RuntimeException('Cannot render CKEditor5 assets without cloud configuration.');
-        }
-
         $cloud = $resolvedPreset->cloud;
+
+        if ($cloud == null) {
+            throw new NoCloudConfig();
+        }
 
         if ($this->editorVersion !== null) {
             $cloud = $cloud->ofEditorVersion($this->editorVersion);

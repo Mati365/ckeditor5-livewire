@@ -101,7 +101,7 @@ export async function createLivewireSyncPlugin(
         const values = this.getEditorRootsValues();
 
         // Prevent looping when editor changed content from Livewire.
-        if (!shallowEqual(values, component.canonical.content)) {
+        if (!shallowEqual(values, component.canonical.content ?? {})) {
           $wire.set('content', values);
           $wire.dispatch('editor-content-changed', {
             editorId: component.canonical.editorId,
@@ -127,7 +127,7 @@ export async function createLivewireSyncPlugin(
         $wire.set('focused', ui.focusTracker.isFocused);
 
         // Only push content if it has changed compared to canonical
-        if (!shallowEqual(values, component.canonical.content)) {
+        if (!shallowEqual(values, component.canonical.content ?? {})) {
           $wire.set('content', values);
         }
       };

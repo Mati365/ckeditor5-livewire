@@ -62,8 +62,11 @@ final class CKEHiddenInput extends Component
     public function getStyles(): string
     {
         $styles = [
+            "position: absolute",
+            "left: 50%",
+            "bottom: 0",
             'display: flex',
-            'width: 100%',
+            'width: 1px',
             'height: 1px',
             'opacity: 0',
             'pointer-events: none',

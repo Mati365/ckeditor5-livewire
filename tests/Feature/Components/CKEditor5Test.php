@@ -191,7 +191,7 @@ class CKEditor5Test extends TestCase
         ]);
 
         $this->assertSame('custom-class', $component->class);
-        $this->assertSame('color: red;', $component->style);
+        $this->assertSame('position: relative; color: red;', $component->style);
     }
 
     public function testComponentMountWithCustomTranslations(): void

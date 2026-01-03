@@ -191,7 +191,7 @@ final class CKEditor5 extends Component
         $this->required = $required;
         $this->language = LanguageNormalizer::normalize($locale);
         $this->class = $class;
-        $this->style = $style;
+        $this->style = 'position: relative;' . ($style !== null ? ' ' . $style : '');
     }
 
     /**

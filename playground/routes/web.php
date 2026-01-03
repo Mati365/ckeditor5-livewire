@@ -7,6 +7,7 @@ use App\Http\Controllers\InlineEditorController;
 use App\Http\Controllers\DecoupledEditorController;
 use App\Http\Controllers\MultirootEditorController;
 use App\Http\Controllers\ContextEditorController;
+use App\Http\Controllers\RequiredFieldController;
 
 Route::get('/', [IndexController::class, 'index'])->name('index');
 
@@ -16,4 +17,6 @@ Route::prefix('editors')->group(function () {
     Route::get('/decoupled', [DecoupledEditorController::class, 'index'])->name('editors.decoupled');
     Route::get('/multiroot', [MultirootEditorController::class, 'index'])->name('editors.multiroot');
     Route::get('/context', [ContextEditorController::class, 'index'])->name('editors.context');
+    Route::get('/required-field', [RequiredFieldController::class, 'index'])->name('editors.required-field');
+    Route::post('/required-field', [RequiredFieldController::class, 'store'])->name('editors.required-field.store');
 });

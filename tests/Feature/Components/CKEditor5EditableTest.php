@@ -92,7 +92,7 @@ class CKEditor5EditableTest extends TestCase
         ]);
 
         $this->assertSame('wrapper-class', $component->class);
-        $this->assertSame('margin: 10px;', $component->style);
+        $this->assertSame('position: relative; margin: 10px;', $component->style);
         $this->assertSame('editor-class', $component->editableClass);
         $this->assertSame('padding: 5px;', $component->editableStyle);
     }

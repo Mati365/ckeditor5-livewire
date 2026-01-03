@@ -44,7 +44,8 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
     - [Multiroot editor 🌳](#multiroot-editor-)
   - [Advanced configuration ⚙️](#advanced-configuration-️)
     - [Livewire Sync 🔄](#livewire-sync-)
-      - [Bidirectional Communication 🔄](#bidirectional-communication-)
+      - [Two way binding using `wire:model` ⛓️](#two-way-binding-using-wiremodel-️)
+      - [Bidirectional Communication using Events 🔄](#bidirectional-communication-using-events-)
         - [Editor → Livewire: Content Change Event 📤](#editor--livewire-content-change-event-)
         - [Livewire → Editor: Set Content Event 📥](#livewire--editor-set-content-event-)
     - [Focus Tracking 👁️](#focus-tracking-️)
@@ -586,6 +587,10 @@ Enable real-time synchronization between the editor and your Livewire component.
 
 ![CKEditor 5 Livewire Sync demo](docs/livewire-sync.gif)
 
+#### Two way binding using `wire:model` ⛓️
+
+Bind the editor content to a Livewire property with optional debounce to control update frequency. This is useful for reducing server load during rapid content changes.
+
 ```blade
 <livewire:ckeditor5
     wire:model.live="content"
@@ -598,16 +603,21 @@ Handle content changes in your Livewire component:
 ```php
 class Editor extends Component
 {
-    public $content = '<p>Initial content</p>';
+    public $content = [ 'content' => '<p>Initial content</p>' ];
 
     public function render()
     {
         return view('livewire.editor');
     }
+
+    public function resetContent()
+    {
+        $this->content = ['content' => ''];
+    }
 }
 ```
 
-#### Bidirectional Communication 🔄
+#### Bidirectional Communication using Events 🔄
 
 The package provides bidirectional communication between Livewire and the editor through custom events.
 

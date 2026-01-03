@@ -59,6 +59,14 @@
                         Multiple editors sharing the same context and configuration.
                     </p>
                 </a>
+
+                <a href="{{ route('editors.required-field') }}"
+                   class="block p-6 border-2 border-gray-200 hover:border-blue-500 dark:border-gray-700 dark:hover:border-blue-400 rounded-lg transition-colors">
+                    <h2 class="mb-2 font-semibold text-xl">Required Field</h2>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                        Example of form validation with required CKEditor 5 field.
+                    </p>
+                </a>
             </nav>
 
             <footer class="mt-12 text-gray-500 dark:text-gray-500 text-sm text-center">

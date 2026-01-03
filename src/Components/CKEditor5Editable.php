@@ -110,7 +110,7 @@ final class CKEditor5Editable extends Component
         $this->name = $name;
         $this->required = $required;
         $this->class = $class;
-        $this->style = $style;
+        $this->style = 'position: relative;' . ($style !== null ? ' ' . $style : '');
         $this->editableClass = $editableClass;
         $this->editableStyle = $editableStyle;
         $this->saveDebounceMs = $saveDebounceMs;

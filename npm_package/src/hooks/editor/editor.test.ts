@@ -627,6 +627,49 @@ describe('editor component', () => {
 
         vi.useRealTimers();
       });
+
+      it('should not crash if content is null in snapshot', async () => {
+        vi.useFakeTimers();
+
+        const { $wire } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement(),
+          canonical: {
+            ...createEditorSnapshot(),
+            content: null as any,
+            saveDebounceMs: 0,
+          },
+        });
+
+        const editor = await waitForTestEditor();
+
+        $wire.set.mockClear();
+        editor.setData('<p>New content</p>');
+
+        await vi.advanceTimersByTimeAsync(1);
+
+        expect($wire.set).toHaveBeenCalledWith('content', { main: '<p>New content</p>' });
+        vi.useRealTimers();
+      });
+
+      it('should not crash on focus change if content is null in snapshot', async () => {
+        const { $wire } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement(),
+          canonical: {
+            ...createEditorSnapshot(),
+            content: null as any,
+          },
+        });
+
+        const { ui: { focusTracker } } = await waitForTestEditor();
+
+        // Focus the editor.
+        $wire.set.mockClear();
+        focusTracker.isFocused = true;
+
+        expect($wire.set).toHaveBeenCalledWith('focused', true);
+      });
     });
 
     describe('dispatch / receive events', () => {

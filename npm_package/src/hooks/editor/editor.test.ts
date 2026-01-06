@@ -213,7 +213,7 @@ describe('editor component', () => {
         });
 
         await expect(waitForTestEditor()).rejects.toThrowError(
-          `No "main" editable found for editor with ID "test-editor".`,
+          /It looks like not all required root elements are present yet/,
         );
       });
     });

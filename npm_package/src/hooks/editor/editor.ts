@@ -197,19 +197,19 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
 
     // Depending of the editor type, and parent lookup for nearest context or initialize it without it.
     const editor = await (async () => {
-      let sourceElementOrData: HTMLElement | Record<string, HTMLElement> = queryEditablesElements(editorId, editorType);
+      let sourceElements: HTMLElement | Record<string, HTMLElement> = queryEditablesElements(editorId, editorType);
 
       // Handle special case when user specified `initialData` of several root elements, but editable components
       // are not yet present in the DOM. In other words - editor is initialized before attaching root elements.
-      if (!(sourceElementOrData instanceof HTMLElement) && !('main' in sourceElementOrData)) {
+      if (!(sourceElements instanceof HTMLElement) && !('main' in sourceElements)) {
         const requiredRoots = (
           editorType === 'decoupled'
             ? ['main']
             : Object.keys(initialData as Record<string, string>)
         );
 
-        if (!checkIfAllRootsArePresent(sourceElementOrData, requiredRoots)) {
-          sourceElementOrData = await waitForAllRootsToBePresent(editorId, editorType, requiredRoots);
+        if (!checkIfAllRootsArePresent(sourceElements, requiredRoots)) {
+          sourceElements = await waitForAllRootsToBePresent(editorId, editorType, requiredRoots);
           initialData = {
             ...content,
             ...queryEditablesSnapshotContent(editorId),
@@ -218,8 +218,8 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
       }
 
       // If single root editor, unwrap the element from the object.
-      if (isSingleRootEditor(editorType) && 'main' in sourceElementOrData) {
-        sourceElementOrData = sourceElementOrData['main'];
+      if (isSingleRootEditor(editorType) && 'main' in sourceElements) {
+        sourceElements = sourceElements['main'];
       }
 
       // Construct parsed config.
@@ -234,13 +234,13 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
         },
       };
 
-      if (!context || !(sourceElementOrData instanceof HTMLElement)) {
-        return Constructor.create(sourceElementOrData as any, parsedConfig);
+      if (!context || !(sourceElements instanceof HTMLElement)) {
+        return Constructor.create(sourceElements as any, parsedConfig);
       }
 
       const result = await createEditorInContext({
         context,
-        element: sourceElementOrData,
+        element: sourceElements,
         creator: Constructor,
         config: parsedConfig,
       });
@@ -280,7 +280,7 @@ async function waitForAllRootsToBePresent(
   editorType: EditorType,
   requiredRoots: string[],
 ): Promise<Record<string, HTMLElement>> {
-  await waitFor(
+  return waitFor(
     () => {
       const elements = queryEditablesElements(editorId, editorType) as unknown as Record<string, HTMLElement>;
 
@@ -294,12 +294,10 @@ async function waitForAllRootsToBePresent(
         );
       }
 
-      return true;
+      return elements;
     },
     { timeOutAfter: 2000, retryAfter: 100 },
   );
-
-  return queryEditablesElements(editorId, editorType) as unknown as Record<string, HTMLElement>;
 }
 
 /**

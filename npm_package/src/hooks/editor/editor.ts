@@ -1,6 +1,6 @@
 import type { Editor } from 'ckeditor5';
 
-import type { EditorId, EditorLanguage, EditorPreset, EditorType } from './typings';
+import type { EditorId, EditorLanguage, EditorPreset } from './typings';
 import type { EditorCreator } from './utils';
 
 import { ContextsRegistry } from '../../hooks/context';
@@ -197,7 +197,7 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
 
     // Depending of the editor type, and parent lookup for nearest context or initialize it without it.
     const editor = await (async () => {
-      let sourceElements: HTMLElement | Record<string, HTMLElement> = queryEditablesElements(editorId, editorType);
+      let sourceElements: HTMLElement | Record<string, HTMLElement> = queryEditablesElements(editorId);
 
       // Handle special case when user specified `initialData` of several root elements, but editable components
       // are not yet present in the DOM. In other words - editor is initialized before attaching root elements.
@@ -209,7 +209,7 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
         );
 
         if (!checkIfAllRootsArePresent(sourceElements, requiredRoots)) {
-          sourceElements = await waitForAllRootsToBePresent(editorId, editorType, requiredRoots);
+          sourceElements = await waitForAllRootsToBePresent(editorId, requiredRoots);
           initialData = {
             ...content,
             ...queryEditablesSnapshotContent(editorId),
@@ -271,18 +271,16 @@ function checkIfAllRootsArePresent(elements: Record<string, HTMLElement>, requir
  * Waits for all required root elements to be present in the DOM.
  *
  * @param editorId The editor's ID.
- * @param editorType The type of the editor.
  * @param requiredRoots The list of required root IDs.
  * @returns A promise that resolves to the record of root elements.
  */
 async function waitForAllRootsToBePresent(
   editorId: EditorId,
-  editorType: EditorType,
   requiredRoots: string[],
 ): Promise<Record<string, HTMLElement>> {
   return waitFor(
     () => {
-      const elements = queryEditablesElements(editorId, editorType) as unknown as Record<string, HTMLElement>;
+      const elements = queryEditablesElements(editorId) as unknown as Record<string, HTMLElement>;
 
       if (!checkIfAllRootsArePresent(elements, requiredRoots)) {
         throw new Error(

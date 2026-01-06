@@ -1,3 +1,5 @@
+import type { EditorType } from '../../src/hooks/editor';
+
 import { html } from '../html';
 import { DEFAULT_TEST_EDITOR_ID } from './wait-for-test-editor';
 
@@ -14,7 +16,9 @@ export function createEditorHtmlElement(
     style,
     content,
     wireModel,
+    editorType = 'classic',
   }: {
+    editorType?: EditorType;
     id?: string;
     name?: string;
     required?: boolean;
@@ -32,7 +36,7 @@ export function createEditorHtmlElement(
       ...(style && { style }),
       ...(wireModel && { 'wire:model': wireModel }),
     },
-    html.div({
+    !['decoupled', 'multiroot'].includes(editorType) && html.div({
       id: `${id}_editor`,
     }),
     withInput && html.input({

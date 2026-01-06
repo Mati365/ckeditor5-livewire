@@ -150,7 +150,7 @@ describe('ui-part component', () => {
   function appendMultirootEditor(initialContent: Record<string, string> = {}) {
     livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
       name: 'ckeditor5',
-      el: createEditorHtmlElement(),
+      el: createEditorHtmlElement({ editorType: 'multiroot' }),
       canonical: {
         ...createEditorSnapshot(),
         preset: createEditorPreset('multiroot'),

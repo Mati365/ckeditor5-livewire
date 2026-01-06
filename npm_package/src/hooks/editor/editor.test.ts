@@ -159,7 +159,7 @@ describe('editor component', () => {
       it('should create a decoupled editor with `main` editable and default preset', async () => {
         livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
-          el: createEditorHtmlElement(),
+          el: createEditorHtmlElement({ editorType: 'decoupled' }),
           canonical: {
             ...createEditorSnapshot(),
             preset: createEditorPreset('decoupled'),
@@ -183,7 +183,7 @@ describe('editor component', () => {
 
         livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
-          el: createEditorHtmlElement(),
+          el: createEditorHtmlElement({ editorType: 'decoupled' }),
           canonical: {
             ...createEditorSnapshot(),
             preset: createEditorPreset('decoupled'),
@@ -202,10 +202,32 @@ describe('editor component', () => {
         expect(editor.getData()).toBe(initialEditableContent);
       });
 
+      it('should pick initial content from root editor element if editable has null content', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement({ editorType: 'decoupled' }),
+          canonical: {
+            ...createEditorSnapshot(),
+            preset: createEditorPreset('decoupled'),
+          },
+        });
+
+        livewireStub.$internal.appendComponentToDOM({
+          name: 'ckeditor5-editable',
+          el: createEditableHtmlElement(),
+          canonical: createEditableSnapshot('main'),
+        });
+
+        const editor = await waitForTestEditor();
+
+        expect(editor).to.toBeInstanceOf(DecoupledEditor);
+        expect(editor.getData()).toBe('<p>Initial content</p>');
+      });
+
       it('should throw error if `main` editable is not found in the DOM', async () => {
         livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
-          el: createEditorHtmlElement(),
+          el: createEditorHtmlElement({ editorType: 'decoupled' }),
           canonical: {
             ...createEditorSnapshot(),
             preset: createEditorPreset('decoupled'),
@@ -240,7 +262,7 @@ describe('editor component', () => {
       it('should create a multiroot editor without editables in the DOM and initial content', async () => {
         livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
-          el: createEditorHtmlElement(),
+          el: createEditorHtmlElement({ editorType: 'multiroot' }),
           canonical: {
             ...createEditorSnapshot(),
             preset: createEditorPreset('multiroot'),
@@ -256,7 +278,7 @@ describe('editor component', () => {
       it('should wait and for root elements to be present in DOM if they are not (with content=null value)', async () => {
         livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
-          el: createEditorHtmlElement(),
+          el: createEditorHtmlElement({ editorType: 'multiroot' }),
           canonical: {
             ...createEditorSnapshot(),
             preset: createEditorPreset('multiroot'),
@@ -283,7 +305,7 @@ describe('editor component', () => {
       it('should wait and for root elements to be present in DOM if they are not (with content=\'\' value)', async () => {
         livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
-          el: createEditorHtmlElement(),
+          el: createEditorHtmlElement({ editorType: 'multiroot' }),
           canonical: {
             ...createEditorSnapshot(),
             preset: createEditorPreset('multiroot'),
@@ -310,7 +332,7 @@ describe('editor component', () => {
       it('should wait and for root elements to be present in DOM if they are not (with set content value)', async () => {
         livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
           name: 'ckeditor5',
-          el: createEditorHtmlElement(),
+          el: createEditorHtmlElement({ editorType: 'multiroot' }),
           canonical: {
             ...createEditorSnapshot(),
             preset: createEditorPreset('multiroot'),

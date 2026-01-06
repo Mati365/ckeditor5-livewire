@@ -4,7 +4,9 @@
     @if($class) class="{{ $class }}" @endif
     @if($style) style="{{ $style }}" @endif
 >
-    <div id="{{ $editorId }}_editor"></div>
+    @if($preset['editorType'] !== 'multiroot' && $preset['editorType'] !== 'decoupled')
+        <div id="{{ $editorId }}_editor"></div>
+    @endif
 
     @if($name)
         <x-ckeditor5-hidden-input

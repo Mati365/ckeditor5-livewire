@@ -1,20 +1,14 @@
-import type { EditorId, EditorType } from '../typings';
+import type { EditorId } from '../typings';
 
 import { filterObjectValues, mapObjectValues } from '../../../shared';
-import { isSingleRootEditor } from './is-single-root-editor';
 
 /**
  * Gets the initial root elements for the editor based on its type.
  *
  * @param editorId The editor's ID.
- * @param type The type of the editor.
  * @returns The root element(s) for the editor.
  */
-export function queryEditablesElements(editorId: EditorId, type: EditorType) {
-  if (isSingleRootEditor(type) && type !== 'decoupled') {
-    return document.getElementById(`${editorId}_editor`)!;
-  }
-
+export function queryEditablesElements(editorId: EditorId) {
   const editables = queryAllEditorEditables(editorId);
 
   return mapObjectValues(editables, ({ element }) => element);
@@ -27,7 +21,7 @@ export function queryEditablesElements(editorId: EditorId, type: EditorType) {
  * @returns An object mapping editable names to their corresponding elements and initial values.
  */
 export function queryAllEditorEditables(editorId: EditorId): Record<string, EditableItem> {
-  return (
+  const acc = (
     window.Livewire
       .all()
       .filter(({ name, canonical }) => name === 'ckeditor5-editable' && canonical['editorId'] === editorId)
@@ -39,6 +33,38 @@ export function queryAllEditorEditables(editorId: EditorId): Record<string, Edit
         },
       }), Object.create({}))
   );
+
+  const rootHook = (
+    window.Livewire
+      .all()
+      .find(({ name, canonical }) => name === 'ckeditor5' && canonical['editorId'] === editorId)
+  );
+
+  const initialRootEditableValue = rootHook?.canonical.content as Record<string, string> | null;
+  const contentElement = document.querySelector<HTMLElement>(`#${editorId}_editor `);
+  const currentMain = acc['main'];
+
+  if (currentMain && initialRootEditableValue?.['main']) {
+    return {
+      ...acc,
+      main: {
+        ...currentMain,
+        content: currentMain.content || initialRootEditableValue['main'],
+      },
+    };
+  }
+
+  if (contentElement) {
+    return {
+      ...acc,
+      main: {
+        element: contentElement,
+        content: initialRootEditableValue?.['main'] || null,
+      },
+    };
+  }
+
+  return acc;
 }
 
 /**

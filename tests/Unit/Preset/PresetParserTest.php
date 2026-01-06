@@ -4,8 +4,7 @@ namespace Mati365\CKEditor5Livewire\Tests\Unit\Preset;
 
 use PHPUnit\Framework\TestCase;
 use Mati365\CKEditor5Livewire\Preset\{Preset, PresetParser, EditorType};
-use Mati365\CKEditor5Livewire\License\{Key, KeyParser};
-use Mati365\CKEditor5Livewire\Cloud\{Cloud, CloudParser};
+use Mati365\CKEditor5Livewire\License\Key;
 use InvalidArgumentException;
 
 class PresetParserTest extends TestCase

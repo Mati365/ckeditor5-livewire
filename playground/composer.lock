@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4e11e95388b25933a25933cdb3e4725d",
+    "content-hash": "b49850b2ade66eed4a1b5bafc87f9297",
     "packages": [
         {
             "name": "brick/math",
@@ -2011,16 +2011,16 @@
         },
         {
             "name": "livewire/livewire",
-            "version": "v3.6.4",
+            "version": "v4.0.0-beta.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/livewire/livewire.git",
-                "reference": "ef04be759da41b14d2d129e670533180a44987dc"
+                "reference": "c7c195c96acf45c449bf33118be6e4edabbd86f7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/livewire/livewire/zipball/ef04be759da41b14d2d129e670533180a44987dc",
-                "reference": "ef04be759da41b14d2d129e670533180a44987dc",
+                "url": "https://api.github.com/repos/livewire/livewire/zipball/c7c195c96acf45c449bf33118be6e4edabbd86f7",
+                "reference": "c7c195c96acf45c449bf33118be6e4edabbd86f7",
                 "shasum": ""
             },
             "require": {
@@ -2075,7 +2075,7 @@
             "description": "A front-end framework for Laravel.",
             "support": {
                 "issues": "https://github.com/livewire/livewire/issues",
-                "source": "https://github.com/livewire/livewire/tree/v3.6.4"
+                "source": "https://github.com/livewire/livewire/tree/v4.0.0-beta.6"
             },
             "funding": [
                 {
@@ -2083,91 +2083,19 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-07-17T05:12:15+00:00"
-        },
-        {
-            "name": "livewire/volt",
-            "version": "v1.7.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/livewire/volt.git",
-                "reference": "91ba934e72bbd162442840862959ade24dbe728a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/livewire/volt/zipball/91ba934e72bbd162442840862959ade24dbe728a",
-                "reference": "91ba934e72bbd162442840862959ade24dbe728a",
-                "shasum": ""
-            },
-            "require": {
-                "laravel/framework": "^10.38.2|^11.0|^12.0",
-                "livewire/livewire": "^3.6.1",
-                "php": "^8.1"
-            },
-            "require-dev": {
-                "laravel/folio": "^1.1",
-                "mockery/mockery": "^1.6",
-                "orchestra/testbench": "^8.15.0|^9.0|^10.0",
-                "pestphp/pest": "^2.9.5|^3.0",
-                "phpstan/phpstan": "^1.10"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Livewire\\Volt\\VoltServiceProvider"
-                    ]
-                },
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "functions.php"
-                ],
-                "psr-4": {
-                    "Livewire\\Volt\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Taylor Otwell",
-                    "email": "taylor@laravel.com"
-                },
-                {
-                    "name": "Nuno Maduro",
-                    "email": "nuno@laravel.com"
-                }
-            ],
-            "description": "An elegantly crafted functional API for Laravel Livewire.",
-            "homepage": "https://github.com/livewire/volt",
-            "keywords": [
-                "laravel",
-                "livewire",
-                "volt"
-            ],
-            "support": {
-                "issues": "https://github.com/livewire/volt/issues",
-                "source": "https://github.com/livewire/volt"
-            },
-            "time": "2025-08-06T15:40:50+00:00"
+            "time": "2026-01-08T16:45:48+00:00"
         },
         {
             "name": "mati365/ckeditor5-livewire",
-            "version": "1.0.0",
+            "version": "1.2.6",
             "dist": {
                 "type": "path",
                 "url": "..",
-                "reference": "641f2e211175bd8bc1513186b51f899339c311c4"
+                "reference": "177703eaba2ad77d6d51616596f8166adc544100"
             },
             "require": {
                 "illuminate/support": "^11.0 || ^12.0",
-                "livewire/livewire": "^3.0",
+                "livewire/livewire": "^3.0 || ^4.0",
                 "php": ">=8.3",
                 "respect/validation": "^2.4"
             },
@@ -2215,6 +2143,22 @@
                 }
             ],
             "description": "CKEditor 5 integration for Laravel Livewire",
+            "keywords": [
+                "blade",
+                "ckeditor",
+                "ckeditor5",
+                "content-editor",
+                "editor",
+                "html-editor",
+                "laravel",
+                "laravel-livewire",
+                "laravel-package",
+                "livewire",
+                "livewire-component",
+                "rich-text-editor",
+                "text-editor",
+                "wysiwyg"
+            ],
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -9780,6 +9724,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "livewire/livewire": 10,
         "mati365/ckeditor5-livewire": 20
     },
     "prefer-stable": true,
@@ -9788,5 +9733,5 @@
         "php": "^8.2"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

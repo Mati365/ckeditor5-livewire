@@ -44,6 +44,7 @@ export function queryAllEditorEditables(editorId: EditorId): Record<string, Edit
   const contentElement = document.querySelector<HTMLElement>(`#${editorId}_editor `);
   const currentMain = acc['main'];
 
+  // If found `main` editable, but it has no content, try to fill it from the editor container.
   if (currentMain && initialRootEditableValue?.['main']) {
     return {
       ...acc,
@@ -54,6 +55,7 @@ export function queryAllEditorEditables(editorId: EditorId): Record<string, Edit
     };
   }
 
+  // If no `main` editable found, try to create it from the editor container.
   if (contentElement) {
     return {
       ...acc,

@@ -11,7 +11,7 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
   /**
    * The promise that resolves when the editable is mounted.
    */
-  private editorPromise: Promise<MultiRootEditor> | null = null;
+  private editorPromise: Promise<MultiRootEditor | null> | null = null;
 
   /**
    * Mounts the editable component.
@@ -22,6 +22,11 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
 
     // If the editor is not registered yet, we will wait for it to be registered.
     this.editorPromise = EditorsRegistry.the.execute(editorId, (editor: MultiRootEditor) => {
+      /* v8 ignore next 3 */
+      if (this.isBeingDestroyed()) {
+        return null;
+      }
+
       const { ui, editing, model } = editor;
 
       if (model.document.getRoot(rootName)) {

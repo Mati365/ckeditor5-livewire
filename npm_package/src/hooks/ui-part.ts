@@ -18,6 +18,11 @@ export class UIPartComponentHook extends ClassHook<Snapshot> {
 
     // If the editor is not registered yet, we will wait for it to be registered.
     this.mountedPromise = EditorsRegistry.the.execute(editorId, (editor) => {
+      /* v8 ignore next 3 */
+      if (this.isBeingDestroyed()) {
+        return;
+      }
+
       const { ui } = editor;
 
       const uiViewName = mapUIPartView(name);

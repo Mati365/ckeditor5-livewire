@@ -947,3 +947,5 @@ This package is not owned by CKSource and does not use the CKEditor® trademark 
 ## License 📜
 
 This project is licensed under the terms of the [MIT LICENSE](LICENSE).
+
+This project injects CKEditor 5 which is licensed under the terms of [GNU General Public License Version 2 or later](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html). For more information about CKEditor 5 licensing, please see their [official documentation](https://ckeditor.com/legal/ckeditor-oss-license/).

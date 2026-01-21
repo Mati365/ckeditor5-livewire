@@ -6,6 +6,6 @@ return (new PhpCsFixer\Config())
     ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
     ->setRules([
         '@PER-CS' => true,
-        '@PHP82Migration' => true,
+        '@PHP8x2Migration' => true,
     ])
     ->setFinder($finder);

@@ -2,6 +2,12 @@
   "name": "ckeditor5-livewire",
   "version": "1.2.9",
   "description": "CKEditor 5 integration for Laravel Livewire",
+  "author": "Mateusz Bagiński <cziken58@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mati365/ckeditor5-livewire"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

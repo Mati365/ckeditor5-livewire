@@ -903,6 +903,59 @@ import { CustomEditorPluginsRegistry } from 'ckeditor5-livewire';
 CustomEditorPluginsRegistry.the.unregisterAll();
 ```
 
+## Editors & contexts registry 👀
+
+The package provides two registries: `EditorsRegistry` and `ContextsRegistry`. They allow you to watch for changes in registered editors and contexts, get instances directly, or execute logic when a specific editor or context appears.
+
+- **`watch(callback)`** — react whenever registry state changes.
+
+```javascript
+import { EditorsRegistry } from 'ckeditor5-livewire';
+
+const unregisterWatcher = EditorsRegistry.the.watch((editors) => {
+  console.log('Registered editors changed:', editors);
+});
+
+// Later, you can unregister the watcher
+unregisterWatcher();
+```
+
+- **`waitFor(id)`** — get the instance directly. If it is already registered, the promise resolves immediately.
+
+```javascript
+import { EditorsRegistry } from 'ckeditor5-livewire';
+
+EditorsRegistry.the.waitFor('editor1').then((editor) => {
+  console.log('Editor "editor1" is registered:', editor);
+});
+
+// ... init editor somewhere later
+```
+
+- **`execute(id, callback)`** — run logic immediately if the instance already exists, or later when it appears.
+
+```javascript
+import { EditorsRegistry } from 'ckeditor5-livewire';
+
+EditorsRegistry.the.execute('editor1', (editor) => {
+  console.log('Current data:', editor.getData());
+});
+```
+
+- The same methods are available on `ContextsRegistry` for shared contexts:
+
+```javascript
+import { ContextsRegistry } from 'ckeditor5-livewire';
+
+ContextsRegistry.the.waitFor('shared-context').then((watchdog) => {
+  console.log('Context is ready:', watchdog.context);
+});
+
+ContextsRegistry.the.execute('shared-context', (watchdog) => {
+  console.log('Context state:', watchdog.state);
+});
+```
+
 ## Development ⚙️
 
 To start the development environment, run:

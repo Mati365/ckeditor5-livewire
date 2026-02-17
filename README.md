@@ -910,52 +910,52 @@ The package provides two registries: `EditorsRegistry` and `ContextsRegistry`. T
 
 - **`watch(callback)`** — react whenever registry state changes.
 
-```javascript
-import { EditorsRegistry } from 'ckeditor5-livewire';
+    ```javascript
+    import { EditorsRegistry } from 'ckeditor5-livewire';
 
-const unregisterWatcher = EditorsRegistry.the.watch((editors) => {
-  console.log('Registered editors changed:', editors);
-});
+    const unregisterWatcher = EditorsRegistry.the.watch((editors) => {
+      console.log('Registered editors changed:', editors);
+    });
 
-// Later, you can unregister the watcher
-unregisterWatcher();
-```
+    // Later, you can unregister the watcher
+    unregisterWatcher();
+    ```
 
 - **`waitFor(id)`** — get the instance directly. If it is already registered, the promise resolves immediately.
 
-```javascript
-import { EditorsRegistry } from 'ckeditor5-livewire';
+    ```javascript
+    import { EditorsRegistry } from 'ckeditor5-livewire';
 
-EditorsRegistry.the.waitFor('editor1').then((editor) => {
-  console.log('Editor "editor1" is registered:', editor);
-});
+    EditorsRegistry.the.waitFor('editor1').then((editor) => {
+      console.log('Editor "editor1" is registered:', editor);
+    });
 
-// ... init editor somewhere later
-```
+    // ... init editor somewhere later
+    ```
 
 - **`execute(id, callback)`** — run logic immediately if the instance already exists, or later when it appears.
 
-```javascript
-import { EditorsRegistry } from 'ckeditor5-livewire';
+    ```javascript
+    import { EditorsRegistry } from 'ckeditor5-livewire';
 
-EditorsRegistry.the.execute('editor1', (editor) => {
-  console.log('Current data:', editor.getData());
-});
-```
+    EditorsRegistry.the.execute('editor1', (editor) => {
+      console.log('Current data:', editor.getData());
+    });
+    ```
 
 - The same methods are available on `ContextsRegistry` for shared contexts:
 
-```javascript
-import { ContextsRegistry } from 'ckeditor5-livewire';
+    ```javascript
+    import { ContextsRegistry } from 'ckeditor5-livewire';
 
-ContextsRegistry.the.waitFor('shared-context').then((watchdog) => {
-  console.log('Context is ready:', watchdog.context);
-});
+    ContextsRegistry.the.waitFor('shared-context').then((watchdog) => {
+      console.log('Context is ready:', watchdog.context);
+    });
 
-ContextsRegistry.the.execute('shared-context', (watchdog) => {
-  console.log('Context state:', watchdog.state);
-});
-```
+    ContextsRegistry.the.execute('shared-context', (watchdog) => {
+      console.log('Context state:', watchdog.state);
+    });
+    ```
 
 ## Development ⚙️
 

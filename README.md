@@ -56,6 +56,7 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
     - [Basic usage 🔧](#basic-usage--1)
     - [Custom context translations 🌐](#custom-context-translations-)
   - [Custom plugins 🧩](#custom-plugins-)
+  - [Editors and Contexts registry 👀](#editors-and-contexts-registry-)
   - [Development ⚙️](#development-️)
     - [Running Tests 🧪](#running-tests-)
   - [Psst... 👀](#psst-)
@@ -903,7 +904,7 @@ import { CustomEditorPluginsRegistry } from 'ckeditor5-livewire';
 CustomEditorPluginsRegistry.the.unregisterAll();
 ```
 
-## Editors & contexts registry 👀
+## Editors and Contexts registry 👀
 
 The package provides two registries: `EditorsRegistry` and `ContextsRegistry`. They allow you to watch for changes in registered editors and contexts, get instances directly, or execute logic when a specific editor or context appears.
 

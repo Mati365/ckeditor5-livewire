@@ -30,25 +30,28 @@ export async function createLivewireSyncPlugin(
     public init(): void {
       this.setupTypingContentPush();
       this.setupFocusableEventPush();
-      this.setupContentServerSync();
+      this.setupAfterCommitHandler();
+      this.setupSetEditorContentHandler();
     }
 
     /**
-     * Setups the content sync from Livewire to the editor.
+     * Setups handler that updates the editor content after Livewire changes attributes
+     * on the component and commits the changes, but only if the editor is not focused to prevent
+     * disrupting the user while editing.
      */
-    private setupContentServerSync() {
+    private setupAfterCommitHandler() {
       const { editor } = this;
       const { model, ui: { focusTracker } } = editor;
 
       let pendingContent: Record<string, string> | null = null;
 
       editor.on('afterCommitSynced', () => {
-        const { content } = component.canonical;
-        const values = this.getEditorRootsValues();
-
         if (!isWireModelConnected(component.element)) {
           return;
         }
+
+        const { content } = component.canonical;
+        const values = this.getEditorRootsValues();
 
         // If editor is focused, save the content to apply later when it blurs.
         if (focusTracker.isFocused) {
@@ -64,18 +67,6 @@ export async function createLivewireSyncPlugin(
         }
       });
 
-      Livewire.on('set-editor-content', ({ editorId, content }: SetContentPayload) => {
-        if (editorId !== component.canonical.editorId) {
-          return;
-        }
-
-        const currentValues = this.getEditorRootsValues();
-
-        if (!shallowEqual(currentValues, content)) {
-          editor.setData(content);
-        }
-      });
-
       // Track user changes while focused.
       model.document.on('change:data', () => {
         pendingContent = null;
@@ -86,6 +77,23 @@ export async function createLivewireSyncPlugin(
         if (!focusTracker.isFocused && pendingContent !== null) {
           editor.setData(pendingContent);
           pendingContent = null;
+        }
+      });
+    }
+
+    /**
+     * Setups the content sync from Livewire to the editor when Livewire emits an event.
+     */
+    private setupSetEditorContentHandler() {
+      Livewire.on('set-editor-content', ({ editorId, content }: SetContentPayload) => {
+        if (editorId !== component.canonical.editorId) {
+          return;
+        }
+
+        const currentValues = this.getEditorRootsValues();
+
+        if (!shallowEqual(currentValues, content)) {
+          this.editor.setData(content);
         }
       });
     }

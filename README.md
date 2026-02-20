@@ -45,6 +45,7 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
   - [Advanced configuration ⚙️](#advanced-configuration-️)
     - [Livewire Sync 🔄](#livewire-sync-)
       - [Two way binding using `wire:model` ⛓️](#two-way-binding-using-wiremodel-️)
+        - [Multiroot Editables 🌳⛓️](#multiroot-editables-️)
       - [Bidirectional Communication using Events 🔄](#bidirectional-communication-using-events-)
         - [Editor → Livewire: Content Change Event 📤](#editor--livewire-content-change-event-)
         - [Livewire → Editor: Set Content Event 📥](#livewire--editor-set-content-event-)
@@ -616,6 +617,69 @@ class Editor extends Component
         $this->content = ['content' => ''];
     }
 }
+```
+
+##### Multiroot Editables 🌳⛓️
+
+When using a multiroot editor, you can bind individual editable areas directly to specific properties in your Livewire component. Instead of using `wire:model` on the main editor component, you apply it to each `<livewire:ckeditor5-editable>` component.
+
+This allows for granular control and real-time synchronization of specific document sections.
+
+```php
+// app/Livewire/MultirootDemo.php
+namespace App\Livewire;
+
+use Livewire\Component;
+
+class MultirootDemo extends Component
+{
+    public string $editorId = 'my-multiroot-editor';
+
+    public array $content = [
+        'header' => '<h2>Document Header</h2>',
+        'body' => '<p>Initial body content.</p>',
+    ];
+
+    public function render()
+    {
+        return view('livewire.multiroot-demo');
+    }
+}
+```
+
+```blade
+<div>
+    <livewire:ckeditor5
+        :editorId="$editorId"
+        editorType="multiroot"
+    />
+
+    <div class="mb-4 bg-gray-50 border p-2">
+        <livewire:ckeditor5-ui-part name="toolbar" :editorId="$editorId" />
+    </div>
+
+    <div class="mb-4">
+        <label>Header</label>
+        <livewire:ckeditor5-editable
+            :editorId="$editorId"
+            rootName="header"
+            wire:model.live="content.header"
+            class="border rounded"
+            editableClass="p-4"
+        />
+    </div>
+
+    <div>
+        <label>Body</label>
+        <livewire:ckeditor5-editable
+            :editorId="$editorId"
+            rootName="body"
+            wire:model.live="content.body"
+            class="border rounded"
+            editableClass="p-4 min-h-[200px]"
+        />
+    </div>
+</div>
 ```
 
 #### Bidirectional Communication using Events 🔄

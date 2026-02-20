@@ -15,6 +15,7 @@ import {
 
 import type { Snapshot as EditorSnapshot } from './editor';
 
+import { timeout } from '../shared';
 import { EditableComponentHook } from './editable';
 import { EditorComponentHook } from './editor';
 import { registerLivewireComponentHook } from './hook';
@@ -267,7 +268,9 @@ describe('editable component', () => {
       it('should update editable content after commit if content changed in Livewire', async () => {
         const { id } = livewireStub.$internal.appendComponentToDOM({
           name: 'ckeditor5-editable',
-          el: createEditableHtmlElement(),
+          el: createEditableHtmlElement({
+            wireModel: 'content',
+          }),
           canonical: createEditableSnapshot('foo', '<p>Initial foo content</p>'),
         });
 
@@ -286,10 +289,33 @@ describe('editable component', () => {
         });
       });
 
-      it('should not update editable content after commit if content has not changed', async () => {
+      it('should not update editable content after commit if `wire.model` is not set', async () => {
         const { id } = livewireStub.$internal.appendComponentToDOM({
           name: 'ckeditor5-editable',
           el: createEditableHtmlElement(),
+          canonical: createEditableSnapshot('foo', '<p>Initial foo content</p>'),
+        });
+
+        appendMultirootEditor({
+          foo: '<p>Initial foo content</p>',
+        });
+
+        const editor = await waitForTestEditor();
+
+        await livewireStub.$internal.dispatchComponentCommit(id, {
+          content: '<p>Updated foo content from Livewire</p>',
+        });
+
+        await timeout(50);
+        expect(editor.getData({ rootName: 'foo' })).toBe('<p>Initial foo content</p>');
+      });
+
+      it('should not update editable content after commit if content has not changed', async () => {
+        const { id } = livewireStub.$internal.appendComponentToDOM({
+          name: 'ckeditor5-editable',
+          el: createEditableHtmlElement({
+            wireModel: 'content',
+          }),
           canonical: createEditableSnapshot('foo', '<p>Initial foo content</p>'),
         });
 
@@ -309,7 +335,9 @@ describe('editable component', () => {
       it('should handle null content in commit', async () => {
         const { id } = livewireStub.$internal.appendComponentToDOM({
           name: 'ckeditor5-editable',
-          el: createEditableHtmlElement(),
+          el: createEditableHtmlElement({
+            wireModel: 'content',
+          }),
           canonical: createEditableSnapshot('foo', '<p>Initial foo content</p>'),
         });
 
@@ -328,13 +356,106 @@ describe('editable component', () => {
         });
       });
 
+      it('should defer editable content update if editable is focused during commit and apply it on blur', async () => {
+        const { id } = livewireStub.$internal.appendComponentToDOM({
+          name: 'ckeditor5-editable',
+          el: createEditableHtmlElement({
+            wireModel: 'content',
+          }),
+          canonical: createEditableSnapshot('foo', '<p>Initial foo content</p>'),
+        });
+
+        appendMultirootEditor({
+          foo: '<p>Initial foo content</p>',
+        });
+
+        const editor = await waitForTestEditor();
+        const { ui: { focusTracker } } = editor;
+
+        focusTracker.isFocused = true;
+
+        await livewireStub.$internal.dispatchComponentCommit(id, {
+          content: '<p>Updated foo content from Livewire</p>',
+        });
+
+        expect(editor.getData({ rootName: 'foo' })).toBe('<p>Initial foo content</p>');
+
+        focusTracker.isFocused = false;
+
+        expect(editor.getData({ rootName: 'foo' })).toBe('<p>Updated foo content from Livewire</p>');
+      });
+
+      it('should abort editable content update if editable is focused during commit and content changes before blur', async () => {
+        const { id } = livewireStub.$internal.appendComponentToDOM({
+          name: 'ckeditor5-editable',
+          el: createEditableHtmlElement({
+            wireModel: 'content',
+          }),
+          canonical: createEditableSnapshot('foo', '<p>Initial foo content</p>'),
+        });
+
+        appendMultirootEditor({
+          foo: '<p>Initial foo content</p>',
+        });
+
+        const editor = await waitForTestEditor();
+        const { ui: { focusTracker } } = editor;
+
+        focusTracker.isFocused = true;
+
+        await livewireStub.$internal.dispatchComponentCommit(id, {
+          content: '<p>Updated foo content from Livewire</p>',
+        });
+
+        expect(editor.getData({ rootName: 'foo' })).toBe('<p>Initial foo content</p>');
+
+        editor.setData({
+          foo: '<p>Content changed by user</p>',
+        });
+
+        focusTracker.isFocused = false;
+
+        expect(editor.getData({ rootName: 'foo' })).toBe('<p>Content changed by user</p>');
+      });
+
+      it('should defer editable null content update if editable is focused during commit and apply it on blur', async () => {
+        const { id } = livewireStub.$internal.appendComponentToDOM({
+          name: 'ckeditor5-editable',
+          el: createEditableHtmlElement({
+            wireModel: 'content',
+          }),
+          canonical: createEditableSnapshot('foo', '<p>Initial foo content</p>'),
+        });
+
+        appendMultirootEditor({
+          foo: '<p>Initial foo content</p>',
+        });
+
+        const editor = await waitForTestEditor();
+        const { ui: { focusTracker } } = editor;
+
+        focusTracker.isFocused = true;
+
+        await livewireStub.$internal.dispatchComponentCommit(id, {
+          content: null,
+        });
+
+        expect(editor.getData({ rootName: 'foo' })).toBe('<p>Initial foo content</p>');
+
+        focusTracker.isFocused = false;
+
+        expect(editor.getData({ rootName: 'foo' })).toBe('');
+      });
+
       it('should not crash if editor is not found during commit', async () => {
         appendMultirootEditor();
         await waitForTestEditor();
 
         const { id } = livewireStub.$internal.appendComponentToDOM({
           name: 'ckeditor5-editable',
-          el: createEditableHtmlElement(),
+          el: createEditableHtmlElement({
+            wireModel: 'content',
+          }),
           canonical: createEditableSnapshot('foo', '<p>Initial foo content</p>'),
         });
 
@@ -352,13 +473,17 @@ describe('editable component', () => {
       it('should sync multiple editables independently after commit', async () => {
         const { id: fooId } = livewireStub.$internal.appendComponentToDOM({
           name: 'ckeditor5-editable',
-          el: createEditableHtmlElement(),
+          el: createEditableHtmlElement({
+            wireModel: 'content',
+          }),
           canonical: createEditableSnapshot('foo', '<p>Initial foo content</p>'),
         });
 
         const { id: barId } = livewireStub.$internal.appendComponentToDOM({
           name: 'ckeditor5-editable',
-          el: createEditableHtmlElement(),
+          el: createEditableHtmlElement({
+            wireModel: 'content',
+          }),
           canonical: createEditableSnapshot('bar', '<p>Initial bar content</p>'),
         });
 

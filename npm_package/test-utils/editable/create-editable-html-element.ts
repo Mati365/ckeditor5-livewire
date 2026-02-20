@@ -9,17 +9,20 @@ export function createEditableHtmlElement(
     id = `editable-${uid()}`,
     name = `editable-${id}-input`,
     required,
+    wireModel,
     withInput = true,
   }: {
     id?: string;
     name?: string;
     required?: boolean;
     withInput?: boolean;
+    wireModel?: string;
   } = {},
 ) {
   return html.div(
     {
       id,
+      ...(wireModel && { 'wire:model': wireModel }),
     },
     html.div({
       'data-cke-editable-content': '',

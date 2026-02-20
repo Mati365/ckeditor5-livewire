@@ -2,6 +2,7 @@ import type { MultiRootEditor } from 'ckeditor5';
 
 import { debounce } from '../shared';
 import { EditorsRegistry } from './editor/editors-registry';
+import { isWireModelConnected } from './editor/utils';
 import { ClassHook } from './hook';
 
 /**
@@ -14,11 +15,15 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
   private editorPromise: Promise<MultiRootEditor | null> | null = null;
 
   /**
+   * Pending content to apply when the editor loses focus.
+   */
+  private pendingContent: string | null = null;
+
+  /**
    * Mounts the editable component.
    */
   override mounted() {
-    const { editorId, rootName, content, saveDebounceMs } = this.canonical;
-    const input = this.element.querySelector<HTMLInputElement>('input');
+    const { editorId, rootName, content } = this.canonical;
 
     // If the editor is not registered yet, we will wait for it to be registered.
     this.editorPromise = EditorsRegistry.the.execute(editorId, (editor: MultiRootEditor) => {
@@ -41,39 +46,97 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
             });
           }
         }
+      }
+      else {
+        editor.addRoot(rootName, {
+          isUndoable: false,
+          ...content !== null && {
+            data: content,
+          },
+        });
 
-        return editor;
+        const contentElement = this.element.querySelector('[data-cke-editable-content]') as HTMLElement | null;
+        const editable = ui.view.createEditable(rootName, contentElement!);
+
+        ui.addEditable(editable);
+        editing.view.forceRender();
       }
 
-      editor.addRoot(rootName, {
-        isUndoable: false,
-        ...content !== null && {
-          data: content,
-        },
-      });
-
-      const contentElement = this.element.querySelector('[data-cke-editable-content]') as HTMLElement | null;
-      const editable = ui.view.createEditable(rootName, contentElement!);
-
-      ui.addEditable(editable);
-      editing.view.forceRender();
-
-      // Sync data with socket and input element.
-      const sync = () => {
-        const html = editor.getData({ rootName });
-
-        if (input) {
-          input.value = html;
-        }
-
-        this.$wire.set('content', html);
-      };
-
-      editor.model.document.on('change:data', debounce(saveDebounceMs, sync));
-      sync();
+      // Add livewire sync.
+      this.syncTypingContentPush(editor);
+      this.setupPendingReceivedContentHandlers(editor);
 
       return editor;
     });
+  }
+
+  /**
+   * Setups the content sync from the editor to Livewire on user input with debounce.
+   */
+  private syncTypingContentPush(editor: MultiRootEditor) {
+    const { rootName, saveDebounceMs } = this.canonical;
+    const input = this.element.querySelector<HTMLInputElement>('input');
+
+    const sync = () => {
+      const html = editor.getData({ rootName });
+
+      if (input) {
+        input.value = html;
+      }
+
+      this.$wire.set('content', html);
+    };
+
+    editor.model.document.on('change:data', debounce(saveDebounceMs, sync));
+    sync();
+  }
+
+  /**
+   * Sets up handlers that manage pending incoming content (clears pending
+   * content on user edits and applies pending content on blur).
+   */
+  private setupPendingReceivedContentHandlers(editor: MultiRootEditor): void {
+    const { ui, model } = editor;
+    const { rootName } = this.canonical;
+
+    model.document.on('change:data', () => {
+      this.pendingContent = null;
+    });
+
+    ui.focusTracker.on('change:isFocused', () => {
+      if (!ui.focusTracker.isFocused && this.pendingContent !== null) {
+        editor.setData({
+          [rootName]: this.pendingContent,
+        });
+
+        this.pendingContent = null;
+      }
+    });
+  }
+
+  /**
+   * Applies canonical content to the editor while respecting focus/pending state.
+   */
+  private applyCanonicalContentToEditor(editor: MultiRootEditor): void {
+    if (!isWireModelConnected(this.element)) {
+      return;
+    }
+
+    const { content, rootName } = this.canonical;
+    const { ui } = editor;
+
+    const currentValue = editor.getData({ rootName });
+
+    if (currentValue === (content ?? '')) {
+      return;
+    }
+
+    if (ui.focusTracker.isFocused) {
+      this.pendingContent = content ?? '';
+      return;
+    }
+
+    editor.setData({ [rootName]: content ?? '' });
   }
 
   /**
@@ -81,14 +144,8 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
    */
   override async afterCommitSynced(): Promise<void> {
     const editor = (await this.editorPromise)!;
-    const { content, rootName } = this.canonical;
-    const value = editor.getData({ rootName });
 
-    if (value !== content) {
-      editor.setData({
-        [rootName]: content ?? '',
-      });
-    }
+    this.applyCanonicalContentToEditor(editor);
   }
 
   /**

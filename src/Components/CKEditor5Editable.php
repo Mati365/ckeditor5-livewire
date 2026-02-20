@@ -4,6 +4,7 @@ namespace Mati365\CKEditor5Livewire\Components;
 
 use Livewire\Component;
 use Illuminate\View\View;
+use Livewire\Attributes\Modelable;
 
 /**
  * Livewire component for CKEditor5 editable root.
@@ -28,8 +29,11 @@ final class CKEditor5Editable extends Component
 
     /**
      * The initial content value for the editable.
+     *
+     * @var string|null The initial HTML content for this editable root, e.g., '<p>Initial content</p>'
      */
-    public ?string $content;
+    #[Modelable]
+    public ?string $content = null;
 
     /**
      * The name attribute for the hidden input field.
@@ -106,7 +110,6 @@ final class CKEditor5Editable extends Component
         $this->id = $id ?? 'ckeditor-editable-' . uniqid();
         $this->editorId = $editorId;
         $this->rootName = $rootName;
-        $this->content = $content;
         $this->name = $name;
         $this->required = $required;
         $this->class = $class;
@@ -114,6 +117,10 @@ final class CKEditor5Editable extends Component
         $this->editableClass = $editableClass;
         $this->editableStyle = $editableStyle;
         $this->saveDebounceMs = $saveDebounceMs;
+
+        if ($content !== null) {
+            $this->content = $content;
+        }
     }
 
     /**

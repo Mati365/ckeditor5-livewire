@@ -69,6 +69,15 @@
     </section>
 
     <section class="mb-16">
+        <h2 class="mb-4 font-semibold text-xl">Livewire ↔ Multiroot Attribute Demo</h2>
+        <p class="mb-4 text-gray-600 dark:text-gray-400 text-sm">This demo shows a root value set from Livewire using the `:content` attribute; it stays synchronized with Livewire. Edit the editor or press the reset button to change the Livewire value.</p>
+
+        <div class="bg-white dark:bg-gray-800 shadow p-6 rounded-lg">
+            <livewire:multi-root-demo />
+        </div>
+    </section>
+
+    <section class="mb-16">
         <h2 class="mb-4 font-semibold text-xl">Document Structure Example</h2>
         <p class="mb-4 text-gray-600 dark:text-gray-400 text-sm">
             A more complex example simulating a document with sidebar, header, main content, and aside sections.

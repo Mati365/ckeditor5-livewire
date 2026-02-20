@@ -605,7 +605,7 @@ Handle content changes in your Livewire component:
 ```php
 class Editor extends Component
 {
-    public $content = [ 'content' => '<p>Initial content</p>' ];
+    public $content = [ 'main' => '<p>Initial content</p>' ];
 
     public function render()
     {
@@ -614,7 +614,7 @@ class Editor extends Component
 
     public function resetContent()
     {
-        $this->content = ['content' => ''];
+        $this->content = ['main' => ''];
     }
 }
 ```

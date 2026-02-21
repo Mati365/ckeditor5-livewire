@@ -87,8 +87,14 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
       this.$wire.set('content', html);
     };
 
-    editor.model.document.on('change:data', debounce(saveDebounceMs, sync));
+    const debouncedSync = debounce(saveDebounceMs, sync);
+
+    editor.model.document.on('change:data', debouncedSync);
     sync();
+
+    this.onBeforeDestroy(() => {
+      editor.model.document.off('change:data', debouncedSync);
+    });
   }
 
   /**
@@ -97,20 +103,29 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
    */
   private setupPendingReceivedContentHandlers(editor: MultiRootEditor): void {
     const { ui, model } = editor;
+    const { focusTracker } = ui;
     const { rootName } = this.canonical;
 
-    model.document.on('change:data', () => {
+    const onDataChange = () => {
       this.pendingContent = null;
-    });
+    };
 
-    ui.focusTracker.on('change:isFocused', () => {
-      if (!ui.focusTracker.isFocused && this.pendingContent !== null) {
+    const onFocusChange = () => {
+      if (!focusTracker.isFocused && this.pendingContent !== null) {
         editor.setData({
           [rootName]: this.pendingContent,
         });
 
         this.pendingContent = null;
       }
+    };
+
+    model.document.on('change:data', onDataChange);
+    focusTracker.on('change:isFocused', onFocusChange);
+
+    this.onBeforeDestroy(() => {
+      model.document.off('change:data', onDataChange);
+      focusTracker.off('change:isFocused', onFocusChange);
     });
   }
 

@@ -78,6 +78,16 @@
     </section>
 
     <section class="mb-16">
+        <h2 class="mb-4 font-semibold text-xl">Dynamic Multiroot Editor Demo</h2>
+        <p class="mb-4 text-gray-600 dark:text-gray-400 text-sm">
+            This demo lets you add and remove roots dynamically. Each root is Livewire-bound and editable. The root name is randomized after each addition.
+        </p>
+        <div class="bg-white dark:bg-gray-800 shadow p-6 rounded-lg">
+            <livewire:multi-root-dynamic-demo />
+        </div>
+    </section>
+
+    <section class="mb-16">
         <h2 class="mb-4 font-semibold text-xl">Document Structure Example</h2>
         <p class="mb-4 text-gray-600 dark:text-gray-400 text-sm">
             A more complex example simulating a document with sidebar, header, main content, and aside sections.

@@ -10,12 +10,25 @@ export abstract class ClassHook<T extends object = Record<string, unknown>> {
    */
   state: ClassHookState = 'mounting';
 
+  /**
+   * Callbacks to run before the hook is destroyed.
+   */
+  private _beforeDestroyCallbacks: Array<() => void> = [];
+
   constructor(
     /**
      * The Livewire component instance associated with this hook.
      */
     protected livewireComponent: LivewireComponent,
   ) {}
+
+  /**
+   * Registers a callback to be called before the hook is destroyed.
+   * Callbacks are called in LIFO order (last registered, first called).
+   */
+  onBeforeDestroy(callback: () => void): void {
+    this._beforeDestroyCallbacks.push(callback);
+  }
 
   /**
    * The canonical snapshot of the Livewire component.
@@ -59,6 +72,18 @@ export abstract class ClassHook<T extends object = Record<string, unknown>> {
    * Called when the component is updated by Livewire.
    */
   afterCommitSynced?(): CanBePromise<void>;
+
+  /**
+   * Runs all registered before-destroy callbacks and clears the list.
+   * Called internally by makeHook before destroyed().
+   */
+  _runBeforeDestroyCallbacks(): void {
+    for (const cb of this._beforeDestroyCallbacks.reverse()) {
+      cb();
+    }
+
+    this._beforeDestroyCallbacks = [];
+  }
 }
 
 /**
@@ -89,6 +114,7 @@ export function registerLivewireComponentHook(name: string, Hook: { new(componen
     cleanup(async () => {
       instance.state = 'destroying';
 
+      instance._runBeforeDestroyCallbacks();
       await instance.destroyed();
 
       instance.state = 'destroyed';

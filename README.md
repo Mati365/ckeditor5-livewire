@@ -49,6 +49,7 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
       - [Bidirectional Communication using Events 🔄](#bidirectional-communication-using-events-)
         - [Editor → Livewire: Content Change Event 📤](#editor--livewire-content-change-event-)
         - [Livewire → Editor: Set Content Event 📥](#livewire--editor-set-content-event-)
+    - [Editor → Livewire: Editor Ready Event ✅](#editor--livewire-editor-ready-event-)
     - [Focus Tracking 👁️](#focus-tracking-️)
     - [Watchdog 🐶](#watchdog-)
       - [How it works ⚙️](#how-it-works-️)
@@ -757,6 +758,22 @@ class EditorDemo extends Component
 
 > [!IMPORTANT]
 > Do not use `wire:model` together with these events on the same editor instance, as the broadcasted value might be overwritten by Livewire's internal synchronization.
+
+### Editor → Livewire: Editor Ready Event ✅
+
+An event is fired when the editor has finished initializing and is fully ready.
+This can be useful for triggering UI updates, focusing related components, or
+performing any logic that must wait until the editor is available.
+
+```php
+#[On('editor-ready')]
+public function onEditorReady(string $editorId): void
+{
+    if ($editorId === $this->editorId) {
+        // editor is now ready
+    }
+}
+```
 
 ### Focus Tracking 👁️
 

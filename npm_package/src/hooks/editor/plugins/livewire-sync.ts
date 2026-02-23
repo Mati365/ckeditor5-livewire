@@ -32,6 +32,7 @@ export async function createLivewireSyncPlugin(
       this.setupFocusableEventPush();
       this.setupAfterCommitHandler();
       this.setupSetEditorContentHandler();
+      this.setupReadyDispatch();
     }
 
     /**
@@ -78,6 +79,25 @@ export async function createLivewireSyncPlugin(
           editor.setData(pendingContent);
           pendingContent = null;
         }
+      });
+    }
+
+    /**
+     * Dispatches a Livewire event when the editor becomes ready.
+     *
+     * This allows the Livewire component or parent to react as soon as the
+     * instance is fully initialized. The payload contains the editorId so the
+     * listener can ignore events coming from other editors on the page.
+     */
+    private setupReadyDispatch() {
+      const { $wire } = component;
+
+      // `ready` is fired by CKEditor5 once initialization finishes. We only
+      // need to fire the Livewire event once, hence `once`.
+      this.editor.once('ready', () => {
+        $wire.dispatch('editor-ready', {
+          editorId: component.canonical.editorId,
+        });
       });
     }
 

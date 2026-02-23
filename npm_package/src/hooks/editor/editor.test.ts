@@ -695,6 +695,23 @@ describe('editor component', () => {
     });
 
     describe('dispatch / receive events', () => {
+      it('should dispatch `editor-ready` event when editor becomes ready', async () => {
+        const { $wire } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement(),
+          canonical: createEditorSnapshot(),
+        });
+
+        // clear initial calls that may come from mounting logic
+        $wire.dispatch.mockClear();
+
+        await waitForTestEditor();
+
+        expect($wire.dispatch).toHaveBeenCalledExactlyOnceWith('editor-ready', {
+          editorId: DEFAULT_TEST_EDITOR_ID,
+        });
+      });
+
       it('should dispatch `editor-content-changed` event on content change', async () => {
         vi.useFakeTimers();
 

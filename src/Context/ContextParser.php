@@ -3,11 +3,9 @@
 namespace Mati365\CKEditor5Livewire\Context;
 
 use InvalidArgumentException;
-use Respect\Validation\Validator as v;
-use Respect\Validation\Exceptions\NestedValidationException;
 
 /**
- * Parser for Context configuration using Respect/Validation.
+ * Parser for Context configuration.
  */
 final class ContextParser
 {
@@ -20,15 +18,7 @@ final class ContextParser
      */
     public static function parse(array $data): Context
     {
-        $validator = v::key('config', v::arrayType())
-            ->key('watchdogConfig', v::optional(v::arrayType()), false)
-            ->key('customTranslations', v::optional(v::arrayType()), false);
-
-        try {
-            $validator->assert($data);
-        } catch (NestedValidationException $e) {
-            throw new InvalidArgumentException('Context config validation failed: ' . implode(', ', $e->getMessages()));
-        }
+        ContextValidator::validate($data);
 
         return new Context(
             config: (array) $data['config'],

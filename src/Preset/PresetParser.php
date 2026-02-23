@@ -3,13 +3,11 @@
 namespace Mati365\CKEditor5Livewire\Preset;
 
 use InvalidArgumentException;
-use Respect\Validation\Validator as v;
-use Respect\Validation\Exceptions\NestedValidationException;
 use Mati365\CKEditor5Livewire\Cloud\CloudParser;
 use Mati365\CKEditor5Livewire\License\{Key, KeyParser};
 
 /**
- * Parser for Preset configuration using Respect/Validation.
+ * Parser for Preset configuration.
  */
 final class PresetParser
 {
@@ -22,17 +20,7 @@ final class PresetParser
      */
     public static function parse(array $data): Preset
     {
-        $validator = v::key('config', v::arrayType())
-            ->key('editorType', v::stringType()->notEmpty())
-            ->key('licenseKey', v::optional(v::stringType()), false)
-            ->key('cloud', v::optional(v::arrayType()), false)
-            ->key('customTranslations', v::optional(v::arrayType()), false);
-
-        try {
-            $validator->assert($data);
-        } catch (NestedValidationException $e) {
-            throw new InvalidArgumentException('Preset config validation failed: ' . implode(', ', $e->getMessages()));
-        }
+        PresetValidator::validate($data);
 
         $editorType = EditorType::from((string) $data['editorType']);
         $cloud = isset($data['cloud'])
@@ -41,8 +29,8 @@ final class PresetParser
 
         if (isset($data['licenseKey'])) {
             $licenseKey = KeyParser::parse((string) $data['licenseKey']);
-        } elseif (env('CKEDITOR5_LICENSE_KEY') !== null) {
-            $licenseKey = KeyParser::parse((string) env('CKEDITOR5_LICENSE_KEY'));
+        } elseif (getenv('CKEDITOR5_LICENSE_KEY') !== false) {
+            $licenseKey = KeyParser::parse((string) getenv('CKEDITOR5_LICENSE_KEY'));
         } else {
             $licenseKey = Key::ofGPL();
         }

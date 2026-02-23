@@ -2,12 +2,10 @@
 
 namespace Mati365\CKEditor5Livewire\Cloud\CKBox;
 
-use Respect\Validation\Validator as v;
-use Respect\Validation\Exceptions\NestedValidationException;
 use InvalidArgumentException;
 
 /**
- * Parser for CKBox configuration using Respect/Validation.
+ * Parser for CKBox configuration.
  */
 final class CKBoxParser
 {
@@ -20,14 +18,7 @@ final class CKBoxParser
      */
     public static function parse(array $data): CKBox
     {
-        $validator = v::key('version', v::stringType()->notEmpty())
-            ->key('theme', v::optional(v::stringType()), false);
-
-        try {
-            $validator->assert($data);
-        } catch (NestedValidationException $e) {
-            throw new InvalidArgumentException('CKBox config validation failed: ' . implode(', ', $e->getMessages()));
-        }
+        CKBoxValidator::validate($data);
 
         return new CKBox(
             version: (string) $data['version'],

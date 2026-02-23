@@ -3,12 +3,10 @@
 namespace Mati365\CKEditor5Livewire\Cloud;
 
 use InvalidArgumentException;
-use Respect\Validation\Validator as v;
-use Respect\Validation\Exceptions\NestedValidationException;
 use Mati365\CKEditor5Livewire\Cloud\CKBox\CKBoxParser;
 
 /**
- * Parser for Cloud configuration using Respect/Validation.
+ * Parser for Cloud configuration.
  */
 final class CloudParser
 {
@@ -21,16 +19,7 @@ final class CloudParser
      */
     public static function parse(array $data): Cloud
     {
-        $validator = v::key('editorVersion', v::stringType()->regex('/^\d+\.\d+\.\d+$/'))
-            ->key('premium', v::boolType(), false)
-            ->key('translations', v::optional(v::arrayType()->each(v::stringType())), false)
-            ->key('ckbox', v::optional(v::arrayType()), false);
-
-        try {
-            $validator->assert($data);
-        } catch (NestedValidationException $e) {
-            throw new InvalidArgumentException('Cloud config validation failed: ' . implode(', ', $e->getMessages()));
-        }
+        CloudValidator::validate($data);
 
         $ckbox = isset($data['ckbox']) ? CKBoxParser::parse((array) $data['ckbox']) : null;
         $translations = isset($data['translations']) ? (array) $data['translations'] : [];

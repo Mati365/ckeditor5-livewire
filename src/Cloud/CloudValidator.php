@@ -10,7 +10,10 @@ use InvalidArgumentException;
 final class CloudValidator
 {
     /**
-     * @param array $data
+     * Validates the given cloud data array.
+     *
+     * @param array $data The cloud data to validate.
+     * @throws InvalidArgumentException If validation fails with details about the errors.
      * @return void
      */
     public static function validate(array $data): void
@@ -38,6 +41,10 @@ final class CloudValidator
                     }
                 }
             }
+        }
+
+        if (isset($data['cdnUrl']) && !is_string($data['cdnUrl'])) {
+            $errors[] = 'cdnUrl must be a string';
         }
 
         if (isset($data['ckbox']) && !is_array($data['ckbox'])) {

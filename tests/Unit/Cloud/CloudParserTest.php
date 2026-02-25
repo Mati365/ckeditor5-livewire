@@ -23,6 +23,7 @@ class CloudParserTest extends TestCase
         $this->assertFalse($cloud->premium);
         $this->assertEmpty($cloud->translations);
         $this->assertNull($cloud->ckbox);
+        $this->assertSame(Cloud::DEFAULT_CDN_URL, $cloud->cdnUrl);
     }
 
     public function testParseValidFullData(): void
@@ -35,6 +36,7 @@ class CloudParserTest extends TestCase
                 'version' => '2.0.0',
                 'theme' => 'lark',
             ],
+            'cdnUrl' => 'https://my.cdn/',
         ];
 
         $cloud = CloudParser::parse($data);
@@ -45,6 +47,7 @@ class CloudParserTest extends TestCase
         $this->assertInstanceOf(CKBox::class, $cloud->ckbox);
         $this->assertSame('2.0.0', $cloud->ckbox->version);
         $this->assertSame('lark', $cloud->ckbox->theme);
+        $this->assertSame('https://my.cdn/', $cloud->cdnUrl);
     }
 
     public function testParseInvalidEditorVersionThrowsException(): void
@@ -110,6 +113,24 @@ class CloudParserTest extends TestCase
         $this->assertIsArray($result['ckbox']);
         $this->assertSame('2.0.0', $result['ckbox']['version']);
         $this->assertSame('lark', $result['ckbox']['theme']);
+    }
+
+    public function testDumpCustomCdnUrl(): void
+    {
+        $cloud = new Cloud(
+            editorVersion: '36.0.0',
+            premium: false,
+            translations: [],
+            cdnUrl: 'https://custom.cdn/'
+        );
+
+        $result = CloudParser::dump($cloud);
+
+        $this->assertSame('36.0.0', $result['editorVersion']);
+        $this->assertFalse($result['premium']);
+        $this->assertArrayNotHasKey('translations', $result);
+        $this->assertArrayNotHasKey('ckbox', $result);
+        $this->assertSame('https://custom.cdn/', $result['cdnUrl']);
     }
 
     public function testDumpAndParseRoundTrip(): void

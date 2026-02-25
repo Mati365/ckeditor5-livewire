@@ -42,4 +42,22 @@ class CKBoxTest extends TestCase
         $this->assertSame($ckbox->version, $cloned->version);
         $this->assertNull($cloned->theme);
     }
+
+    public function testOfCdnUrlProducesModifiedClone(): void
+    {
+        $originalUrl = 'https://example.com/';
+        $newUrl = 'https://custom.cdn/';
+
+        $ckbox = new CKBox(version: '3.1.4', theme: 'classic', cdnUrl: $originalUrl);
+        $modified = $ckbox->ofCdnUrl($newUrl);
+
+        // original must remain unchanged
+        $this->assertSame($originalUrl, $ckbox->cdnUrl);
+
+        // modified should be a different instance with updated url
+        $this->assertNotSame($ckbox, $modified);
+        $this->assertSame($ckbox->version, $modified->version);
+        $this->assertSame($ckbox->theme, $modified->theme);
+        $this->assertSame($newUrl, $modified->cdnUrl);
+    }
 }

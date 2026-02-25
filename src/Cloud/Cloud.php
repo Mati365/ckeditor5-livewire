@@ -16,18 +16,25 @@ use Mati365\CKEditor5Livewire\Cloud\CKBox\CKBox;
 final class Cloud
 {
     /**
+     * Default CDN base URL used by the official CKEditor CDN.
+     */
+    public const DEFAULT_CDN_URL = 'https://cdn.ckeditor.com/';
+
+    /**
      * Cloud constructor.
      *
      * @param string $editorVersion The CKEditor 5 version to import (e.g. "36.0.0").
      * @param bool $premium Flag indicating whether the premium package is used.
      * @param string[] $translations List of available translations (e.g. ["pl", "en"]).
      * @param CKBox|null $ckbox CKBox information (optional) if used.
+     * @param string $cdnUrl Base URL for the editor CDN. Defaults to the official CDN.
      */
     public function __construct(
         public string $editorVersion,
         public bool $premium,
         public array $translations = [],
         public ?CKBox $ckbox = null,
+        public string $cdnUrl = self::DEFAULT_CDN_URL,
     ) {}
 
     /**
@@ -42,6 +49,7 @@ final class Cloud
             premium: $this->premium,
             translations: Arrays::deepClone($this->translations),
             ckbox: $this->ckbox?->clone(),
+            cdnUrl: $this->cdnUrl,
         );
     }
 
@@ -95,5 +103,29 @@ final class Cloud
         $clone = $this->clone();
         $clone->ckbox = $ckbox;
         return $clone;
+    }
+
+    /**
+     * Creates a new Cloud instance with a custom CDN URL for the editor assets.
+     *
+     * @param string $cdnUrl The base URL to use when generating asset paths.
+     * @return self A new Cloud instance referring to the specified CDN.
+     */
+    public function ofCdnUrl(string $cdnUrl): self
+    {
+        $clone = $this->clone();
+        $clone->cdnUrl = $cdnUrl;
+        return $clone;
+    }
+
+    /**
+     * Determines whether the cloud configuration points at the official
+     * CKEditor CDN.
+     *
+     * @return bool True when the configuration targets the official CDN.
+     */
+    public function hasOfficialCdn(): bool
+    {
+        return $this->cdnUrl === self::DEFAULT_CDN_URL;
     }
 }

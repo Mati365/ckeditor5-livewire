@@ -102,4 +102,57 @@ class KeyTest extends TestCase
         $this->assertNull($key->expiresAt);
         $this->assertTrue($key->isGPL());
     }
+
+    public function testIsSelfHostedOnly(): void
+    {
+        $key1 = new Key(raw: 'token', distributionChannel: DistributionChannel::SH);
+        $key2 = new Key(raw: 'token', distributionChannel: DistributionChannel::CLOUD);
+        $key3 = new Key(raw: 'token'); // any
+
+        $this->assertTrue($key1->isSelfHostedOnly());
+        $this->assertFalse($key2->isSelfHostedOnly());
+        $this->assertFalse($key3->isSelfHostedOnly());
+    }
+
+    public function testIsCloudOnly(): void
+    {
+        $key1 = new Key(raw: 'token', distributionChannel: DistributionChannel::CLOUD);
+        $key2 = new Key(raw: 'token', distributionChannel: DistributionChannel::SH);
+        $key3 = new Key(raw: 'token');
+
+        $this->assertTrue($key1->isCloudOnly());
+        $this->assertFalse($key2->isCloudOnly());
+        $this->assertFalse($key3->isCloudOnly());
+    }
+
+    public function testIsCompatibleWithAnyDistributionChannel(): void
+    {
+        $key1 = new Key(raw: 'token');
+        $key2 = new Key(raw: 'token', distributionChannel: DistributionChannel::SH);
+
+        $this->assertTrue($key1->isCompatibleWithAnyDistributionChannel());
+        $this->assertFalse($key2->isCompatibleWithAnyDistributionChannel());
+    }
+
+    public function testIsCompatibleWithCloud(): void
+    {
+        $any = new Key(raw: 'token');
+        $cloud = new Key(raw: 'token', distributionChannel: DistributionChannel::CLOUD);
+        $sh = new Key(raw: 'token', distributionChannel: DistributionChannel::SH);
+
+        $this->assertTrue($any->isCompatibleWithCloud());
+        $this->assertTrue($cloud->isCompatibleWithCloud());
+        $this->assertFalse($sh->isCompatibleWithCloud());
+    }
+
+    public function testIsCompatibleWithSelfHosted(): void
+    {
+        $any = new Key(raw: 'token');
+        $sh = new Key(raw: 'token', distributionChannel: DistributionChannel::SH);
+        $cloud = new Key(raw: 'token', distributionChannel: DistributionChannel::CLOUD);
+
+        $this->assertTrue($any->isCompatibleWithSelfHosted());
+        $this->assertTrue($sh->isCompatibleWithSelfHosted());
+        $this->assertFalse($cloud->isCompatibleWithSelfHosted());
+    }
 }

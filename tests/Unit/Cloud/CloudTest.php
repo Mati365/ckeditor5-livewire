@@ -21,6 +21,7 @@ class CloudTest extends TestCase
         $this->assertTrue($cloud->premium);
         $this->assertSame(['pl', 'en'], $cloud->translations);
         $this->assertNull($cloud->ckbox);
+        $this->assertSame(Cloud::DEFAULT_CDN_URL, $cloud->cdnUrl);
     }
 
     public function testCloneCreatesDeepCopy(): void
@@ -41,6 +42,7 @@ class CloudTest extends TestCase
         $this->assertEquals($cloud->translations, $cloned->translations);
         $this->assertNotSame($cloud->ckbox, $cloned->ckbox);
         $this->assertEquals($cloud->ckbox, $cloned->ckbox);
+        $this->assertSame($cloud->cdnUrl, $cloned->cdnUrl);
     }
 
     public function testOfEditorVersionReturnsNewInstance(): void
@@ -120,5 +122,20 @@ class CloudTest extends TestCase
         $this->assertNotSame($cloud, $updated);
         $this->assertNotNull($cloud->ckbox);
         $this->assertNull($updated->ckbox);
+    }
+
+    public function testOfCdnUrlReturnsNewInstance(): void
+    {
+        $cloud = new Cloud(
+            editorVersion: '36.0.0',
+            premium: false,
+            translations: []
+        );
+
+        $updated = $cloud->ofCdnUrl('https://foo.bar/');
+
+        $this->assertNotSame($cloud, $updated);
+        $this->assertSame(Cloud::DEFAULT_CDN_URL, $cloud->cdnUrl);
+        $this->assertSame('https://foo.bar/', $updated->cdnUrl);
     }
 }

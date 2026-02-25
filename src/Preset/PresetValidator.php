@@ -9,6 +9,13 @@ use InvalidArgumentException;
  */
 final class PresetValidator
 {
+    /**
+     * Validates the given preset data array.
+     *
+     * @param array $data The preset data to validate.
+     * @throws InvalidArgumentException If validation fails with details about the errors.
+     * @return void
+     */
     public static function validate(array $data): void
     {
         $errors = [];

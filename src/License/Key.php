@@ -58,6 +58,56 @@ final readonly class Key
     }
 
     /**
+     * Checks if the license is compatible with self-hosted distribution channels only.
+     *
+     * @return bool True if the license is compatible with self-hosted distribution channels only, false otherwise
+     */
+    public function isSelfHostedOnly(): bool
+    {
+        return $this->distributionChannel === DistributionChannel::SH;
+    }
+
+    /**
+     * Checks if the license is compatible with cloud distribution channels only.
+     *
+     * @return bool True if the license is compatible with cloud distribution channels only, false otherwise
+     */
+    public function isCloudOnly(): bool
+    {
+        return $this->distributionChannel === DistributionChannel::CLOUD;
+    }
+
+    /**
+     * Checks if the license is compatible with any distribution channel.
+     *
+     * @return bool True if the license is compatible with any distribution channel, false otherwise
+     */
+    public function isCompatibleWithAnyDistributionChannel(): bool
+    {
+        return $this->distributionChannel === null;
+    }
+
+    /**
+     * Checks if the license is compatible with cloud distribution channels.
+     *
+     * @return bool True if the license is compatible with cloud distribution channels, false otherwise
+     */
+    public function isCompatibleWithCloud(): bool
+    {
+        return $this->isCompatibleWithAnyDistributionChannel() || $this->isCloudOnly();
+    }
+
+    /**
+     * Checks if the license is compatible with self-hosted distribution channels.
+     *
+     * @return bool True if the license is compatible with self-hosted distribution channels, false otherwise
+     */
+    public function isCompatibleWithSelfHosted(): bool
+    {
+        return $this->isCompatibleWithAnyDistributionChannel() || $this->isSelfHostedOnly();
+    }
+
+    /**
      * Creates a GPL license key instance.
      *
      * @return self New GPL license key instance

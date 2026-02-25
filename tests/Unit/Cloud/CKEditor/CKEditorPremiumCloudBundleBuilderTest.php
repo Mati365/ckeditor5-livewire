@@ -10,7 +10,10 @@ class CKEditorPremiumCloudBundleBuilderTest extends TestCase
 {
     public function testBuildWithoutTranslations(): void
     {
-        $bundle = CKEditorPremiumCloudBundleBuilder::build('36.0.0');
+        $bundle = CKEditorPremiumCloudBundleBuilder::build(
+            '36.0.0',
+            'https://cdn.ckeditor.com/'
+        );
 
         $this->assertInstanceOf(AssetsBundle::class, $bundle);
         $this->assertCount(1, $bundle->js);
@@ -27,7 +30,11 @@ class CKEditorPremiumCloudBundleBuilderTest extends TestCase
 
     public function testBuildWithTranslations(): void
     {
-        $bundle = CKEditorPremiumCloudBundleBuilder::build('36.0.0', ['pl', 'de']);
+        $bundle = CKEditorPremiumCloudBundleBuilder::build(
+            '36.0.0',
+            'https://cdn.ckeditor.com/',
+            ['pl', 'de']
+        );
 
         $this->assertCount(3, $bundle->js); // main + 2 translations
         $this->assertCount(1, $bundle->css);
@@ -45,22 +52,24 @@ class CKEditorPremiumCloudBundleBuilderTest extends TestCase
         $this->assertSame(JSAssetType::ESM, $bundle->js[2]->type);
     }
 
-    public function testCDNBaseURL(): void
-    {
-        $this->assertSame(
-            'https://cdn.ckeditor.com/',
-            CKEditorPremiumCloudBundleBuilder::CDN_BASE_URL
-        );
-    }
 
     public function testBuildURLFormat(): void
     {
-        $bundle = CKEditorPremiumCloudBundleBuilder::build('37.1.0');
+        $bundle = CKEditorPremiumCloudBundleBuilder::build('37.1.0', 'https://cdn.ckeditor.com/');
 
         $expectedJSUrl = 'https://cdn.ckeditor.com/ckeditor5-premium-features/37.1.0/ckeditor5-premium-features.js';
         $expectedCSSUrl = 'https://cdn.ckeditor.com/ckeditor5-premium-features/37.1.0/ckeditor5-premium-features.css';
 
         $this->assertSame($expectedJSUrl, $bundle->js[0]->url);
         $this->assertSame($expectedCSSUrl, $bundle->css[0]);
+    }
+
+    public function testBuildWithCustomCdnUrl(): void
+    {
+        $custom = 'https://another.cdn/';
+        $bundle = CKEditorPremiumCloudBundleBuilder::build('36.0.0', $custom);
+
+        $this->assertStringStartsWith($custom, $bundle->js[0]->url);
+        $this->assertStringStartsWith($custom, $bundle->css[0]);
     }
 }

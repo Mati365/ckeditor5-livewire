@@ -65,4 +65,23 @@ class CKBoxValidatorTest extends TestCase
             'theme' => '',
         ]);
     }
+
+    public function testValidateCdnUrlNotStringThrows(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        CKBoxValidator::validate([
+            'version' => '2.0.0',
+            'cdnUrl' => 999,
+        ]);
+    }
+
+    public function testValidateWithCdnUrlString(): void
+    {
+        CKBoxValidator::validate([
+            'version' => '2.0.0',
+            'cdnUrl' => 'https://foo.bar/',
+        ]);
+        $this->assertTrue(true);
+    }
 }

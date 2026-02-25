@@ -10,7 +10,7 @@ class CKBoxCloudBundleBuilderTest extends TestCase
 {
     public function testBuildWithoutTranslations(): void
     {
-        $bundle = CKBoxCloudBundleBuilder::build('2.0.0');
+        $bundle = CKBoxCloudBundleBuilder::build('2.0.0', 'https://cdn.ckbox.io/');
 
         $this->assertInstanceOf(AssetsBundle::class, $bundle);
         $this->assertCount(1, $bundle->js);
@@ -27,14 +27,14 @@ class CKBoxCloudBundleBuilderTest extends TestCase
 
     public function testBuildWithCustomTheme(): void
     {
-        $bundle = CKBoxCloudBundleBuilder::build('2.0.0', [], 'lark');
+        $bundle = CKBoxCloudBundleBuilder::build('2.0.0', 'https://cdn.ckbox.io/', [], 'lark');
 
         $this->assertStringContainsString('themes/lark.css', $bundle->css[0]);
     }
 
     public function testBuildWithTranslations(): void
     {
-        $bundle = CKBoxCloudBundleBuilder::build('2.0.0', ['pl', 'en']);
+        $bundle = CKBoxCloudBundleBuilder::build('2.0.0', 'https://cdn.ckbox.io/', ['pl', 'en']);
 
         $this->assertCount(3, $bundle->js); // main + 2 translations
         $this->assertCount(1, $bundle->css);
@@ -52,17 +52,9 @@ class CKBoxCloudBundleBuilderTest extends TestCase
         $this->assertSame(JSAssetType::UMD, $bundle->js[2]->type);
     }
 
-    public function testCDNBaseURL(): void
-    {
-        $this->assertSame(
-            'https://cdn.ckbox.io/',
-            CKBoxCloudBundleBuilder::CDN_BASE_URL
-        );
-    }
-
     public function testBuildURLFormat(): void
     {
-        $bundle = CKBoxCloudBundleBuilder::build('2.5.0', [], 'dark');
+        $bundle = CKBoxCloudBundleBuilder::build('2.5.0', 'https://cdn.ckbox.io/', [], 'dark');
 
         $expectedJSUrl = 'https://cdn.ckbox.io/ckbox/2.5.0/ckbox.js';
         $expectedCSSUrl = 'https://cdn.ckbox.io/ckbox/2.5.0/styles/themes/dark.css';
@@ -73,12 +65,20 @@ class CKBoxCloudBundleBuilderTest extends TestCase
 
     public function testBuildWithAllParameters(): void
     {
-        $bundle = CKBoxCloudBundleBuilder::build('2.5.0', ['pl', 'de'], 'custom-theme');
+        $bundle = CKBoxCloudBundleBuilder::build('2.5.0', 'https://cdn.ckbox.io/', ['pl', 'de'], 'custom-theme');
 
         $this->assertCount(3, $bundle->js);
         $this->assertCount(1, $bundle->css);
         $this->assertStringContainsString('custom-theme', $bundle->css[0]);
         $this->assertStringContainsString('translations/pl.js', $bundle->js[1]->url);
         $this->assertStringContainsString('translations/de.js', $bundle->js[2]->url);
+    }
+
+    public function testBuildWithCustomCdnUrl(): void
+    {
+        $custom = 'https://my.ckboxcdn/';
+        $bundle = CKBoxCloudBundleBuilder::build('2.0.0', $custom, [], 'theme');
+        $this->assertStringStartsWith($custom, $bundle->js[0]->url);
+        $this->assertStringStartsWith($custom, $bundle->css[0]);
     }
 }

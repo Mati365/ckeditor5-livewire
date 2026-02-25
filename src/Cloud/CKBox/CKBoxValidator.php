@@ -9,6 +9,13 @@ use InvalidArgumentException;
  */
 final class CKBoxValidator
 {
+    /**
+     * Validates the given CKBox data array.
+     *
+     * @param array $data The CKBox data to validate.
+     * @throws InvalidArgumentException If validation fails with details about the errors.
+     * @return void
+     */
     public static function validate(array $data): void
     {
         $errors = [];
@@ -21,6 +28,10 @@ final class CKBoxValidator
 
         if (isset($data['theme']) && (!is_string($data['theme']) || $data['theme'] === '')) {
             $errors[] = 'theme must be a non-empty string';
+        }
+
+        if (isset($data['cdnUrl']) && !is_string($data['cdnUrl'])) {
+            $errors[] = 'cdnUrl must be a string';
         }
 
         if ($errors !== []) {

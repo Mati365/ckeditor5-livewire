@@ -23,6 +23,7 @@ final class CloudParser
 
         $ckbox = isset($data['ckbox']) ? CKBoxParser::parse((array) $data['ckbox']) : null;
         $translations = isset($data['translations']) ? (array) $data['translations'] : [];
+        $cdnUrl = isset($data['cdnUrl']) ? (string) $data['cdnUrl'] : Cloud::DEFAULT_CDN_URL;
 
         /** @var string[] $translations */
         return new Cloud(
@@ -30,6 +31,7 @@ final class CloudParser
             premium: (bool) $data['premium'],
             translations: $translations,
             ckbox: $ckbox,
+            cdnUrl: $cdnUrl,
         );
     }
 
@@ -52,6 +54,10 @@ final class CloudParser
 
         if ($cloud->ckbox !== null) {
             $result['ckbox'] = CKBoxParser::dump($cloud->ckbox);
+        }
+
+        if ($cloud->cdnUrl !== Cloud::DEFAULT_CDN_URL) {
+            $result['cdnUrl'] = $cloud->cdnUrl;
         }
 
         return $result;

@@ -7,6 +7,7 @@ use Mati365\CKEditor5Livewire\Config;
 use Mati365\CKEditor5Livewire\Cloud\CloudBundleBuilder;
 use Mati365\CKEditor5Livewire\Cloud\CKBox\CKBox;
 use Mati365\CKEditor5Livewire\Exceptions\NoCloudConfig;
+use Mati365\CKEditor5Livewire\Preset\PresetLicenseCompatibility;
 
 /**
  * Blade component for including CKEditor5 assets.
@@ -52,11 +53,7 @@ final class CKEditor5Assets extends Component
     public function render(): View
     {
         $resolvedPreset = $this->configService->resolvePresetOrThrow($this->preset);
-        $cloud = $resolvedPreset->cloud;
-
-        if ($cloud == null) {
-            throw new NoCloudConfig();
-        }
+        $cloud = PresetLicenseCompatibility::ensureCloudCompatibilityOrThrow($resolvedPreset);
 
         if ($this->editorVersion !== null) {
             $cloud = $cloud->ofEditorVersion($this->editorVersion);

@@ -10,7 +10,10 @@ class CKEditorCloudBundleBuilderTest extends TestCase
 {
     public function testBuildWithoutTranslations(): void
     {
-        $bundle = CKEditorCloudBundleBuilder::build('36.0.0');
+        $bundle = CKEditorCloudBundleBuilder::build(
+            '36.0.0',
+            'https://cdn.ckeditor.com/'
+        );
 
         $this->assertInstanceOf(AssetsBundle::class, $bundle);
         $this->assertCount(1, $bundle->js);
@@ -26,7 +29,11 @@ class CKEditorCloudBundleBuilderTest extends TestCase
 
     public function testBuildWithTranslations(): void
     {
-        $bundle = CKEditorCloudBundleBuilder::build('36.0.0', ['pl', 'en']);
+        $bundle = CKEditorCloudBundleBuilder::build(
+            '36.0.0',
+            'https://cdn.ckeditor.com/',
+            ['pl', 'en']
+        );
 
         $this->assertCount(3, $bundle->js); // main + 2 translations
         $this->assertCount(1, $bundle->css);
@@ -44,22 +51,23 @@ class CKEditorCloudBundleBuilderTest extends TestCase
         $this->assertSame(JSAssetType::ESM, $bundle->js[2]->type);
     }
 
-    public function testCDNBaseURL(): void
-    {
-        $this->assertSame(
-            'https://cdn.ckeditor.com/',
-            CKEditorCloudBundleBuilder::CDN_BASE_URL
-        );
-    }
 
     public function testBuildURLFormat(): void
     {
-        $bundle = CKEditorCloudBundleBuilder::build('37.1.0');
+        $bundle = CKEditorCloudBundleBuilder::build('37.1.0', 'https://cdn.ckeditor.com/');
 
         $expectedJSUrl = 'https://cdn.ckeditor.com/ckeditor5/37.1.0/ckeditor5.js';
         $expectedCSSUrl = 'https://cdn.ckeditor.com/ckeditor5/37.1.0/ckeditor5.css';
 
         $this->assertSame($expectedJSUrl, $bundle->js[0]->url);
         $this->assertSame($expectedCSSUrl, $bundle->css[0]);
+    }
+
+    public function testBuildWithCustomCdnUrl(): void
+    {
+        $custom = 'https://my.cdn.test/';
+        $bundle = CKEditorCloudBundleBuilder::build('36.0.0', $custom);
+        $this->assertStringStartsWith($custom, $bundle->js[0]->url);
+        $this->assertStringStartsWith($custom, $bundle->css[0]);
     }
 }

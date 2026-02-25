@@ -16,6 +16,7 @@ class CKBoxParserTest extends TestCase
 
         $this->assertSame('2.0.0', $ckbox->version);
         $this->assertNull($ckbox->theme);
+        $this->assertSame(CKBox::DEFAULT_CDN_URL, $ckbox->cdnUrl);
     }
 
     public function testParseValidFullData(): void
@@ -23,12 +24,14 @@ class CKBoxParserTest extends TestCase
         $data = [
             'version' => '2.0.0',
             'theme' => 'lark',
+            'cdnUrl' => 'https://cdn.custom/',
         ];
 
         $ckbox = CKBoxParser::parse($data);
 
         $this->assertSame('2.0.0', $ckbox->version);
         $this->assertSame('lark', $ckbox->theme);
+        $this->assertSame('https://cdn.custom/', $ckbox->cdnUrl);
     }
 
     public function testParseMissingVersionThrowsException(): void
@@ -75,6 +78,19 @@ class CKBoxParserTest extends TestCase
         ], $result);
     }
 
+    public function testDumpCustomCdnUrl(): void
+    {
+        $ckbox = new CKBox(version: '2.0.0', theme: 'lark', cdnUrl: 'https://cdn.custom/');
+
+        $result = CKBoxParser::dump($ckbox);
+
+        $this->assertSame([
+            'version' => '2.0.0',
+            'theme' => 'lark',
+            'cdnUrl' => 'https://cdn.custom/',
+        ], $result);
+    }
+
     public function testDumpAndParseRoundTrip(): void
     {
         $original = new CKBox(version: '2.5.0', theme: 'dark');
@@ -84,5 +100,6 @@ class CKBoxParserTest extends TestCase
 
         $this->assertSame($original->version, $parsed->version);
         $this->assertSame($original->theme, $parsed->theme);
+        $this->assertSame($original->cdnUrl, $parsed->cdnUrl);
     }
 }

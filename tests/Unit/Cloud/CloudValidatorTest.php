@@ -72,4 +72,22 @@ class CloudValidatorTest extends TestCase
             'ckbox' => 'not-an-array',
         ]);
     }
+
+    public function testValidateCdnUrlNotStringThrows(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        CloudValidator::validate([
+            'editorVersion' => '44.0.0',
+            'cdnUrl' => 123,
+        ]);
+    }
+
+    public function testValidateWithCdnUrlString(): void
+    {
+        CloudValidator::validate([
+            'editorVersion' => '44.0.0',
+            'cdnUrl' => 'https://custom.example/',
+        ]);
+        $this->assertTrue(true);
+    }
 }

@@ -5,6 +5,7 @@ namespace Mati365\CKEditor5Livewire\Tests\Feature\Components;
 use Mati365\CKEditor5Livewire\Tests\TestCase;
 use Mati365\CKEditor5Livewire\Components\CKEditor5Assets;
 use Mati365\CKEditor5Livewire\Exceptions\NoCloudConfig;
+use Mati365\CKEditor5Livewire\Tests\Helpers\LicenseKeyHelper;
 
 class CKEditor5AssetsTest extends TestCase
 {
@@ -12,10 +13,12 @@ class CKEditor5AssetsTest extends TestCase
     {
         parent::defineEnvironment($app);
 
-        // Configure a preset with cloud configuration
+        $cloudCompatibleKey = LicenseKeyHelper::createRaw();
+
         $app['config']->set('ckeditor5.presets.default', [
             'config' => ['toolbar' => ['bold', 'italic']],
             'editorType' => 'classic',
+            'licenseKey' => $cloudCompatibleKey,
             'cloud' => [
                 'editorVersion' => '43.3.1',
                 'premium' => false,
@@ -26,6 +29,7 @@ class CKEditor5AssetsTest extends TestCase
         $app['config']->set('ckeditor5.presets.premium', [
             'config' => ['toolbar' => ['bold', 'italic']],
             'editorType' => 'classic',
+            'licenseKey' => $cloudCompatibleKey,
             'cloud' => [
                 'editorVersion' => '43.3.1',
                 'premium' => true,
@@ -196,6 +200,33 @@ class CKEditor5AssetsTest extends TestCase
         $this->expectExceptionMessage('Cannot render CKEditor5 assets without cloud configuration.');
 
         $component->render();
+    }
+
+    public function testComponentThrowsWhenLicenseNotCompatibleWithCloud(): void
+    {
+        config(['ckeditor5.presets.default.licenseKey' => 'GPL']);
+
+        $component = $this->app->make(CKEditor5Assets::class, [
+            'preset' => 'default',
+        ]);
+
+        $this->expectException(\Mati365\CKEditor5Livewire\Exceptions\CloudLicenseIncompatible::class);
+        $this->expectExceptionMessage('not compatible with CKEditor Cloud CDN hosting');
+
+        $component->render();
+    }
+
+    public function testComponentAcceptsCloudCompatibleLicense(): void
+    {
+        $jwt = LicenseKeyHelper::createRaw();
+        config(['ckeditor5.presets.default.licenseKey' => $jwt]);
+
+        $component = $this->app->make(CKEditor5Assets::class, [
+            'preset' => 'default',
+        ]);
+
+        $view = $component->render();
+        $this->assertSame('ckeditor5::components.assets', $view->name());
     }
 
     public function testComponentWithMultipleOverrides(): void

@@ -19,16 +19,25 @@ final readonly class CloudBundleBuilder
      */
     public static function build(Cloud $cloud): AssetsBundle
     {
-        $editorBundle = CKEditorCloudBundleBuilder::build($cloud->editorVersion, $cloud->translations);
+        $editorBundle = CKEditorCloudBundleBuilder::build(
+            $cloud->editorVersion,
+            $cloud->cdnUrl,
+            $cloud->translations
+        );
 
         if ($cloud->premium) {
-            $premiumBundle = CKEditorPremiumCloudBundleBuilder::build($cloud->editorVersion, $cloud->translations);
+            $premiumBundle = CKEditorPremiumCloudBundleBuilder::build(
+                $cloud->editorVersion,
+                $cloud->cdnUrl,
+                $cloud->translations
+            );
             $editorBundle = $editorBundle->merge($premiumBundle);
         }
 
         if ($cloud->ckbox !== null) {
             $ckboxBundle = CKBoxCloudBundleBuilder::build(
                 $cloud->ckbox->version,
+                $cloud->ckbox->cdnUrl,
                 $cloud->translations,
                 $cloud->ckbox->theme ?? 'theme'
             );

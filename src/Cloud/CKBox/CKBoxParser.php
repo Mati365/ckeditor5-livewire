@@ -20,9 +20,12 @@ final class CKBoxParser
     {
         CKBoxValidator::validate($data);
 
+        $cdnUrl = isset($data['cdnUrl']) ? (string) $data['cdnUrl'] : CKBox::DEFAULT_CDN_URL;
+
         return new CKBox(
             version: (string) $data['version'],
             theme: isset($data['theme']) ? (string) $data['theme'] : null,
+            cdnUrl: $cdnUrl,
         );
     }
 
@@ -38,6 +41,10 @@ final class CKBoxParser
 
         if ($ckbox->theme !== null) {
             $result['theme'] = $ckbox->theme;
+        }
+
+        if ($ckbox->cdnUrl !== CKBox::DEFAULT_CDN_URL) {
+            $result['cdnUrl'] = $ckbox->cdnUrl;
         }
 
         return $result;

@@ -106,7 +106,7 @@ describe('context component', () => {
       expect(context?.plugins.get('CustomPlugin')).toBeInstanceOf(CustomPlugin);
     });
 
-    it('registered plugins should support custom translations', async () => {
+    describe('language', () => {
       class CustomPlugin extends ContextPlugin {
         static get pluginName() {
           return 'CustomPlugin';
@@ -117,71 +117,96 @@ describe('context component', () => {
         }
       }
 
-      CustomEditorPluginsRegistry.the.register('CustomPlugin', () => CustomPlugin);
-
-      livewireStub.$internal.appendComponentToDOM({
-        name: 'ckeditor5-context',
-        el: createContextHtmlElement(),
-        canonical: createContextSnapshot(DEFAULT_TEST_CONTEXT_ID, {
-          customTranslations: {
-            en: {
-              HELLO: 'Hello from CustomPlugin',
-            },
-          },
-          config: {
-            plugins: ['CustomPlugin'],
-          },
-        }),
+      beforeEach(() => {
+        CustomEditorPluginsRegistry.the.register('CustomPlugin', () => CustomPlugin);
       });
 
-      const { context } = await waitForTestContext();
-      const plugin = context?.plugins.get('CustomPlugin') as CustomPlugin;
-
-      expect(plugin.getHelloTitle()).toBe('Hello from CustomPlugin');
-    });
-
-    it('should support custom language for context translations', async () => {
-      class CustomPlugin extends ContextPlugin {
-        static get pluginName() {
-          return 'CustomPlugin';
-        }
-
-        getHelloTitle() {
-          return this.context.t('HELLO');
-        }
-      }
-
-      CustomEditorPluginsRegistry.the.register('CustomPlugin', () => CustomPlugin);
-
-      livewireStub.$internal.appendComponentToDOM({
-        name: 'ckeditor5-context',
-        el: createContextHtmlElement(),
-        canonical: createContextSnapshot(
-          DEFAULT_TEST_CONTEXT_ID,
-          {
+      it('registered plugins should support custom translations', async () => {
+        livewireStub.$internal.appendComponentToDOM({
+          name: 'ckeditor5-context',
+          el: createContextHtmlElement(),
+          canonical: createContextSnapshot(DEFAULT_TEST_CONTEXT_ID, {
             customTranslations: {
               en: {
                 HELLO: 'Hello from CustomPlugin',
-              },
-              pl: {
-                HELLO: 'Witaj z CustomPlugin',
               },
             },
             config: {
               plugins: ['CustomPlugin'],
             },
-          },
-          {
-            ui: 'pl',
-            content: 'pl',
-          },
-        ),
+          }),
+        });
+
+        const { context } = await waitForTestContext();
+        const plugin = context?.plugins.get('CustomPlugin') as CustomPlugin;
+
+        expect(plugin.getHelloTitle()).toBe('Hello from CustomPlugin');
       });
 
-      const { context } = await waitForTestContext();
-      const plugin = context?.plugins.get('CustomPlugin') as CustomPlugin;
+      it('should support custom language for context translations', async () => {
+        livewireStub.$internal.appendComponentToDOM({
+          name: 'ckeditor5-context',
+          el: createContextHtmlElement(),
+          canonical: createContextSnapshot(
+            DEFAULT_TEST_CONTEXT_ID,
+            {
+              customTranslations: {
+                en: {
+                  HELLO: 'Hello from CustomPlugin',
+                },
+                pl: {
+                  HELLO: 'Witaj z CustomPlugin',
+                },
+              },
+              config: {
+                plugins: ['CustomPlugin'],
+              },
+            },
+            {
+              ui: 'pl',
+              content: 'pl',
+            },
+          ),
+        });
 
-      expect(plugin.getHelloTitle()).toBe('Witaj z CustomPlugin');
+        const { context } = await waitForTestContext();
+        const plugin = context?.plugins.get('CustomPlugin') as CustomPlugin;
+
+        expect(plugin.getHelloTitle()).toBe('Witaj z CustomPlugin');
+      });
+
+      it('should resolve $translation references in the context configuration', async () => {
+        livewireStub.$internal.appendComponentToDOM({
+          name: 'ckeditor5-context',
+          el: createContextHtmlElement(),
+          canonical: createContextSnapshot(
+            DEFAULT_TEST_CONTEXT_ID,
+            {
+              customTranslations: {
+                en: {
+                  Custom: 'Custom value',
+                },
+                pl: {
+                  Custom: 'Wartość niestandardowa',
+                },
+              },
+              config: {
+                customPlugin: {
+                  label: { $translation: 'Custom' },
+                },
+              },
+            },
+            {
+              ui: 'pl',
+              content: 'pl',
+            },
+          ),
+        });
+
+        const { context } = await waitForTestContext();
+
+        expect((context!.config.get('customPlugin') as any).label).toBe('Wartość niestandardowa');
+      });
     });
   });
 

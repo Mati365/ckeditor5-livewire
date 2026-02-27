@@ -37,6 +37,7 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
     - [CDN Translation Loading 🌐](#cdn-translation-loading-)
     - [Global Translation Config 🛠️](#global-translation-config-️)
     - [Custom translations 🌐](#custom-translations-)
+      - [Translation references using `$translation` ✨](#translation-references-using-translation-)
   - [Editor Types 🖊️](#editor-types-️)
     - [Classic editor 📝](#classic-editor-)
     - [Inline editor 📝](#inline-editor-)
@@ -453,6 +454,39 @@ return [
     ]
 ];
 ```
+
+#### Translation references using `$translation` ✨
+
+In addition to supplying full translation maps, configuration objects may
+contain reference helpers that point to existing translation keys. This is
+particularly handy when you want to reuse an existing label or avoid repeating
+the same string in multiple places. Use the special `$translation` object in
+any part of your editor/context config and the package will automatically
+replace it with the correct localized string during initialization.
+
+```php
+// config/ckeditor5.php
+return [
+    'presets' => [
+        'default' => [
+            'config' => [
+                'customPlugin' => [
+                    'label' => [ '$translation' => 'Bold' ],
+                ],
+            ],
+            'customTranslations' => [
+                'pl' => [
+                    'Bold' => 'Grubo',
+                ],
+            ],
+        ],
+    ],
+];
+```
+
+When the editor or context is created the helper will be resolved against the
+loaded translations (including any custom translations you provided). If the
+key is not found a warning is printed and `null` will be used instead.
 
 ## Editor Types 🖊️
 

@@ -9,6 +9,8 @@ import {
   loadAllEditorTranslations,
   loadEditorPlugins,
   normalizeCustomTranslations,
+  resolveEditorConfigElementReferences,
+  resolveEditorConfigTranslations,
 } from '../editor/utils';
 import { ContextsRegistry } from './contexts-registry';
 
@@ -47,8 +49,14 @@ export class ContextComponentHook extends ClassHook<Snapshot> {
         ...watchdogConfig,
       });
 
+      // Construct parsed config. First resolve DOM element references in the provided configuration.
+      let resolvedConfig = resolveEditorConfigElementReferences(config);
+
+      // Then resolve translation references in the provided configuration, using the mixed translations.
+      resolvedConfig = resolveEditorConfigTranslations([...mixedTranslations].reverse(), language.ui, resolvedConfig);
+
       await instance.create({
-        ...config,
+        ...resolvedConfig,
         language,
         plugins: loadedPlugins,
         ...mixedTranslations.length && {

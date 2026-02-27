@@ -1,3 +1,5 @@
+import type { Translations } from 'ckeditor5';
+
 /**
  * Loads all required translations for the editor based on the language configuration.
  *
@@ -10,7 +12,7 @@
 export async function loadAllEditorTranslations(
   language: { ui: string; content: string; },
   hasPremium: boolean,
-) {
+): Promise<Translations[]> {
   const translations = [language.ui, language.content];
   const loadedTranslations = await Promise.all(
     [

@@ -14,6 +14,7 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
 > [!IMPORTANT]
 > This integration is unofficial and not maintained by CKSource. For official CKEditor 5 documentation, visit [ckeditor.com](https://ckeditor.com/docs/ckeditor5/latest/). If you encounter any issues in editor, please report them on the [GitHub repository](https://github.com/ckeditor/ckeditor5/issues).
 
+<!-- markdownlint-disable MD033 -->
 <p align="center">
   <img src="docs/intro-classic-editor.png" alt="CKEditor 5 Classic Editor in Laravel Livewire application">
 </p>
@@ -38,6 +39,7 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
     - [Global Translation Config 🛠️](#global-translation-config-️)
     - [Custom translations 🌐](#custom-translations-)
       - [Translation references using `$translation` ✨](#translation-references-using-translation-)
+      - [Element references using `$element` 🎯](#element-references-using-element-)
   - [Editor Types 🖊️](#editor-types-️)
     - [Classic editor 📝](#classic-editor-)
     - [Inline editor 📝](#inline-editor-)
@@ -488,6 +490,29 @@ When the editor or context is created the helper will be resolved against the
 loaded translations (including any custom translations you provided). If the
 key is not found a warning is printed and `null` will be used instead.
 
+#### Element references using `$element` 🎯
+
+Similarly to translation references, configuration objects may reference DOM elements by CSS selector. Use the special `$element` object anywhere in your editor configuration where CKEditor expects an `HTMLElement`, and the package will resolve it to the matching DOM element during initialization.
+
+This is useful, for example, when pointing a plugin to an external container element:
+
+```php
+// config/ckeditor5.php
+return [
+    'presets' => [
+        'default' => [
+            'config' => [
+                'myPlugin' => [
+                    'container' => [ '$element' => '#my-container' ],
+                ],
+            ],
+        ],
+    ],
+];
+```
+
+You can use any valid CSS selector. If no element matching the selector is found in the DOM, a warning is printed and `null` is used instead.
+
 ## Editor Types 🖊️
 
 CKEditor 5 for Livewire supports multiple distinct editor types, each designed for specific use cases. Choose the one that best fits your application's layout and functionality requirements.
@@ -689,7 +714,7 @@ class MultirootDemo extends Component
         editorType="multiroot"
     />
 
-    <div class="mb-4 bg-gray-50 border p-2">
+    <div class="p-2 mb-4 border bg-gray-50">
         <livewire:ckeditor5-ui-part name="toolbar" :editorId="$editorId" />
     </div>
 

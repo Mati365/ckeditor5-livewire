@@ -372,6 +372,29 @@ You can then pass the dynamic preset to the component:
 <livewire:ckeditor5 :preset="$preset" />
 ```
 
+### Element references using `$element` 🎯
+
+Similarly to translation references, configuration objects may reference DOM elements by CSS selector. Use the special `$element` object anywhere in your editor configuration where CKEditor expects an `HTMLElement`, and the package will resolve it to the matching DOM element during initialization.
+
+This is useful, for example, when pointing a plugin to an external container element:
+
+```php
+// config/ckeditor5.php
+return [
+    'presets' => [
+        'default' => [
+            'config' => [
+                'myPlugin' => [
+                    'container' => [ '$element' => '#my-container' ],
+                ],
+            ],
+        ],
+    ],
+];
+```
+
+You can use any valid CSS selector. If no element matching the selector is found in the DOM, a warning is printed and `null` is used instead.
+
 ## Providing the License Key 🗝️
 
 CKEditor 5 requires a license key when using the official CDN or premium features. You can provide the license key in two simple ways:
@@ -489,29 +512,6 @@ return [
 When the editor or context is created the helper will be resolved against the
 loaded translations (including any custom translations you provided). If the
 key is not found a warning is printed and `null` will be used instead.
-
-#### Element references using `$element` 🎯
-
-Similarly to translation references, configuration objects may reference DOM elements by CSS selector. Use the special `$element` object anywhere in your editor configuration where CKEditor expects an `HTMLElement`, and the package will resolve it to the matching DOM element during initialization.
-
-This is useful, for example, when pointing a plugin to an external container element:
-
-```php
-// config/ckeditor5.php
-return [
-    'presets' => [
-        'default' => [
-            'config' => [
-                'myPlugin' => [
-                    'container' => [ '$element' => '#my-container' ],
-                ],
-            ],
-        ],
-    ],
-];
-```
-
-You can use any valid CSS selector. If no element matching the selector is found in the DOM, a warning is printed and `null` is used instead.
 
 ## Editor Types 🖊️
 

@@ -117,10 +117,13 @@ return [
                 ],
                 "image" => [
                     "toolbar" => [
-                        "imageTextAlternative",
-                        "imageStyle",
+                        "imageStyle:inline",
+                        "imageStyle:block",
+                        "imageStyle:wrapText",
                         "imageResize",
-                        "imageInsertViaUrl",
+                        "|",
+                        "toggleImageCaption",
+                        "imageTextAlternative",
                     ],
                 ],
             ],

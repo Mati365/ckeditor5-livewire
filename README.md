@@ -43,7 +43,7 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
   - [Editor Types 🖊️](#editor-types-️)
     - [Classic editor 📝](#classic-editor-)
     - [Inline editor 📝](#inline-editor-)
-    - [Balloon editor 🎈🏹](#balloon-editor-)
+    - [Balloon editor 🎈](#balloon-editor-)
     - [Decoupled editor 🌐](#decoupled-editor-)
     - [Multiroot editor 🌳](#multiroot-editor-)
   - [Advanced configuration ⚙️](#advanced-configuration-️)
@@ -556,7 +556,7 @@ Minimalist editor that appears directly within content when clicked. Ideal for i
 
 **Note:** Inline editors don't work with `<textarea>` elements and may not be suitable for traditional form scenarios.
 
-### Balloon editor 🎈🏹
+### Balloon editor 🎈
 
 Contextual editor that displays a floating toolbar near the selected text. Great for editing small sections of content or when screen space is limited.
 

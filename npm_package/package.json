@@ -1,6 +1,6 @@
 {
   "name": "ckeditor5-livewire",
-  "version": "1.6.1",
+  "version": "1.7.0",
   "description": "CKEditor 5 integration for Laravel Livewire",
   "author": "Mateusz Bagiński <cziken58@gmail.com>",
   "license": "MIT",

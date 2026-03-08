@@ -271,7 +271,7 @@ return [
     'presets' => [
         'minimal' => [
             'cloud' => [
-                'editorVersion' => '47.0.0',
+                'editorVersion' => '47.6.0',
                 'premium' => true,
                 'translations' => ['pl'],
                 'ckbox' => [

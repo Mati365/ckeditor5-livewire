@@ -104,7 +104,7 @@ export class LivewireStub implements LivewireGlobal {
      * @param component - Base component data to initialize
      * @returns The initialized Livewire component
      */
-    dispatchComponentInit: <E>(component: LivewireBaseComponent<E>) => {
+    dispatchComponentInit: <E>(component: LivewireBaseComponent<E>): LivewireComponent<E> => {
       const mappedComponent = {
         id: `component-${uid()}`,
         effects: {},

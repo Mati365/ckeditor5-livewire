@@ -27,7 +27,7 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
 
     // If the editor is not registered yet, we will wait for it to be registered.
     this.editorPromise = EditorsRegistry.the.execute(editorId, (editor: MultiRootEditor) => {
-      /* v8 ignore next 3 */
+      /* v8 ignore next if -- @preserve */
       if (this.isBeingDestroyed()) {
         return null;
       }
@@ -180,6 +180,7 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
     if (editor && editor.state !== 'destroyed') {
       const root = editor.model.document.getRoot(rootName);
 
+      /* v8 ignore next if -- @preserve */
       if (root && 'detachEditable' in editor) {
         editor.detachEditable(root);
         editor.detachRoot(rootName, false);

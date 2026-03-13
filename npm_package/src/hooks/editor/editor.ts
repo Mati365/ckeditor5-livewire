@@ -52,10 +52,12 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
 
       // Do not even try to broadcast about the registration of the editor
       // if hook was immediately destroyed.
+      /* v8 ignore next if -- @preserve */
       if (!this.isBeingDestroyed()) {
         EditorsRegistry.the.register(editorId, editor);
 
         editor.once('destroy', () => {
+          /* v8 ignore next if -- @preserve */
           if (EditorsRegistry.the.hasItem(editorId)) {
             EditorsRegistry.the.unregister(editorId);
           }

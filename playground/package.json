@@ -10,7 +10,7 @@
   "dependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.9.5",
     "@tailwindcss/oxide-linux-x64-gnu": "^4.0.1",
-    "@tailwindcss/vite": "^4.1.11",
+    "@tailwindcss/vite": "^4.2.1",
     "autoprefixer": "^10.4.20",
     "axios": "^1.13.5",
     "ckeditor5-livewire": "workspace:../npm_package",

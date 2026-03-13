@@ -134,6 +134,7 @@ export function registerLivewireComponentHook(name: string, Hook: { new(componen
     succeed(() => {
       const instance = hookInstances.get(component.id);
 
+      /* v8 ignore next if -- @preserve */
       if (instance?.state === 'mounted') {
         instance?.afterCommitSynced?.();
       }

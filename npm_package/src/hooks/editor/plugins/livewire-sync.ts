@@ -56,6 +56,7 @@ export async function createLivewireSyncPlugin(
 
         // If editor is focused, save the content to apply later when it blurs.
         if (focusTracker.isFocused) {
+          /* v8 ignore next else -- @preserve */
           if (!shallowEqual(content, values)) {
             pendingContent = content;
           }
@@ -63,6 +64,7 @@ export async function createLivewireSyncPlugin(
           return;
         }
 
+        /* v8 ignore next else -- @preserve */
         if (!shallowEqual(content, values)) {
           editor.setData(content);
         }

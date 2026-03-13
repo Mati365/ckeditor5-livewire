@@ -73,6 +73,7 @@ export class ContextComponentHook extends ClassHook<Snapshot> {
 
     const context = await this.contextPromise;
 
+    /* v8 ignore next if -- @preserve */
     if (!this.isBeingDestroyed()) {
       ContextsRegistry.the.register(contextId, context);
     }

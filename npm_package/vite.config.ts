@@ -3,10 +3,12 @@ import { resolve } from 'node:path';
 
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
-import tsconfigPaths from 'vite-tsconfig-paths';
 import { configDefaults } from 'vitest/config';
 
 export default defineConfig({
+  resolve: {
+    tsconfigPaths: true,
+  },
   plugins: [
     dts({
       insertTypesEntry: true,
@@ -23,7 +25,6 @@ export default defineConfig({
         return { filePath, content };
       },
     }),
-    tsconfigPaths(),
   ],
   build: {
     sourcemap: true,

@@ -21,14 +21,25 @@ export function viteCKEditorExternalize(): Plugin {
         'ckeditor5-livewire',
       ];
 
-      config.build ??= {};
-      config.build.rollupOptions ??= {};
-      config.build.rollupOptions.external = [
-        ...((config.build.rollupOptions.external as any[]) || []),
+      const externalize = [
         'ckeditor5',
         'ckeditor5-premium-features',
         /^ckeditor5\/.*/,
         /^ckeditor5-premium-features\/.*/,
+      ];
+
+      config.build ??= {};
+      config.build.rollupOptions ??= {};
+      config.build.rollupOptions.external = [
+        ...((config.build.rollupOptions.external as any[]) || []),
+        ...externalize,
+      ];
+
+      config.build.rolldownOptions ??= {};
+      config.build.rolldownOptions.external ??= [];
+      config.build.rolldownOptions.external = [
+        ...((config.build.rolldownOptions.external as any[]) || []),
+        ...externalize,
       ];
     },
     configResolved: (resolvedConfig) => {

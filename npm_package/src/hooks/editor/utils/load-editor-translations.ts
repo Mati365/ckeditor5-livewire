@@ -14,13 +14,18 @@ export async function loadAllEditorTranslations(
   hasPremium: boolean,
 ): Promise<Translations[]> {
   const translations = [language.ui, language.content];
-  const loadedTranslations = await Promise.all(
-    [
-      loadEditorPkgTranslations('ckeditor5', translations),
-      /* v8 ignore next */
-      hasPremium && loadEditorPkgTranslations('ckeditor5-premium-features', translations),
-    ].filter(pkg => !!pkg),
-  )
+  const translationPromises = [
+    loadEditorPkgTranslations('ckeditor5', translations),
+  ];
+
+  /* v8 ignore next if -- @preserve */
+  if (hasPremium) {
+    translationPromises.push(
+      loadEditorPkgTranslations('ckeditor5-premium-features', translations),
+    );
+  }
+
+  const loadedTranslations = await Promise.all(translationPromises)
     .then(translations => translations.flat());
 
   return loadedTranslations;
@@ -46,7 +51,7 @@ async function loadEditorPkgTranslations(
       .map(async (lang) => {
         const pack = await loadEditorTranslation(pkg, lang);
 
-        /* v8 ignore next */
+        /* v8 ignore next -- @preserve */
         return pack?.default ?? pack;
       })
       .filter(Boolean),
@@ -66,9 +71,8 @@ type EditorPkgName = 'ckeditor5' | 'ckeditor5-premium-features';
  */
 async function loadEditorTranslation(pkg: EditorPkgName, lang: string): Promise<any> {
   try {
-    /* v8 ignore next 2 */
+    /* v8 ignore next if -- @preserve */
     if (pkg === 'ckeditor5') {
-      /* v8 ignore next 79 */
       switch (lang) {
         case 'af': return await import('ckeditor5/translations/af.js');
         case 'ar': return await import('ckeditor5/translations/ar.js');
@@ -146,7 +150,6 @@ async function loadEditorTranslation(pkg: EditorPkgName, lang: string): Promise<
           return null;
       }
     }
-    /* v8 ignore next 79 */
     else {
       // Premium features translations
       switch (lang) {
@@ -226,10 +229,11 @@ async function loadEditorTranslation(pkg: EditorPkgName, lang: string): Promise<
           return await import('ckeditor5-premium-features/translations/en.js'); // fallback to English
       }
     }
-    /* v8 ignore next 7 */
   }
+  /* v8 ignore start -- @preserve */
   catch (error) {
     console.error(`Failed to load translation for ${pkg}/${lang}:`, error);
     return null;
   }
+  /* v8 ignore stop -- @preserve */
 }

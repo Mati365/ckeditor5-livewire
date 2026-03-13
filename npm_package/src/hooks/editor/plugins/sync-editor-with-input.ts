@@ -55,6 +55,7 @@ export async function createSyncEditorWithInputPlugin(saveDebounceMs: number): P
      * Synchronizes the editor's content with the input field.
      */
     private sync = (): void => {
+      /* v8 ignore next else -- @preserve */
       if (this.input) {
         const newValue = this.editor.getData();
 

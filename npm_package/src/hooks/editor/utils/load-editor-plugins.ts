@@ -35,17 +35,17 @@ export async function loadEditorPlugins(plugins: EditorPlugin[]): Promise<Loaded
     }
 
     // Plugin not found in base package, try premium package.
+    /* v8 ignore start -- @preserve */
     if (!premiumPackage) {
       try {
         premiumPackage = await import('ckeditor5-premium-features');
-        /* v8 ignore next 6 */
       }
       catch (error) {
         console.error(`Failed to load premium package: ${error}`);
       }
     }
+    /* v8 ignore end */
 
-    /* v8 ignore next */
     const { [plugin]: premiumPkgImport } = premiumPackage || {};
 
     if (premiumPkgImport) {

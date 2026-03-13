@@ -432,7 +432,7 @@ describe('editor component', () => {
 
       const editor = await waitForTestEditor();
 
-      $wire.set.mockClear();
+      vi.mocked($wire.set).mockClear();
       editor.setData('<p>Debounce test</p>');
 
       await vi.advanceTimersByTimeAsync(399);
@@ -621,13 +621,13 @@ describe('editor component', () => {
         const { ui: { focusTracker } } = await waitForTestEditor();
 
         // Focus the editor.
-        $wire.set.mockClear();
+        vi.mocked($wire.set).mockClear();
         focusTracker.isFocused = true;
 
         expect($wire.set).toHaveBeenCalledWith('focused', true);
 
         // Blur the editor.
-        $wire.set.mockClear();
+        vi.mocked($wire.set).mockClear();
         focusTracker.isFocused = false;
 
         expect($wire.set).toHaveBeenCalledWith('focused', false);
@@ -647,7 +647,7 @@ describe('editor component', () => {
 
         const editor = await waitForTestEditor();
 
-        $wire.set.mockClear();
+        vi.mocked($wire.set).mockClear();
         editor.setData('<p>New content</p>');
 
         await vi.advanceTimersByTimeAsync(1);
@@ -671,7 +671,7 @@ describe('editor component', () => {
         const editor = await waitForTestEditor();
         const { ui: { focusTracker } } = editor;
 
-        $wire.set.mockClear();
+        vi.mocked($wire.set).mockClear();
         editor.setData('<p>Updated content</p>');
         focusTracker.isFocused = true;
 
@@ -698,7 +698,7 @@ describe('editor component', () => {
 
         const editor = await waitForTestEditor();
 
-        $wire.set.mockClear();
+        vi.mocked($wire.set).mockClear();
         editor.setData('<p>New content</p>');
 
         await vi.advanceTimersByTimeAsync(1);
@@ -720,7 +720,7 @@ describe('editor component', () => {
         const { ui: { focusTracker } } = await waitForTestEditor();
 
         // Focus the editor.
-        $wire.set.mockClear();
+        vi.mocked($wire.set).mockClear();
         focusTracker.isFocused = true;
 
         expect($wire.set).toHaveBeenCalledWith('focused', true);
@@ -736,7 +736,7 @@ describe('editor component', () => {
         });
 
         // clear initial calls that may come from mounting logic
-        $wire.dispatch.mockClear();
+        vi.mocked($wire.dispatch).mockClear();
 
         await waitForTestEditor();
 
@@ -759,7 +759,7 @@ describe('editor component', () => {
 
         const editor = await waitForTestEditor();
 
-        $wire.dispatch.mockClear();
+        vi.mocked($wire.dispatch).mockClear();
         editor.setData('<p>Content change event test</p>');
 
         await vi.advanceTimersByTimeAsync(1);

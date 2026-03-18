@@ -432,6 +432,9 @@ describe('editor component', () => {
 
       const editor = await waitForTestEditor();
 
+      // Debounce should only be applied while the editor is focused.
+      editor.ui.focusTracker.isFocused = true;
+
       vi.mocked($wire.set).mockClear();
       editor.setData('<p>Debounce test</p>');
 
@@ -439,6 +442,24 @@ describe('editor component', () => {
       expect($wire.set).not.toHaveBeenCalled();
 
       await vi.advanceTimersByTimeAsync(1);
+      expect($wire.set).toHaveBeenCalledExactlyOnceWith('content', { main: '<p>Debounce test</p>' });
+    });
+
+    it('should immediately send `$wire.set` when editor is not focused', async () => {
+      const { $wire } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+        name: 'ckeditor5',
+        el: createEditorHtmlElement(),
+        canonical: {
+          ...createEditorSnapshot(),
+          saveDebounceMs: 400,
+        },
+      });
+
+      const editor = await waitForTestEditor();
+
+      vi.mocked($wire.set).mockClear();
+      editor.setData('<p>Debounce test</p>');
+
       expect($wire.set).toHaveBeenCalledExactlyOnceWith('content', { main: '<p>Debounce test</p>' });
     });
 

@@ -2,8 +2,8 @@ import type { MultiRootEditor } from 'ckeditor5';
 
 import { debounce } from '../shared';
 import { EditorsRegistry } from './editor/editors-registry';
-import { isWireModelConnected } from './editor/utils';
 import { ClassHook } from './hook';
+import { isWireModelConnected } from './utils';
 
 /**
  * Editable hook for Livewire. It allows you to create editables for multi-root editors.
@@ -71,13 +71,53 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
   }
 
   /**
+   * Called when the component is updated by Livewire.
+   */
+  override async afterCommitSynced(): Promise<void> {
+    const editor = (await this.editorPromise)!;
+
+    this.applyCanonicalContentToEditor(editor);
+  }
+
+  /**
+   * Destroys the editable component. Unmounts root from the editor.
+   */
+  override async destroyed() {
+    const { rootName } = this.canonical;
+
+    // Let's hide the element during destruction to prevent flickering.
+    this.element.style.display = 'none';
+
+    // Let's wait for the mounted promise to resolve before proceeding with destruction.
+    const editor = await this.editorPromise;
+    this.editorPromise = null;
+
+    // Unmount root from the editor if editor is still registered.
+    if (editor && editor.state !== 'destroyed') {
+      const root = editor.model.document.getRoot(rootName);
+
+      /* v8 ignore next if -- @preserve */
+      if (root && 'detachEditable' in editor) {
+        editor.detachEditable(root);
+        editor.detachRoot(rootName, false);
+      }
+    }
+  }
+
+  /**
    * Setups the content sync from the editor to Livewire on user input with debounce.
    */
   private syncTypingContentPush(editor: MultiRootEditor) {
     const { rootName, saveDebounceMs } = this.canonical;
+
     const input = this.element.querySelector<HTMLInputElement>('input');
+    let isDestroyed = false;
 
     const sync = () => {
+      if (isDestroyed) {
+        return;
+      }
+
       const html = editor.getData({ rootName });
 
       if (input) {
@@ -88,12 +128,21 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
     };
 
     const debouncedSync = debounce(saveDebounceMs, sync);
+    const onChangeData = () => {
+      if (editor.ui.focusTracker.isFocused) {
+        debouncedSync();
+      }
+      else {
+        sync();
+      }
+    };
 
-    editor.model.document.on('change:data', debouncedSync);
+    editor.model.document.on('change:data', onChangeData);
     sync();
 
     this.onBeforeDestroy(() => {
-      editor.model.document.off('change:data', debouncedSync);
+      isDestroyed = true;
+      editor.model.document.off('change:data', onChangeData);
     });
   }
 
@@ -152,40 +201,6 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
     }
 
     editor.setData({ [rootName]: content ?? '' });
-  }
-
-  /**
-   * Called when the component is updated by Livewire.
-   */
-  override async afterCommitSynced(): Promise<void> {
-    const editor = (await this.editorPromise)!;
-
-    this.applyCanonicalContentToEditor(editor);
-  }
-
-  /**
-   * Destroys the editable component. Unmounts root from the editor.
-   */
-  override async destroyed() {
-    const { rootName } = this.canonical;
-
-    // Let's hide the element during destruction to prevent flickering.
-    this.element.style.display = 'none';
-
-    // Let's wait for the mounted promise to resolve before proceeding with destruction.
-    const editor = await this.editorPromise;
-    this.editorPromise = null;
-
-    // Unmount root from the editor if editor is still registered.
-    if (editor && editor.state !== 'destroyed') {
-      const root = editor.model.document.getRoot(rootName);
-
-      /* v8 ignore next if -- @preserve */
-      if (root && 'detachEditable' in editor) {
-        editor.detachEditable(root);
-        editor.detachRoot(rootName, false);
-      }
-    }
   }
 }
 

@@ -675,9 +675,11 @@ Bind the editor content to a Livewire property with optional debounce to control
 ```blade
 <livewire:ckeditor5
     wire:model.live="content"
-    :saveDebounceMs="500"
+    :saveDebounceMs="300"
 />
 ```
+
+Save debounce is set to `300ms`, it's used to throttle the typing updates to the server. You can adjust this value based on your needs. Setting it to `0` will disable debouncing and send updates immediately on every change. This option works only if the editor is focused, otherwise updates are sent immediately without debouncing to ensure content is always up to date.
 
 Handle content changes in your Livewire component:
 

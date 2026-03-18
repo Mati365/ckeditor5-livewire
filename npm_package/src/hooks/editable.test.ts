@@ -200,6 +200,9 @@ describe('editable component', () => {
 
       expect(input.value).toBe('<p>Initial foo component</p>');
 
+      // Debounce should be active only while the editor is focused.
+      editor.ui.focusTracker.isFocused = true;
+
       editor.setData({
         foo: '<p>Modified foo content</p>',
       });
@@ -209,6 +212,28 @@ describe('editable component', () => {
       expect(input.value).toBe('<p>Initial foo component</p>');
 
       vi.advanceTimersByTime(300);
+
+      expect(input.value).toBe('<p>Modified foo content</p>');
+    });
+
+    it('should synchronize input value immediately when editor is not focused', async () => {
+      livewireStub.$internal.appendComponentToDOM({
+        name: 'ckeditor5-editable',
+        el: createEditableHtmlElement({
+          id: 'editable-foo',
+        }),
+        canonical: createEditableSnapshot('foo', '<p>Initial foo component</p>'),
+      });
+
+      const input = queryEditableInput('editable-foo')!;
+
+      expect(input.value).toBe('<p>Initial foo component</p>');
+
+      editor.ui.focusTracker.isFocused = false;
+
+      editor.setData({
+        foo: '<p>Modified foo content</p>',
+      });
 
       expect(input.value).toBe('<p>Modified foo content</p>');
     });
@@ -250,6 +275,9 @@ describe('editable component', () => {
 
         expect($wire.set).toHaveBeenCalledWith('content', '<p>Initial foo component</p>');
 
+        // Debounce should be active only when the editor is focused.
+        editor.ui.focusTracker.isFocused = true;
+
         editor.setData({
           foo: '<p>Modified foo content</p>',
         });
@@ -259,6 +287,29 @@ describe('editable component', () => {
         expect($wire.set).not.toHaveBeenCalledWith('content', '<p>Modified foo content</p>');
 
         vi.advanceTimersByTime(300);
+
+        expect($wire.set).toHaveBeenCalledWith('content', '<p>Modified foo content</p>');
+      });
+
+      it('should synchronize socket content immediately when editor is not focused', async () => {
+        const { $wire } = livewireStub.$internal.appendComponentToDOM({
+          name: 'ckeditor5-editable',
+          el: createEditableHtmlElement(),
+          canonical: {
+            ...createEditableSnapshot('foo', '<p>Initial foo component</p>'),
+            saveDebounceMs: 500,
+          },
+        });
+
+        expect($wire.set).toHaveBeenCalledWith('content', '<p>Initial foo component</p>');
+
+        vi.mocked($wire.set).mockClear();
+
+        editor.ui.focusTracker.isFocused = false;
+
+        editor.setData({
+          foo: '<p>Modified foo content</p>',
+        });
 
         expect($wire.set).toHaveBeenCalledWith('content', '<p>Modified foo content</p>');
       });

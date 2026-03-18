@@ -3,7 +3,8 @@ import type { PluginConstructor } from 'ckeditor5';
 import type { EditorComponentHook } from '../editor';
 
 import { debounce, shallowEqual } from '../../../shared';
-import { getEditorRootsValues, isWireModelConnected } from '../utils';
+import { isWireModelConnected } from '../../utils';
+import { getEditorRootsValues } from '../utils';
 
 /**
  * Creates a LivewireSync plugin class.
@@ -124,10 +125,17 @@ export async function createLivewireSyncPlugin(
      * Setups the content push event for the editor.
      */
     private setupTypingContentPush() {
-      const { model } = this.editor;
+      const { editor } = this;
+      const { model, ui } = editor;
       const { $wire } = component;
 
+      let isDestroyed = false;
+
       const syncContentChange = () => {
+        if (isDestroyed) {
+          return;
+        }
+
         const values = this.getEditorRootsValues();
 
         // Prevent looping when editor changed content from Livewire.
@@ -140,8 +148,23 @@ export async function createLivewireSyncPlugin(
         }
       };
 
-      model.document.on('change:data', debounce(saveDebounceMs, syncContentChange));
-      this.editor.once('ready', syncContentChange);
+      const debouncedSync = debounce(saveDebounceMs, syncContentChange);
+      const onChangeData = () => {
+        if (ui.focusTracker.isFocused) {
+          debouncedSync();
+        }
+        else {
+          syncContentChange();
+        }
+      };
+
+      model.document.on('change:data', onChangeData);
+
+      editor.once('ready', syncContentChange);
+      editor.once('destroy', () => {
+        isDestroyed = true;
+        model.document.off('change:data', onChangeData);
+      });
     }
 
     /**

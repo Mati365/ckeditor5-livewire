@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { html } from '../../../../test-utils/html';
+import { html } from '~/test-utils/html';
+
 import { isWireModelConnected } from './is-wire-model-connected';
 
 describe('isWireModelConnected', () => {

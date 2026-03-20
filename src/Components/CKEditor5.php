@@ -5,6 +5,7 @@ namespace Mati365\CKEditor5Livewire\Components;
 use Livewire\Component;
 use Illuminate\View\View;
 use Livewire\Attributes\Modelable;
+use Livewire\Attributes\Reactive;
 use Mati365\CKEditor5Livewire\Config;
 use Mati365\CKEditor5Livewire\Preset\{EditorType, Preset, PresetParser};
 use Mati365\CKEditor5Livewire\Utils\LanguageNormalizer;
@@ -76,12 +77,22 @@ final class CKEditor5 extends Component
     /**
      * CSS class for the main wrapper element.
      */
+    #[Reactive]
     public ?string $class = null;
 
     /**
      * Inline styles for the main wrapper element.
      */
+    #[Reactive]
     public ?string $style = null;
+
+    /**
+     * Root attributes to apply to the editor root.
+     *
+     * @var array<string, mixed>
+     */
+    #[Reactive]
+    public ?array $rootAttributes = null;
 
     /**
      * The language configuration for the editor UI and content.
@@ -133,6 +144,7 @@ final class CKEditor5 extends Component
      * @param bool $required Whether the hidden input is required
      * @param ?string $class CSS class for the main wrapper element
      * @param ?string $style Inline styles for the main wrapper element
+     * @param ?array<string, mixed> $rootAttributes Root attributes to apply to the `main` editor root
      * @return void
      */
     public function mount(
@@ -151,7 +163,8 @@ final class CKEditor5 extends Component
         ?string $name = null,
         bool $required = false,
         ?string $class = null,
-        ?string $style = null
+        ?string $style = null,
+        ?array $rootAttributes = null
     ): void {
         $resolvedPreset = $this->configService->resolvePresetOrThrow($presetName);
 
@@ -191,7 +204,8 @@ final class CKEditor5 extends Component
         $this->required = $required;
         $this->language = LanguageNormalizer::normalize($locale);
         $this->class = $class;
-        $this->style = 'position: relative;' . ($style !== null ? ' ' . $style : '');
+        $this->style = $style;
+        $this->rootAttributes = $rootAttributes;
     }
 
     /**

@@ -83,7 +83,6 @@ final class CKEHiddenInput extends Component
      *
      * @return View
      */
-    #[\Override]
     public function render(): View
     {
         return view('ckeditor5::components.hidden-input');

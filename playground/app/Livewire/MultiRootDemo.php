@@ -14,6 +14,13 @@ class MultiRootDemo extends Component
 
     public string $editorId = 'multiroot-attribute-demo-editor';
 
+    public int $counter = 0;
+
+    public function incrementCounter(): void
+    {
+        $this->counter++;
+    }
+
     public function resetBody(): void
     {
         $this->content['body'] = '<p>Body has been reset by Livewire.</p>';

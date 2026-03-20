@@ -4,6 +4,7 @@ namespace Mati365\CKEditor5Livewire\Components;
 
 use Livewire\Component;
 use Illuminate\View\View;
+use Livewire\Attributes\Reactive;
 
 /**
  * Livewire component for CKEditor5 UI part.
@@ -34,11 +35,13 @@ final class CKEditor5UIPart extends Component
     /**
      * CSS class for the UI part wrapper element.
      */
+    #[Reactive]
     public ?string $class = null;
 
     /**
      * Inline styles for the UI part wrapper element.
      */
+    #[Reactive]
     public ?string $style = null;
 
     /**

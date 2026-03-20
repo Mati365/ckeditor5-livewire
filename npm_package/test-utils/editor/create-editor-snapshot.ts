@@ -6,7 +6,7 @@ import { DEFAULT_TEST_EDITOR_ID } from './wait-for-test-editor';
 /**
  * Creates a default snapshot for testing purposes.
  */
-export function createEditorSnapshot(): Snapshot {
+export function createEditorSnapshot(overrides: Partial<Snapshot> = {}): Snapshot {
   return {
     editorId: DEFAULT_TEST_EDITOR_ID,
     content: {
@@ -21,5 +21,6 @@ export function createEditorSnapshot(): Snapshot {
     },
     saveDebounceMs: 500,
     watchdog: false,
+    ...overrides,
   };
 }

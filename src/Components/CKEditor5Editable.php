@@ -5,6 +5,7 @@ namespace Mati365\CKEditor5Livewire\Components;
 use Livewire\Component;
 use Illuminate\View\View;
 use Livewire\Attributes\Modelable;
+use Livewire\Attributes\Reactive;
 
 /**
  * Livewire component for CKEditor5 editable root.
@@ -55,23 +56,33 @@ final class CKEditor5Editable extends Component
     /**
      * CSS class for the editable wrapper element.
      */
+    #[Reactive]
     public ?string $class = null;
 
     /**
      * Inline styles for the editable wrapper element.
      */
+    #[Reactive]
     public ?string $style = null;
 
     /**
      * CSS class for the editable content element.
      */
+    #[Reactive]
     public ?string $editableClass = null;
 
     /**
      * Inline styles for the editable content element.
      */
+    #[Reactive]
     public ?string $editableStyle = null;
-
+    /**
+     * Root attributes to apply to the editable root.
+     *
+     * @var array<string, mixed>
+     */
+    #[Reactive]
+    public ?array $rootAttributes = null;
     /**
      * The debounce time in milliseconds for saving content changes.
      * Prevents excessive updates by delaying the save operation.
@@ -92,6 +103,7 @@ final class CKEditor5Editable extends Component
      * @param ?string $editableClass CSS class for the editable content element
      * @param ?string $editableStyle Inline styles for the editable content element
      * @param int $saveDebounceMs Debounce time in milliseconds for saving content changes
+     * @param ?array<string, mixed> $rootAttributes Root attributes to apply to the editable root
      * @return void
      */
     public function mount(
@@ -105,6 +117,7 @@ final class CKEditor5Editable extends Component
         ?string $style = null,
         ?string $editableClass = null,
         ?string $editableStyle = null,
+        ?array $rootAttributes = null,
         int $saveDebounceMs = 300,
     ): void {
         $this->id = $id ?? 'ckeditor-editable-' . uniqid();
@@ -113,9 +126,10 @@ final class CKEditor5Editable extends Component
         $this->name = $name;
         $this->required = $required;
         $this->class = $class;
-        $this->style = 'position: relative;' . ($style !== null ? ' ' . $style : '');
+        $this->style = $style;
         $this->editableClass = $editableClass;
         $this->editableStyle = $editableStyle;
+        $this->rootAttributes = $rootAttributes;
         $this->saveDebounceMs = $saveDebounceMs;
 
         if ($content !== null) {

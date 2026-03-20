@@ -55,6 +55,7 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
         - [Livewire → Editor: Set Content Event 📥](#livewire--editor-set-content-event-)
     - [Editor → Livewire: Editor Ready Event ✅](#editor--livewire-editor-ready-event-)
     - [Focus Tracking 👁️](#focus-tracking-️)
+    - [Root Attributes 🏷️](#root-attributes-️)
     - [Watchdog 🐶](#watchdog-)
       - [How it works ⚙️](#how-it-works-️)
       - [Disabling the watchdog 🚫](#disabling-the-watchdog-)
@@ -902,6 +903,31 @@ class FocusDemo extends Component
     />
 </div>
 ```
+
+### Root Attributes 🏷️
+
+Both `<livewire:ckeditor5>` and `<livewire:ckeditor5-editable>` accept a `rootAttributes` prop that lets you attach arbitrary attributes to the editor's root element directly from Livewire. This is useful for adding dynamic model data to the editor. It maybe useful for plugins that need to read some data from the snapshot and modify the editor behavior based on it.
+
+```blade
+<livewire:ckeditor5
+    wire:key="my-editor"
+    :rootAttributes="['data-counter' => $counter, 'data-author' => $author]"
+    content="<p>Hello world</p>"
+/>
+```
+
+For multiroot editors, each editable can carry its own independent set of root attributes:
+
+```blade
+<livewire:ckeditor5-editable
+    wire:key="my-editor-header"
+    rootName="header"
+    :rootAttributes="['data-section' => 'header', 'data-counter' => $counter]"
+/>
+```
+
+> [!IMPORTANT]
+> **Always provide an explicit `wire:key`** when using `rootAttributes` on `<livewire:ckeditor5>` with dynamic values. Without it, Livewire auto-generates `wire:key` by hashing the component snapshot. The hash produced during the initial page render differs from the one produced after the first update — causing Livewire to treat the component as a new one, which destroys and remounts the editor on the very first change. From the second change onwards the snapshot is stable, so no remount occurs, which is why the flash only happens once.
 
 ### Watchdog 🐶
 

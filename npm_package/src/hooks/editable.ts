@@ -1,9 +1,11 @@
 import type { MultiRootEditor } from 'ckeditor5';
 
+import type { RootAttributesUpdater } from './utils';
+
 import { debounce } from '../shared';
 import { EditorsRegistry } from './editor/editors-registry';
 import { ClassHook } from './hook';
-import { isWireModelConnected } from './utils';
+import { createRootAttributesUpdater, isWireModelConnected } from './utils';
 
 /**
  * Editable hook for Livewire. It allows you to create editables for multi-root editors.
@@ -13,6 +15,11 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
    * The promise that resolves when the editable is mounted.
    */
   private editorPromise: Promise<MultiRootEditor | null> | null = null;
+
+  /**
+   * The root attributes updater for the editable's root.
+   */
+  private rootAttributesUpdater: RootAttributesUpdater | null = null;
 
   /**
    * Pending content to apply when the editor loses focus.
@@ -65,6 +72,7 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
       // Add livewire sync.
       this.syncTypingContentPush(editor);
       this.setupPendingReceivedContentHandlers(editor);
+      this.applyRootAttributes(editor);
 
       return editor;
     });
@@ -77,6 +85,7 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
     const editor = (await this.editorPromise)!;
 
     this.applyCanonicalContentToEditor(editor);
+    this.applyRootAttributes(editor);
   }
 
   /**
@@ -91,6 +100,9 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
     // Let's wait for the mounted promise to resolve before proceeding with destruction.
     const editor = await this.editorPromise;
     this.editorPromise = null;
+
+    // Remove root attributes we may have set on this root.
+    this.rootAttributesUpdater?.(null);
 
     // Unmount root from the editor if editor is still registered.
     if (editor && editor.state !== 'destroyed') {
@@ -202,6 +214,16 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
 
     editor.setData({ [rootName]: content ?? '' });
   }
+
+  /**
+   * Applies root attributes from the Livewire snapshot to the editor root.
+   */
+  private applyRootAttributes(editor: MultiRootEditor): void {
+    const { rootName, rootAttributes } = this.canonical;
+
+    this.rootAttributesUpdater ??= createRootAttributesUpdater(editor, rootName);
+    this.rootAttributesUpdater(rootAttributes);
+  }
 }
 
 /**
@@ -227,4 +249,9 @@ export type Snapshot = {
    * The debounce time in milliseconds for saving changes.
    */
   saveDebounceMs: number;
+
+  /**
+   * Root attributes to apply to the editable root.
+   */
+  rootAttributes?: Record<string, unknown>;
 };

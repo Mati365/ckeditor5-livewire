@@ -90,4 +90,11 @@
             <livewire:template-demo />
         </div>
     </section>
+
+    <section class="mb-16">
+        <h2 class="mb-4 font-semibold text-xl">Root Attributes Demo</h2>
+        <div class="bg-white dark:bg-gray-800 shadow p-6 rounded-lg">
+            <livewire:root-attributes-demo />
+        </div>
+    </section>
 @endsection

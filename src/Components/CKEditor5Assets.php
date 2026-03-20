@@ -6,7 +6,6 @@ use Illuminate\View\{View, Component, ComponentAttributeBag};
 use Mati365\CKEditor5Livewire\Config;
 use Mati365\CKEditor5Livewire\Cloud\CloudBundleBuilder;
 use Mati365\CKEditor5Livewire\Cloud\CKBox\CKBox;
-use Mati365\CKEditor5Livewire\Exceptions\NoCloudConfig;
 use Mati365\CKEditor5Livewire\Preset\PresetLicenseCompatibility;
 
 /**

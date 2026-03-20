@@ -50,6 +50,58 @@ describe('editable component', () => {
       expect(editor.getData({ rootName: 'foo' })).toBe('<p>Initial foo component</p>');
     });
 
+    it('should apply root attributes when mounting editable', async () => {
+      appendMultirootEditor();
+
+      const editor = await waitForTestEditor();
+
+      livewireStub.$internal.appendComponentToDOM({
+        name: 'ckeditor5-editable',
+        el: createEditableHtmlElement(),
+        canonical: {
+          ...createEditableSnapshot('foo', '<p>Initial foo component</p>'),
+          rootAttributes: {
+            'data-test': 'initial',
+          },
+        },
+      });
+
+      const root = editor.model.document.getRoot('foo')!;
+
+      expect(root.getAttribute('data-test')).toBe('initial');
+    });
+
+    it('should update root attributes after commit', async () => {
+      appendMultirootEditor();
+
+      const editor = await waitForTestEditor();
+
+      const { id } = livewireStub.$internal.appendComponentToDOM({
+        name: 'ckeditor5-editable',
+        el: createEditableHtmlElement(),
+        canonical: {
+          ...createEditableSnapshot('foo', '<p>Initial foo component</p>'),
+          rootAttributes: {
+            'data-test': 'initial',
+          },
+        },
+      });
+
+      const root = editor.model.document.getRoot('foo')!;
+
+      expect(root.getAttribute('data-test')).toBe('initial');
+
+      await livewireStub.$internal.dispatchComponentCommit(id, {
+        rootAttributes: {
+          'data-test': 'updated',
+        },
+      });
+
+      await vi.waitFor(() => {
+        expect(root.getAttribute('data-test')).toBe('updated');
+      });
+    });
+
     it('should add editable root to the editor after mounting editor (non-empty editor, other editable defined before)', async () => {
       livewireStub.$internal.appendComponentToDOM({
         name: 'ckeditor5-editable',

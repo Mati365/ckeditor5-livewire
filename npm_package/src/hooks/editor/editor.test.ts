@@ -375,6 +375,53 @@ describe('editor component', () => {
         }).not.toThrow();
       });
     });
+
+    describe('root attributes', () => {
+      it('should apply root attributes from snapshot', async () => {
+        const { id } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement(),
+          canonical: createEditorSnapshot({
+            rootAttributes: {
+              'data-test': 'initial',
+              'foo': 'bar',
+            },
+          }),
+        });
+
+        const editor = await waitForTestEditor();
+        const root = editor.model.document.getRoot('main')!;
+
+        expect(root.getAttribute('data-test')).toBe('initial');
+        expect(root.getAttribute('foo')).toBe('bar');
+
+        // Ensure attributes managed by other consumers are not removed.
+        editor.model.change((writer) => {
+          writer.setAttribute('external', 'value', root);
+        });
+
+        await livewireStub.$internal.dispatchComponentCommit<EditorSnapshot>(id, {
+          rootAttributes: {
+            'data-test': 'updated',
+          },
+        });
+
+        await vi.waitFor(() => {
+          expect(root.getAttribute('data-test')).toBe('updated');
+          expect(root.getAttribute('foo')).toBeUndefined();
+          expect(root.getAttribute('external')).toBe('value');
+        });
+
+        await livewireStub.$internal.dispatchComponentCommit<EditorSnapshot>(id, {
+          rootAttributes: null as any,
+        });
+
+        await vi.waitFor(() => {
+          expect(root.getAttribute('data-test')).toBeUndefined();
+          expect(root.getAttribute('external')).toBe('value');
+        });
+      });
+    });
   });
 
   describe('`editableHeight` snapshot parameter`', () => {

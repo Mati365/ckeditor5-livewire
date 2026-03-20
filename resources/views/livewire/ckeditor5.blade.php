@@ -1,8 +1,8 @@
 <div
     wire:ignore
     id="{{ $editorId }}"
+    style="position: relative; {{ $style }}"
     @if($class) class="{{ $class }}" @endif
-    @if($style) style="{{ $style }}" @endif
 >
     @if($preset['editorType'] !== 'multiroot' && $preset['editorType'] !== 'decoupled')
         <div id="{{ $editorId }}_editor"></div>

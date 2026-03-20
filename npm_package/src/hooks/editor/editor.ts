@@ -1,11 +1,13 @@
 import type { Editor } from 'ckeditor5';
 
+import type { RootAttributesUpdater } from '../utils';
 import type { EditorId, EditorLanguage, EditorPreset } from './typings';
 import type { EditorCreator } from './utils';
 
 import { ContextsRegistry } from '../../hooks/context';
 import { isEmptyObject, waitFor } from '../../shared';
 import { ClassHook } from '../hook';
+import { createRootAttributesUpdater } from '../utils';
 import { EditorsRegistry } from './editors-registry';
 import {
   createLivewireSyncPlugin,
@@ -36,6 +38,11 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
    * The promise that resolves to the editor instance.
    */
   private editorPromise: Promise<Editor> | null = null;
+
+  /**
+   * Root attributes updater for the main editor root.
+   */
+  private rootAttributesUpdater: RootAttributesUpdater | null = null;
 
   /**
    * @inheritdoc
@@ -115,7 +122,23 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
   override async afterCommitSynced(): Promise<void> {
     const editor = await this.editorPromise;
 
-    editor?.fire('afterCommitSynced');
+    /* v8 ignore if -- @preserve */
+    if (editor) {
+      editor.fire('afterCommitSynced');
+      this.applyRootAttributes(editor);
+    }
+  }
+
+  /**
+   * Applies root attributes from the Livewire snapshot to the editor.
+   *
+   * Note: we only apply attributes to the `main` root in the editor.
+   */
+  private applyRootAttributes(editor: Editor): void {
+    const { rootAttributes } = this.canonical;
+
+    this.rootAttributesUpdater ??= createRootAttributesUpdater(editor, 'main');
+    this.rootAttributesUpdater(rootAttributes);
   }
 
   /**
@@ -261,6 +284,8 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
       setEditorEditableHeight(editor, editableHeight);
     }
 
+    this.applyRootAttributes(editor);
+
     return editor;
   };
 }
@@ -350,4 +375,9 @@ export type Snapshot = {
    * The language of the editor UI and content.
    */
   language: EditorLanguage;
+
+  /**
+   * Root attributes to apply to the main editor root.
+   */
+  rootAttributes?: Record<string, unknown>;
 };

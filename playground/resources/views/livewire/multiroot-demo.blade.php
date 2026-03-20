@@ -4,6 +4,19 @@
             Multiroot Editor — Livewire-settable root (body)
         </label>
 
+        <div class="flex sm:flex-row flex-col sm:items-center gap-4 mb-4">
+            <button
+                wire:click="incrementCounter"
+                class="inline-flex justify-center items-center bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white"
+            >
+                Increment counter
+            </button>
+
+            <div class="text-gray-700 dark:text-gray-200 text-sm">
+                Counter value: <span class="font-semibold">{{ $counter }}</span>
+            </div>
+        </div>
+
         <livewire:ckeditor5
             :editorId="$editorId"
             editorType="multiroot"
@@ -22,7 +35,9 @@
             <div>
                 <label class="block mb-2 font-medium text-sm">Header (set from Livewire)</label>
                 <livewire:ckeditor5-editable
+                    wire:key="editable-header"
                     :editorId="$editorId"
+                    :rootAttributes="['data-counter' => $counter, 'data-origin' => 'editable']"
                     rootName="header"
                     wire:model.live="content.header"
                     class="border border-gray-300 dark:border-gray-600 rounded"
@@ -33,7 +48,9 @@
             <div>
                 <label class="block mb-2 font-medium text-sm">Body (Livewire-synced)</label>
                 <livewire:ckeditor5-editable
+                    wire:key="editable-body"
                     :editorId="$editorId"
+                    :rootAttributes="['data-counter' => $counter, 'data-origin' => 'editable']"
                     rootName="body"
                     wire:model.live="content.body"
                     class="border border-gray-300 dark:border-gray-600 rounded"

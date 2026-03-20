@@ -132,6 +132,7 @@ export async function createLivewireSyncPlugin(
       let isDestroyed = false;
 
       const syncContentChange = () => {
+        /* v8 ignore next if -- @preserve */
         if (isDestroyed) {
           return;
         }

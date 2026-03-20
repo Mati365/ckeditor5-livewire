@@ -14,6 +14,8 @@
             <directory name="vendor" />
             <directory name="playground" />
             <directory name="npm_package" />
+            <directory name="playground/storage/framework/views" />
+            <directory name="playground/vendor" />
         </ignoreFiles>
     </projectFiles>
 

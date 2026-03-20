@@ -45,7 +45,7 @@
   },
   "require-dev": {
     "psalm/plugin-laravel": "^3.0.4",
-    "vimeo/psalm": "^6.13",
+    "vimeo/psalm": "^6.16.1",
     "friendsofphp/php-cs-fixer": "^3.88",
     "phpunit/phpunit": "^11.0",
     "mockery/mockery": "^1.6",

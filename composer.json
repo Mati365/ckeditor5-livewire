@@ -1,6 +1,6 @@
 {
   "name": "mati365/ckeditor5-livewire",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "description": "CKEditor 5 integration for Laravel Livewire",
   "type": "library",
   "license": "MIT",

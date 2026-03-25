@@ -3,7 +3,7 @@
 namespace Mati365\CKEditor5Livewire\Components;
 
 use Livewire\Component;
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
 use Mati365\CKEditor5Livewire\Config;
 use Mati365\CKEditor5Livewire\Context\{Context, ContextParser};
 use Mati365\CKEditor5Livewire\Utils\LanguageNormalizer;

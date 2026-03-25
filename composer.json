@@ -59,6 +59,6 @@
       "Mati365\\CKEditor5Livewire\\Tests\\": "tests/"
     }
   },
-  "minimum-stability": "dev",
+  "minimum-stability": "beta",
   "prefer-stable": true
 }

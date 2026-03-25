@@ -2,7 +2,8 @@
 
 namespace Mati365\CKEditor5Livewire\Components;
 
-use Illuminate\View\{View, Component, ComponentAttributeBag};
+use Illuminate\Contracts\View\View;
+use Illuminate\View\{Component, ComponentAttributeBag};
 use Mati365\CKEditor5Livewire\Config;
 use Mati365\CKEditor5Livewire\Cloud\CloudBundleBuilder;
 use Mati365\CKEditor5Livewire\Cloud\CKBox\CKBox;

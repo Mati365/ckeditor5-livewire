@@ -2,7 +2,8 @@
 
 namespace Mati365\CKEditor5Livewire\Components;
 
-use Illuminate\View\{Component, View};
+use Illuminate\Contracts\View\View;
+use Illuminate\View\Component;
 
 /**
  * Blade component for rendering a hidden input field.

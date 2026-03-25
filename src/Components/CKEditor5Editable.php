@@ -3,7 +3,7 @@
 namespace Mati365\CKEditor5Livewire\Components;
 
 use Livewire\Component;
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Modelable;
 use Livewire\Attributes\Reactive;
 

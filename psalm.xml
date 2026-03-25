@@ -17,9 +17,9 @@
         </ignoreFiles>
     </projectFiles>
 
-    <stubs>
-        <file name="stubs/laravel.phpstub" />
-    </stubs>
+    <plugins>
+        <pluginClass class="Psalm\LaravelPlugin\Plugin" />
+    </plugins>
 
     <issueHandlers>
         <LessSpecificReturnType errorLevel="info" />
@@ -31,5 +31,9 @@
         <UndefinedConstant errorLevel="info" />
         <PropertyNotSetInConstructor errorLevel="info" />
         <MissingOverrideAttribute errorLevel="info" />
+        <MissingPureAnnotation errorLevel="info" />
+        <MissingAbstractPureAnnotation errorLevel="info" />
+        <MissingInterfaceImmutableAnnotation errorLevel="info" />
+        <MissingImmutableAnnotation errorLevel="info" />
     </issueHandlers>
 </psalm>

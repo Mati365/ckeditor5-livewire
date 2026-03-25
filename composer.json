@@ -40,16 +40,15 @@
   ],
   "require": {
     "php": ">=8.3",
-    "illuminate/support": "^11.0 || ^12.0 || ^13.0",
+    "illuminate/support": "^12.0 || ^13.0",
     "livewire/livewire": "^3.0 || ^4.0"
   },
   "require-dev": {
-    "psalm/plugin-laravel": "^3.0.4",
-    "vimeo/psalm": "^6.16.1",
+    "psalm/plugin-laravel": "^4.2",
     "friendsofphp/php-cs-fixer": "^3.88",
     "phpunit/phpunit": "^11.0",
     "mockery/mockery": "^1.6",
-    "orchestra/testbench": "^9.0"
+    "orchestra/testbench": "^10.0 || ^11.0"
   },
   "scripts": {
     "test": "phpunit",
@@ -59,5 +58,7 @@
     "psr-4": {
       "Mati365\\CKEditor5Livewire\\Tests\\": "tests/"
     }
-  }
+  },
+  "minimum-stability": "beta",
+  "prefer-stable": true
 }

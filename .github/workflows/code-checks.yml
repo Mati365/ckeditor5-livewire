@@ -74,8 +74,8 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Run Psalm (type analysis)
-        run: vendor/bin/psalm --no-cache --output-format=github
+        run: vendor/bin/psalm --output-format=github
 
       - name: Run Psalm (security / taint analysis)
-        run: vendor/bin/psalm --no-cache --taint-analysis --output-format=github
+        run: vendor/bin/psalm --taint-analysis --output-format=github
         continue-on-error: true

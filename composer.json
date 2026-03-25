@@ -48,7 +48,7 @@
     "friendsofphp/php-cs-fixer": "^3.88",
     "phpunit/phpunit": "^11.0",
     "mockery/mockery": "^1.6",
-    "orchestra/testbench": "^10.0"
+    "orchestra/testbench": "^10.0 || ^11.0"
   },
   "scripts": {
     "test": "phpunit",

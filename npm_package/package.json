@@ -44,7 +44,7 @@
     "ckeditor5-premium-features": "^47.6.0",
     "happy-dom": "^20.8.9",
     "typescript": "^5.5.4",
-    "vite": "^8.0.0",
+    "vite": "^8.0.5",
     "vite-plugin-dts": "^4.5.4",
     "vitest": "^4.1.0"
   }

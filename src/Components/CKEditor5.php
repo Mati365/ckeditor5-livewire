@@ -54,7 +54,7 @@ final class CKEditor5 extends Component
      * Whether to use a watchdog for the CKEditor5 instance.
      * Watchdog helps recover from crashes by automatically restarting the editor.
      */
-    public bool $watchdog = false;
+    public bool $watchdog = true;
 
     /**
      * The identifier of the CKEditor context.
@@ -155,7 +155,7 @@ final class CKEditor5 extends Component
         ?array $mergeConfig = null,
         ?array $customTranslations = null,
         EditorType|string|null $editorType = null,
-        bool $watchdog = false,
+        bool $watchdog = true,
         ?string $contextId = null,
         int $saveDebounceMs = 300,
         ?int $editableHeight = null,

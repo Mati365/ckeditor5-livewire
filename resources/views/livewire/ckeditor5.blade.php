@@ -5,7 +5,7 @@
     @if($class) class="{{ $class }}" @endif
 >
     @if($preset['editorType'] !== 'multiroot' && $preset['editorType'] !== 'decoupled')
-        <div id="{{ $editorId }}_editor"></div>
+        <div id="{{ $editorId }}_editor" data-cke-controlled></div>
     @endif
 
     @if($name)

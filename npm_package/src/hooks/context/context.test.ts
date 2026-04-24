@@ -342,7 +342,9 @@ describe('context component', () => {
 
       await livewireStub.$internal.unmountComponent(editorId);
 
-      expect(context?.editors.first).toBeNull();
+      await vi.waitFor(() => {
+        expect(context?.editors.first).toBeNull();
+      });
     });
 
     it('should remove the context instance from the registry on destroy', async () => {

@@ -4,7 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 
-class EditorForm extends Component
+class EditorModelDemo extends Component
 {
     public array $content = [
         'main' => '<p>Initial content</p>',
@@ -12,7 +12,7 @@ class EditorForm extends Component
 
     public function render()
     {
-        return view('livewire.editor-form');
+        return view('livewire.editor-model-demo');
     }
 
     public function save()

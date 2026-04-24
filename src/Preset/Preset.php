@@ -17,6 +17,7 @@ final class Preset
      * @param array $config Editor configuration array.
      * @param EditorType $editorType Type of CKEditor 5 editor (default is CLASSIC).
      * @param Key $licenseKey License key for CKEditor 5 (default is 'GPL').
+     * @param array $watchdogConfig Watchdog configuration array.
      * @param Cloud|null $cloud Optional cloud configuration array.
      * @param array|null $customTranslations Optional custom translations dictionary.
      */
@@ -24,6 +25,7 @@ final class Preset
         public array $config,
         public EditorType $editorType,
         public Key $licenseKey,
+        public ?array $watchdogConfig = null,
         public ?Cloud $cloud = null,
         public ?array $customTranslations = null,
     ) {}
@@ -39,6 +41,7 @@ final class Preset
             config: Arrays::deepClone($this->config),
             editorType: $this->editorType,
             licenseKey: $this->licenseKey->clone(),
+            watchdogConfig: $this->watchdogConfig !== null ? Arrays::deepClone($this->watchdogConfig) : null,
             cloud: $this->cloud?->clone(),
             customTranslations: $this->customTranslations !== null ? Arrays::deepClone($this->customTranslations) : null,
         );
@@ -57,10 +60,29 @@ final class Preset
         return $clone;
     }
 
+    /**
+     * Creates a new Preset instance with deep merged configuration.
+     *
+     * @param array $config Configuration to be merged.
+     * @return self A new Preset instance with the merged configuration.
+     */
     public function ofMergedConfig(array $config): self
     {
         $clone = $this->clone();
         $clone->config = array_merge_recursive($this->config, $config);
+        return $clone;
+    }
+
+    /**
+     * Creates a new Preset instance with modified watchdog configuration.
+     *
+     * @param array|null $watchdogConfig New watchdog configuration array.
+     * @return self A new Preset instance with the specified watchdog configuration.
+     */
+    public function ofWatchdogConfig(?array $watchdogConfig): self
+    {
+        $clone = $this->clone();
+        $clone->watchdogConfig = $watchdogConfig;
         return $clone;
     }
 

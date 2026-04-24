@@ -1,5 +1,7 @@
+export * from './cleanup-orphan-editor-elements';
 export * from './create-editor-in-context';
 export * from './get-editor-roots-values';
+export * from './is-multiroot-editor-instance';
 export * from './is-single-root-editor';
 export * from './load-editor-constructor';
 export * from './load-editor-plugins';

@@ -17,11 +17,19 @@
                 placeholder="New root name"
                 class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded text-sm"
             />
+
             <button
                 type="submit"
                 class="bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 px-4 py-2 rounded text-blue-800 dark:text-blue-200"
             >
                 Add Root
+            </button>
+
+            <button
+                type="button"
+                x-on:click="window.triggerCKE5Error('{{ $editorId }}')"
+                class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white transition-colors">
+                Trigger Error
             </button>
         </form>
 

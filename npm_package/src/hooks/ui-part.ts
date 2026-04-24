@@ -6,18 +6,12 @@ import { ClassHook } from './hook';
  */
 export class UIPartComponentHook extends ClassHook<Snapshot> {
   /**
-   * The promise that resolves when the UI part is mounted.
-   */
-  private mountedPromise: Promise<void> | null = null;
-
-  /**
    * Mounts the UI part component.
    */
-  override async mounted() {
+  override mounted() {
     const { editorId, name } = this.canonical;
 
-    // If the editor is not registered yet, we will wait for it to be registered.
-    this.mountedPromise = EditorsRegistry.the.execute(editorId, (editor) => {
+    const unmountEffect = EditorsRegistry.the.mountEffect(editorId, (editor) => {
       /* v8 ignore next if -- @preserve */
       if (this.isBeingDestroyed()) {
         return;
@@ -34,22 +28,22 @@ export class UIPartComponentHook extends ClassHook<Snapshot> {
       }
 
       this.element.appendChild(uiPart.element);
+
+      return () => {
+        this.element.innerHTML = '';
+      };
     });
+
+    this.onBeforeDestroy(unmountEffect);
   }
 
   /**
    * Destroys the UI part component. Unmounts UI parts from the editor.
    */
-  override async destroyed() {
+  override destroyed() {
     // Let's hide the element during destruction to prevent flickering.
+    // The innerHTML cleanup is handled by the mountEffect cleanup function.
     this.element.style.display = 'none';
-
-    // Let's wait for the mounted promise to resolve before proceeding with destruction.
-    await this.mountedPromise;
-    this.mountedPromise = null;
-
-    // Unmount all UI parts from the editor.
-    this.element.innerHTML = '';
   }
 }
 

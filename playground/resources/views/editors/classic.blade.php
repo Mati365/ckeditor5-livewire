@@ -18,6 +18,7 @@
         <h2 class="mb-4 font-semibold text-xl">Basic Classic Editor</h2>
         <div class="bg-white dark:bg-gray-800 shadow p-6 rounded-lg">
             <livewire:ckeditor5
+                editorId="basic-classic-editor"
                 content='<p>This is the initial content of the classic editor.</p>'
                 :mergeConfig="[
                     'menuBar' => [
@@ -66,7 +67,7 @@
     <section class="mb-16">
         <h2 class="mb-4 font-semibold text-xl">Classic Editor with wire:model Binding</h2>
         <div class="bg-white dark:bg-gray-800 shadow p-6 rounded-lg">
-            <livewire:editor-form />
+            <livewire:editor-model-demo />
         </div>
     </section>
 

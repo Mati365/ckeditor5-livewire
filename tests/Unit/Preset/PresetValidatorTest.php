@@ -25,6 +25,7 @@ class PresetValidatorTest extends TestCase
             'licenseKey' => 'GPL',
             'cloud' => ['editorVersion' => '40.0.0', 'premium' => false],
             'customTranslations' => ['Save' => 'Zapisz'],
+            'watchdogConfig' => ['crashNumberLimit' => 10],
         ]);
         $this->assertTrue(true);
     }
@@ -86,6 +87,16 @@ class PresetValidatorTest extends TestCase
             'config' => [],
             'editorType' => 'classic',
             'customTranslations' => 'string',
+        ]);
+    }
+
+    public function testValidateWatchdogConfigNotArrayThrows(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        PresetValidator::validate([
+            'config' => [],
+            'editorType' => 'classic',
+            'watchdogConfig' => 'string',
         ]);
     }
 }

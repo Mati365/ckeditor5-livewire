@@ -1,7 +1,5 @@
 import type { Context, ContextWatchdog, Editor, EditorConfig } from 'ckeditor5';
 
-import type { EditorCreator } from './wrap-with-watchdog';
-
 import { uid } from '../../../shared';
 
 /**
@@ -70,6 +68,12 @@ export function unwrapEditorContext(editor: Editor): EditorContextDescriptor | n
   return null;
 }
 
+/**
+ * Type representing an Editor creator with a create method.
+ */
+type EditorCreator = {
+  create: (...args: any) => Promise<Editor>;
+};
 /**
  * Parameters for creating an editor in a context.
  */

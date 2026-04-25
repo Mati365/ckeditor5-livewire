@@ -1,9 +1,10 @@
-import type { MultiRootEditor } from 'ckeditor5';
+import type { DecoupledEditor, Editor, MultiRootEditor } from 'ckeditor5';
 
 import type { RootAttributesUpdater } from './utils';
 
 import { debounce } from '../shared';
 import { EditorsRegistry } from './editor/editors-registry';
+import { isMultirootEditorInstance } from './editor/utils';
 import { ClassHook } from './hook';
 import { createRootAttributesUpdater, isWireModelConnected } from './utils';
 
@@ -11,11 +12,6 @@ import { createRootAttributesUpdater, isWireModelConnected } from './utils';
  * Editable hook for Livewire. It allows you to create editables for multi-root editors.
  */
 export class EditableComponentHook extends ClassHook<Snapshot> {
-  /**
-   * The promise that resolves when the editable is mounted.
-   */
-  private editorPromise: Promise<MultiRootEditor | null> | null = null;
-
   /**
    * The root attributes updater for the editable's root.
    */
@@ -32,16 +28,15 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
   override mounted() {
     const { editorId, rootName, content } = this.canonical;
 
-    // If the editor is not registered yet, we will wait for it to be registered.
-    this.editorPromise = EditorsRegistry.the.execute(editorId, (editor: MultiRootEditor) => {
+    const unmountEffect = EditorsRegistry.the.mountEffect(editorId, (editor: MultiRootEditor | DecoupledEditor) => {
       /* v8 ignore next if -- @preserve */
       if (this.isBeingDestroyed()) {
-        return null;
+        return;
       }
 
-      const { ui, editing, model } = editor;
+      const root = editor.model.document.getRoot(rootName);
 
-      if (model.document.getRoot(rootName)) {
+      if (root?.isAttached()) {
         // If the newly added root already exists, but the newly added editable has content,
         // we need to update the root data with the editable content.
         if (content !== null) {
@@ -54,7 +49,11 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
           }
         }
       }
-      else {
+
+      /* v8 ignore next else -- @preserve */
+      if (!root && isMultirootEditorInstance(editor)) {
+        const { ui, editing } = editor;
+
         editor.addRoot(rootName, {
           isUndoable: false,
           ...content !== null && {
@@ -70,19 +69,56 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
       }
 
       // Add livewire sync.
-      this.syncTypingContentPush(editor);
-      this.setupPendingReceivedContentHandlers(editor);
+      const cleanupSync = this.syncTypingContentPush(editor);
+      const cleanupPending = this.setupPendingReceivedContentHandlers(editor);
+
       this.applyRootAttributes(editor);
 
-      return editor;
+      return () => {
+        cleanupSync();
+        cleanupPending();
+
+        // Remove root attributes we may have set on this root.
+        this.rootAttributesUpdater?.(null);
+
+        // Unmount root from the editor if editor is still registered.
+        /* v8 ignore next else -- @preserve */
+        if (editor.state !== 'destroyed') {
+          const root = editor.model.document.getRoot(rootName);
+
+          /* v8 ignore next if -- @preserve */
+          if (root && isMultirootEditorInstance(editor)) {
+            // Detaching editables seem to be buggy when something removed DOM element of the editable (e.g. Livewire re-render) before
+            // the editable is unmounted. To prevent errors in such cases, we will try to detach the editable if it exists, but ignore errors.
+            try {
+              /* v8 ignore else -- @preserve */
+              if (editor.ui.view.editables[rootName]) {
+                editor.detachEditable(root);
+              }
+            }
+            catch (err) {
+              // Ignore errors when detaching editable.
+              /* v8 ignore next -- @preserve */
+              console.error('Unable unmount editable from root:', err);
+            }
+
+            if (root.isAttached()) {
+              editor.detachRoot(rootName, false);
+            }
+          }
+        }
+      };
     });
+
+    this.onBeforeDestroy(unmountEffect);
   }
 
   /**
    * Called when the component is updated by Livewire.
    */
   override async afterCommitSynced(): Promise<void> {
-    const editor = (await this.editorPromise)!;
+    const { editorId } = this.canonical;
+    const editor = await EditorsRegistry.the.waitFor(editorId);
 
     this.applyCanonicalContentToEditor(editor);
     this.applyRootAttributes(editor);
@@ -91,35 +127,17 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
   /**
    * Destroys the editable component. Unmounts root from the editor.
    */
-  override async destroyed() {
-    const { rootName } = this.canonical;
-
+  override destroyed() {
     // Let's hide the element during destruction to prevent flickering.
+    // Root detachment and attribute cleanup are handled by the mountEffect cleanup function.
     this.element.style.display = 'none';
-
-    // Let's wait for the mounted promise to resolve before proceeding with destruction.
-    const editor = await this.editorPromise;
-    this.editorPromise = null;
-
-    // Remove root attributes we may have set on this root.
-    this.rootAttributesUpdater?.(null);
-
-    // Unmount root from the editor if editor is still registered.
-    if (editor && editor.state !== 'destroyed') {
-      const root = editor.model.document.getRoot(rootName);
-
-      /* v8 ignore next if -- @preserve */
-      if (root && 'detachEditable' in editor) {
-        editor.detachEditable(root);
-        editor.detachRoot(rootName, false);
-      }
-    }
   }
 
   /**
    * Setups the content sync from the editor to Livewire on user input with debounce.
+   * Returns a cleanup function that unregisters all event listeners.
    */
-  private syncTypingContentPush(editor: MultiRootEditor) {
+  private syncTypingContentPush(editor: MultiRootEditor | DecoupledEditor): () => void {
     const { rootName, saveDebounceMs } = this.canonical;
 
     const input = this.element.querySelector<HTMLInputElement>('input');
@@ -127,6 +145,12 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
 
     const sync = () => {
       if (isDestroyed) {
+        return;
+      }
+
+      const root = editor.model.document.getRoot(rootName);
+
+      if (!root?.isAttached()) {
         return;
       }
 
@@ -152,17 +176,18 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
     editor.model.document.on('change:data', onChangeData);
     sync();
 
-    this.onBeforeDestroy(() => {
+    return () => {
       isDestroyed = true;
       editor.model.document.off('change:data', onChangeData);
-    });
+    };
   }
 
   /**
    * Sets up handlers that manage pending incoming content (clears pending
    * content on user edits and applies pending content on blur).
+   * Returns a cleanup function that unregisters all event listeners.
    */
-  private setupPendingReceivedContentHandlers(editor: MultiRootEditor): void {
+  private setupPendingReceivedContentHandlers(editor: Editor): () => void {
     const { ui, model } = editor;
     const { focusTracker } = ui;
     const { rootName } = this.canonical;
@@ -184,16 +209,16 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
     model.document.on('change:data', onDataChange);
     focusTracker.on('change:isFocused', onFocusChange);
 
-    this.onBeforeDestroy(() => {
+    return () => {
       model.document.off('change:data', onDataChange);
       focusTracker.off('change:isFocused', onFocusChange);
-    });
+    };
   }
 
   /**
    * Applies canonical content to the editor while respecting focus/pending state.
    */
-  private applyCanonicalContentToEditor(editor: MultiRootEditor): void {
+  private applyCanonicalContentToEditor(editor: Editor): void {
     if (!isWireModelConnected(this.element)) {
       return;
     }
@@ -212,13 +237,15 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
       return;
     }
 
-    editor.setData({ [rootName]: content ?? '' });
+    editor.setData({
+      [rootName]: content ?? '',
+    });
   }
 
   /**
    * Applies root attributes from the Livewire snapshot to the editor root.
    */
-  private applyRootAttributes(editor: MultiRootEditor): void {
+  private applyRootAttributes(editor: Editor): void {
     const { rootName, rootAttributes } = this.canonical;
 
     this.rootAttributesUpdater ??= createRootAttributesUpdater(editor, rootName);

@@ -9,6 +9,7 @@
 >
     <div
         data-cke-editable-content
+        data-cke-controlled
         @if($editableClass) class="{{ $editableClass }}" @endif
         @if($editableStyle) style="{{ $editableStyle }}" @endif
     ></div>

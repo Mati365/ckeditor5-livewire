@@ -26,10 +26,18 @@
             class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white transition-colors">
             Save Content
         </button>
+
         <button
             wire:click="resetContent"
             class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg text-white transition-colors">
             Reset Content
+        </button>
+
+        <button
+            type="button"
+            x-on:click="window.triggerCKE5Error('editor-with-model')"
+            class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white transition-colors">
+            Trigger Error
         </button>
     </div>
 

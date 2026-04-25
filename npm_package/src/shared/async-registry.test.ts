@@ -96,30 +96,6 @@ describe('async registry', () => {
       registry.unregister('item1');
       expect(registry.getItems()).not.toContain(item);
     });
-
-    it('should throw an error if trying to unregister an item that is not registered', () => {
-      expect(() => registry.unregister('nonexistent')).toThrow(
-        'Item with ID "nonexistent" is not registered.',
-      );
-    });
-
-    it('should also unregister the default item if the unregistered item was the default one', async () => {
-      const item1 = createMockItem('item1');
-
-      registry.register('item1', item1); // This also registers it as default
-
-      // Check it is the default
-      const promise = registry.execute(null, item => item);
-
-      await expect(promise).resolves.toBe(item1);
-
-      registry.unregister('item1');
-
-      // Now check that the default is also gone
-      expect(() => registry.unregister(null)).toThrow(
-        'Item with ID "null" is not registered.',
-      );
-    });
   });
 
   describe('execute', () => {
@@ -234,7 +210,7 @@ describe('async registry', () => {
     });
   });
 
-  describe('getitems', () => {
+  describe('getItems', () => {
     it('should return all registered items', () => {
       const item1 = createMockItem('item1');
       const item2 = createMockItem('item2');
@@ -244,7 +220,7 @@ describe('async registry', () => {
 
       const items = registry.getItems();
 
-      expect(items).toHaveLength(3); // item1, item2, and default (which is item1)
+      expect(items).toHaveLength(3);
       expect(items).toContain(item1);
       expect(items).toContain(item2);
     });
@@ -252,16 +228,30 @@ describe('async registry', () => {
     it('should return unique items if some point to the same instance', () => {
       const item1 = createMockItem('item1');
 
-      registry.register('item1', item1); // This also registers it as default
+      registry.register('item1', item1);
 
       const items = registry.getItems();
 
-      expect(items).toHaveLength(2); // item1 and default (which is item1)
+      expect(items).toHaveLength(2);
       expect(items.filter(e => e === item1)).toHaveLength(2);
     });
   });
 
-  describe('hasitem', () => {
+  describe('getItem', () => {
+    it('should return registered item', () => {
+      const item = createMockItem('item1');
+
+      registry.register('item1', item);
+
+      expect(registry.getItem('item1')).toBe(item);
+    });
+
+    it('should return undefined if item doesn\'t exist', () => {
+      expect(registry.getItem('item1')).toBeUndefined();
+    });
+  });
+
+  describe('hasItem', () => {
     it('should return true if an item with the given ID is registered', () => {
       const item = createMockItem('item1');
 
@@ -402,6 +392,197 @@ describe('async registry', () => {
     });
   });
 
+  describe('reset', () => {
+    it('should destroy all registered items', async () => {
+      const item1 = createMockItem('item1');
+      const item2 = createMockItem('item2');
+
+      registry.register('item1', item1);
+      registry.register('item2', item2);
+
+      await registry.reset();
+
+      expect(registry.getItems()).toHaveLength(0);
+    });
+
+    it('should call destroy on each unique item', async () => {
+      const destroyMock1 = vi.fn().mockResolvedValue(undefined);
+      const destroyMock2 = vi.fn().mockResolvedValue(undefined);
+
+      const item1 = { name: 'item1', destroy: destroyMock1 } as unknown as Mockitem;
+      const item2 = { name: 'item2', destroy: destroyMock2 } as unknown as Mockitem;
+
+      registry.register('item1', item1);
+      registry.register('item2', item2);
+
+      await registry.reset();
+
+      expect(destroyMock1).toHaveBeenCalledOnce();
+      expect(destroyMock2).toHaveBeenCalledOnce();
+    });
+
+    it('should clear watchers so they are no longer called after reset', async () => {
+      const watcher = vi.fn();
+      registry.watch(watcher);
+
+      await registry.reset();
+      watcher.mockClear();
+
+      const item = createMockItem('item1');
+      registry.register('item1', item);
+
+      expect(watcher).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('mountEffect', () => {
+    it('should call onMount immediately when item is already registered', () => {
+      const item = createMockItem('item1');
+      registry.register('item1', item);
+
+      const onMount = vi.fn();
+      registry.mountEffect('item1', onMount);
+
+      expect(onMount).toHaveBeenCalledOnce();
+      expect(onMount).toHaveBeenCalledWith(item);
+    });
+
+    it('should call onMount when item registers later', () => {
+      const onMount = vi.fn();
+      registry.mountEffect('item1', onMount);
+
+      expect(onMount).not.toHaveBeenCalled();
+
+      const item = createMockItem('item1');
+      registry.register('item1', item);
+
+      expect(onMount).toHaveBeenCalledOnce();
+      expect(onMount).toHaveBeenCalledWith(item);
+    });
+
+    it('should call cleanup returned by onMount when item is unregistered', () => {
+      const item = createMockItem('item1');
+      registry.register('item1', item);
+
+      const cleanup = vi.fn();
+      registry.mountEffect('item1', () => cleanup);
+
+      registry.unregister('item1');
+
+      expect(cleanup).toHaveBeenCalledOnce();
+    });
+
+    it('should call cleanup and re-call onMount on re-registration', () => {
+      const item1a = createMockItem('item1');
+      registry.register('item1', item1a);
+
+      const cleanup = vi.fn();
+      const onMount = vi.fn(() => cleanup);
+      registry.mountEffect('item1', onMount);
+
+      expect(onMount).toHaveBeenCalledOnce();
+
+      registry.unregister('item1');
+      expect(cleanup).toHaveBeenCalledOnce();
+
+      const item1b = createMockItem('item1');
+      registry.register('item1', item1b);
+
+      expect(onMount).toHaveBeenCalledTimes(2);
+      expect(onMount).toHaveBeenLastCalledWith(item1b);
+    });
+
+    it('should not call onMount if item never registers', () => {
+      const onMount = vi.fn();
+      const stop = registry.mountEffect('item1', onMount);
+
+      stop();
+
+      expect(onMount).not.toHaveBeenCalled();
+    });
+
+    it('should run cleanup and stop watching when stop is called with item mounted', () => {
+      const item = createMockItem('item1');
+      registry.register('item1', item);
+
+      const cleanup = vi.fn();
+      const stop = registry.mountEffect('item1', () => cleanup);
+
+      stop();
+
+      expect(cleanup).toHaveBeenCalledOnce();
+
+      // Watcher should be gone — unregistering should not trigger cleanup again.
+      registry.unregister('item1');
+
+      expect(cleanup).toHaveBeenCalledOnce();
+    });
+
+    it('should not call cleanup when stop is called before item registers', () => {
+      const cleanup = vi.fn();
+      const onMount = vi.fn(() => cleanup);
+      const stop = registry.mountEffect('item1', onMount);
+
+      stop();
+
+      expect(onMount).not.toHaveBeenCalled();
+      expect(cleanup).not.toHaveBeenCalled();
+    });
+
+    it('should call onMount and immediately run cleanup when item registers after stop', () => {
+      const cleanup = vi.fn();
+      const onMount = vi.fn(() => cleanup);
+      const stop = registry.mountEffect('item1', onMount);
+
+      stop();
+
+      const item = createMockItem('item1');
+      registry.register('item1', item);
+
+      expect(onMount).toHaveBeenCalledOnce();
+      expect(onMount).toHaveBeenCalledWith(item);
+      expect(cleanup).toHaveBeenCalledOnce();
+    });
+
+    it('should stop watching after late cleanup fires', () => {
+      const onMount = vi.fn();
+      const stop = registry.mountEffect('item1', onMount);
+
+      stop();
+
+      const item1 = createMockItem('item1');
+      registry.register('item1', item1);
+
+      expect(onMount).toHaveBeenCalledOnce();
+
+      // Watcher should have been removed after late cleanup — further changes are ignored.
+      registry.unregister('item1');
+      registry.register('item1', createMockItem('item1'));
+
+      expect(onMount).toHaveBeenCalledOnce();
+    });
+
+    it('should not throw when onMount returns void and stop is called', () => {
+      const item = createMockItem('item1');
+      registry.register('item1', item);
+
+      const stop = registry.mountEffect('item1', () => {});
+
+      expect(() => stop()).not.toThrow();
+    });
+
+    it('should work with the default null ID', () => {
+      const item = createMockItem('item1');
+      registry.register('item1', item); // also registered as default
+
+      const onMount = vi.fn();
+      registry.mountEffect(null, onMount);
+
+      expect(onMount).toHaveBeenCalledOnce();
+      expect(onMount).toHaveBeenCalledWith(item);
+    });
+  });
+
   describe('waitFor', () => {
     it('should return a promise that resolves with the item instance', async () => {
       const item1 = createMockItem('item1');
@@ -518,7 +699,7 @@ describe('async registry', () => {
       const item1 = createMockItem('item1');
       registry.register('item1', item1);
 
-      expect(watcher).toHaveBeenCalledTimes(3);
+      expect(watcher).toHaveBeenCalledTimes(2);
     });
 
     it('should call watcher when item is unregistered', () => {
@@ -531,7 +712,7 @@ describe('async registry', () => {
       watcher.mockClear();
       registry.unregister('item1');
 
-      expect(watcher).toHaveBeenCalledTimes(2); // Unregister + default unregister
+      expect(watcher).toHaveBeenCalledTimes(1);
     });
 
     it('should call watcher when all items are destroyed', async () => {

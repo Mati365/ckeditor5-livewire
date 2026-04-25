@@ -164,6 +164,39 @@ class PresetTest extends TestCase
         $this->assertNull($modified->customTranslations);
     }
 
+    public function testOfWatchdogConfigReturnsNewInstance(): void
+    {
+        $original = new Preset(
+            config: ['toolbar' => ['bold']],
+            editorType: EditorType::CLASSIC,
+            licenseKey: Key::ofGPL(),
+            watchdogConfig: ['crashNumberLimit' => 10]
+        );
+
+        $newWatchdogConfig = ['crashNumberLimit' => 15];
+        $modified = $original->ofWatchdogConfig($newWatchdogConfig);
+
+        $this->assertNotSame($original, $modified);
+        $this->assertSame(['crashNumberLimit' => 10], $original->watchdogConfig);
+        $this->assertSame($newWatchdogConfig, $modified->watchdogConfig);
+    }
+
+    public function testOfWatchdogConfigCanSetToNull(): void
+    {
+        $original = new Preset(
+            config: ['toolbar' => ['bold']],
+            editorType: EditorType::CLASSIC,
+            licenseKey: Key::ofGPL(),
+            watchdogConfig: ['crashNumberLimit' => 10]
+        );
+
+        $modified = $original->ofWatchdogConfig(null);
+
+        $this->assertNotSame($original, $modified);
+        $this->assertSame(['crashNumberLimit' => 10], $original->watchdogConfig);
+        $this->assertNull($modified->watchdogConfig);
+    }
+
     public function testChainedModifications(): void
     {
         $original = new Preset(

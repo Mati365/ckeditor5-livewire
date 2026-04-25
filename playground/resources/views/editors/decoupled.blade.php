@@ -19,6 +19,16 @@
         <p class="mb-4 text-gray-600 dark:text-gray-400 text-sm">
             The toolbar is separated from the editable area, allowing for flexible layouts.
         </p>
+
+        <div class="flex gap-4 mb-6">
+            <button
+                type="button"
+                onclick="window.triggerCKE5Error('decoupled-editor')"
+                class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white transition-colors">
+                Trigger Error
+            </button>
+        </div>
+
         <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
             <livewire:ckeditor5
                 editorId="decoupled-editor"

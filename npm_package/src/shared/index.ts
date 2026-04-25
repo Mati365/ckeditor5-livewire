@@ -1,3 +1,4 @@
+export * from './are-maps-equal';
 export * from './async-registry';
 export * from './camel-case';
 export * from './debounce';

@@ -2,7 +2,6 @@ import type { Editor } from 'ckeditor5';
 
 import type { RootAttributesUpdater } from '../utils';
 import type { EditorId, EditorLanguage, EditorPreset } from './typings';
-import type { EditorCreator } from './utils';
 
 import { ContextsRegistry } from '../../hooks/context';
 import { isEmptyObject, waitFor } from '../../shared';
@@ -14,6 +13,7 @@ import {
   createSyncEditorWithInputPlugin,
 } from './plugins';
 import {
+  cleanupOrphanEditorElements,
   createEditorInContext,
   isSingleRootEditor,
   loadAllEditorTranslations,
@@ -35,11 +35,6 @@ import {
  */
 export class EditorComponentHook extends ClassHook<Snapshot> {
   /**
-   * The promise that resolves to the editor instance.
-   */
-  private editorPromise: Promise<Editor> | null = null;
-
-  /**
    * Root attributes updater for the main editor root.
    */
   private rootAttributesUpdater: RootAttributesUpdater | null = null;
@@ -53,27 +48,51 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
     EditorsRegistry.the.resetErrors(editorId);
 
     try {
-      this.editorPromise = this.createEditor();
+      const editor = await this.createEditor();
+      const editorContext = unwrapEditorContext(editor);
+      const watchdog = unwrapEditorWatchdog(editor);
 
-      const editor = await this.editorPromise;
-
-      // Do not even try to broadcast about the registration of the editor
-      // if hook was immediately destroyed.
-      /* v8 ignore next if -- @preserve */
-      if (!this.isBeingDestroyed()) {
-        EditorsRegistry.the.register(editorId, editor);
-
-        editor.once('destroy', () => {
-          /* v8 ignore next if -- @preserve */
-          if (EditorsRegistry.the.hasItem(editorId)) {
-            EditorsRegistry.the.unregister(editorId);
-          }
-        });
+      // Do not even try to broadcast about the registration of the editor if hook was immediately destroyed.
+      /* v8 ignore next 3 */
+      if (this.isBeingDestroyed()) {
+        return;
       }
+
+      // Run some stuff that have to be reinitialized every-time editor is being restarted.
+      const unmountDestroyWatcher = EditorsRegistry.the.mountEffect(editorId, (editor) => {
+        // Enforce deregistration of the editor when it's being destroyed by watchdog.
+        editor.once('destroy', () => {
+          // Let's handle case when watchdog (or context watchdog) destroyed editor "externally"
+          // user might also manually kill the editor using `.destroy()` method.
+          // Keep pending callbacks though. Someone might register new callbacks just before calling `.destroy()`.
+          EditorsRegistry.the.unregister(editorId, false);
+        }, { priority: 'highest' });
+      });
+
+      this.onBeforeDestroy(async () => {
+        // If for some reason editor not fired `destroy`, enforce deregistration.
+        EditorsRegistry.the.unregister(editorId);
+        unmountDestroyWatcher();
+
+        if (editorContext) {
+          // If context is present, make sure it's not in unmounting phase, as it'll kill the editors.
+          // If it's being destroyed, don't do anything, as the context will take care of it.
+          if (editorContext.state !== 'unavailable') {
+            await editorContext.context.remove(editorContext.editorContextId);
+          }
+        }
+        else if (watchdog) {
+          await watchdog.destroy();
+        }
+        else {
+          await editor.destroy();
+        }
+      });
+
+      EditorsRegistry.the.register(editorId, editor);
     }
     catch (error: any) {
       console.error(`Error initializing CKEditor5 instance with ID "${editorId}":`, error);
-      this.editorPromise = null;
       EditorsRegistry.the.error(editorId, error);
     }
   }
@@ -85,42 +104,13 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
   override async destroyed() {
     // Let's hide the element during destruction to prevent flickering.
     this.element.style.display = 'none';
-
-    // Let's wait for the mounted promise to resolve before proceeding with destruction.
-    try {
-      const editor = await this.editorPromise;
-
-      if (!editor) {
-        return;
-      }
-
-      const editorContext = unwrapEditorContext(editor);
-      const watchdog = unwrapEditorWatchdog(editor);
-
-      if (editorContext) {
-        // If context is present, make sure it's not in unmounting phase, as it'll kill the editors.
-        // If it's being destroyed, don't do anything, as the context will take care of it.
-        if (editorContext.state !== 'unavailable') {
-          await editorContext.context.remove(editorContext.editorContextId);
-        }
-      }
-      else if (watchdog) {
-        await watchdog.destroy();
-      }
-      else {
-        await editor.destroy();
-      }
-    }
-    finally {
-      this.editorPromise = null;
-    }
   }
 
   /**
    * Updates the editor content when the component is updated after commit changes.
    */
   override async afterCommitSynced(): Promise<void> {
-    const editor = await this.editorPromise;
+    const editor = await EditorsRegistry.the.waitFor(this.canonical.editorId);
 
     /* v8 ignore if -- @preserve */
     if (editor) {
@@ -152,7 +142,7 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
       editableHeight,
       saveDebounceMs,
       language,
-      watchdog,
+      watchdog: useWatchdog,
       content,
     } = this.canonical;
 
@@ -160,133 +150,153 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
       customTranslations,
       editorType,
       licenseKey,
+      watchdogConfig,
       config: { plugins, ...config },
     } = preset;
 
-    // Wrap editor creator with watchdog if needed.
-    let Constructor: EditorCreator = await loadEditorConstructor(editorType);
+    const Constructor = await loadEditorConstructor(editorType);
     const context = await (
       contextId
         ? ContextsRegistry.the.waitFor(contextId)
         : null
     );
 
-    // Do not use editor specific watchdog if context is attached, as the context is by default protected.
-    if (watchdog && !context) {
-      const wrapped = await wrapWithWatchdog(Constructor);
+    /**
+     * Builds the full editor configuration and creates the editor instance.
+     */
+    const buildAndCreateEditor = async () => {
+      const { loadedPlugins, hasPremium } = await loadEditorPlugins(plugins);
 
-      ({ Constructor } = wrapped);
-      wrapped.watchdog.on('restart', () => {
-        const newInstance = wrapped.watchdog.editor!;
-
-        this.editorPromise = Promise.resolve(newInstance);
-
-        EditorsRegistry.the.register(editorId, newInstance);
-      });
-    }
-
-    const { loadedPlugins, hasPremium } = await loadEditorPlugins(plugins);
-
-    // Add integration specific plugins.
-    loadedPlugins.push(
-      await createLivewireSyncPlugin(
-        {
-          saveDebounceMs,
-          component: this,
-        },
-      ),
-    );
-
-    if (isSingleRootEditor(editorType)) {
+      // Add integration specific plugins.
       loadedPlugins.push(
-        await createSyncEditorWithInputPlugin(saveDebounceMs),
+        await createLivewireSyncPlugin(
+          {
+            saveDebounceMs,
+            component: this,
+          },
+        ),
       );
-    }
 
-    // Mix custom translations with loaded translations.
-    const loadedTranslations = await loadAllEditorTranslations(language, hasPremium);
-    const mixedTranslations = [
-      ...loadedTranslations,
-      normalizeCustomTranslations(customTranslations || {}),
-    ]
-      .filter(translations => !isEmptyObject(translations));
-
-    // Let's query all elements, and create basic configuration.
-    let initialData: string | Record<string, string> = {
-      ...content,
-      ...queryEditablesSnapshotContent(editorId),
-    };
-
-    if (isSingleRootEditor(editorType)) {
-      initialData = initialData['main'] || '';
-    }
-
-    // Depending of the editor type, and parent lookup for nearest context or initialize it without it.
-    const editor = await (async () => {
-      let sourceElements: HTMLElement | Record<string, HTMLElement> = queryEditablesElements(editorId);
-
-      // Handle special case when user specified `initialData` of several root elements, but editable components
-      // are not yet present in the DOM. In other words - editor is initialized before attaching root elements.
-      if (!(sourceElements instanceof HTMLElement) && !('main' in sourceElements)) {
-        const requiredRoots = (
-          editorType === 'decoupled'
-            ? ['main']
-            : Object.keys(initialData as Record<string, string>)
+      if (isSingleRootEditor(editorType)) {
+        loadedPlugins.push(
+          await createSyncEditorWithInputPlugin(saveDebounceMs),
         );
-
-        if (!checkIfAllRootsArePresent(sourceElements, requiredRoots)) {
-          sourceElements = await waitForAllRootsToBePresent(editorId, requiredRoots);
-          initialData = {
-            ...content,
-            ...queryEditablesSnapshotContent(editorId),
-          };
-        }
       }
 
-      // If single root editor, unwrap the element from the object.
-      if (isSingleRootEditor(editorType) && 'main' in sourceElements) {
-        sourceElements = sourceElements['main'];
-      }
+      // Mix custom translations with loaded translations.
+      const loadedTranslations = await loadAllEditorTranslations(language, hasPremium);
+      const mixedTranslations = [
+        ...loadedTranslations,
+        normalizeCustomTranslations(customTranslations || {}),
+      ]
+        .filter(translations => !isEmptyObject(translations));
 
-      // Construct parsed config. First resolve DOM element references in the provided configuration.
-      let resolvedConfig = resolveEditorConfigElementReferences(config);
-
-      // Then resolve translation references in the provided configuration, using the mixed translations.
-      resolvedConfig = resolveEditorConfigTranslations([...mixedTranslations].reverse(), language.ui, resolvedConfig);
-
-      // Construct parsed config.
-      const parsedConfig = {
-        ...resolvedConfig,
-        initialData,
-        licenseKey,
-        plugins: loadedPlugins,
-        language,
-        ...mixedTranslations.length && {
-          translations: mixedTranslations,
-        },
+      // Let's query all elements, and create basic configuration.
+      let initialData: string | Record<string, string> = {
+        ...content,
+        ...queryEditablesSnapshotContent(editorId),
       };
 
-      if (!context || !(sourceElements instanceof HTMLElement)) {
-        return Constructor.create(sourceElements as any, parsedConfig);
+      if (isSingleRootEditor(editorType)) {
+        initialData = initialData['main'] || '';
       }
 
-      const result = await createEditorInContext({
-        context,
-        element: sourceElements,
-        creator: Constructor,
-        config: parsedConfig,
+      // Depending of the editor type, and parent lookup for nearest context or initialize it without it.
+      const editor = await (async () => {
+        let sourceElements: HTMLElement | Record<string, HTMLElement> = queryEditablesElements(editorId);
+
+        // Handle special case when user specified `initialData` of several root elements, but editable components
+        // are not yet present in the DOM. In other words - editor is initialized before attaching root elements.
+        if (!(sourceElements instanceof HTMLElement) && !('main' in sourceElements)) {
+          const requiredRoots = (
+            editorType === 'decoupled'
+              ? ['main']
+              : Object.keys(initialData as Record<string, string>)
+          );
+
+          if (!checkIfAllRootsArePresent(sourceElements, requiredRoots)) {
+            sourceElements = await waitForAllRootsToBePresent(editorId, requiredRoots);
+            initialData = {
+              ...content,
+              ...queryEditablesSnapshotContent(editorId),
+            };
+          }
+        }
+
+        // If single root editor, unwrap the element from the object.
+        if (isSingleRootEditor(editorType) && 'main' in sourceElements) {
+          sourceElements = sourceElements['main'];
+        }
+
+        // Construct parsed config. First resolve DOM element references in the provided configuration.
+        let resolvedConfig = resolveEditorConfigElementReferences(config);
+
+        // Then resolve translation references in the provided configuration, using the mixed translations.
+        resolvedConfig = resolveEditorConfigTranslations([...mixedTranslations].reverse(), language.ui, resolvedConfig);
+
+        // Construct parsed config.
+        const parsedConfig = {
+          ...resolvedConfig,
+          initialData,
+          licenseKey,
+          plugins: loadedPlugins,
+          language,
+          ...mixedTranslations.length && {
+            translations: mixedTranslations,
+          },
+        };
+
+        if (!context || !(sourceElements instanceof HTMLElement)) {
+          return Constructor.create(sourceElements as any, parsedConfig);
+        }
+
+        const result = await createEditorInContext({
+          context,
+          element: sourceElements,
+          creator: Constructor,
+          config: parsedConfig,
+        });
+
+        return result.editor;
+      })();
+
+      if (isSingleRootEditor(editorType) && editableHeight) {
+        setEditorEditableHeight(editor, editableHeight);
+      }
+
+      this.applyRootAttributes(editor);
+
+      return editor;
+    };
+
+    // Do not use editor specific watchdog if context is attached, as the context is by default protected.
+    if (useWatchdog && !context) {
+      const watchdog = await wrapWithWatchdog(buildAndCreateEditor, watchdogConfig);
+
+      // Cleanup editor registry before restart of the editor (restart might fail too).
+      watchdog.on('error', (_, { causesRestart }) => {
+        if (causesRestart) {
+          const prevEditor = EditorsRegistry.the.getItem(editorId);
+
+          /* v8 ignore next 3 */
+          if (prevEditor) {
+            cleanupOrphanEditorElements(prevEditor);
+            EditorsRegistry.the.unregister(editorId);
+          }
+        }
       });
 
-      return result.editor;
-    })();
+      // Register new instance after editor restarted.
+      watchdog.on('restart', () => {
+        EditorsRegistry.the.register(editorId, watchdog.editor!);
+      });
 
-    if (isSingleRootEditor(editorType) && editableHeight) {
-      setEditorEditableHeight(editor, editableHeight);
+      await watchdog.create({});
+
+      return watchdog.editor!;
     }
 
-    this.applyRootAttributes(editor);
-
-    return editor;
+    return buildAndCreateEditor();
   };
 }
 

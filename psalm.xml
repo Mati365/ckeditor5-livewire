@@ -31,7 +31,7 @@
         <UndefinedConstant errorLevel="info" />
         <PropertyNotSetInConstructor errorLevel="info" />
         <MissingOverrideAttribute errorLevel="info" />
-        <MissingPureAnnotation errorLevel="info" />
+        <MissingPureAnnotation errorLevel="suppress" />
         <MissingAbstractPureAnnotation errorLevel="info" />
         <MissingInterfaceImmutableAnnotation errorLevel="info" />
         <MissingImmutableAnnotation errorLevel="info" />

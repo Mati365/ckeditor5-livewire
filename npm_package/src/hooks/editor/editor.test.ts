@@ -488,11 +488,11 @@ describe('editor component', () => {
       await vi.advanceTimersByTimeAsync(399);
       expect($wire.set).not.toHaveBeenCalled();
 
-      await vi.advanceTimersByTimeAsync(1);
+      await vi.advanceTimersByTimeAsync(20);
       expect($wire.set).toHaveBeenCalledExactlyOnceWith('content', { main: '<p>Debounce test</p>' });
     });
 
-    it('should immediately send `$wire.set` when editor is not focused', async () => {
+    it('should almost immediately send `$wire.set` when editor is not focused', async () => {
       const { $wire } = livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
         name: 'ckeditor5',
         el: createEditorHtmlElement(),
@@ -506,6 +506,8 @@ describe('editor component', () => {
 
       vi.mocked($wire.set).mockClear();
       editor.setData('<p>Debounce test</p>');
+
+      await vi.advanceTimersByTimeAsync(20);
 
       expect($wire.set).toHaveBeenCalledExactlyOnceWith('content', { main: '<p>Debounce test</p>' });
     });
@@ -531,7 +533,7 @@ describe('editor component', () => {
       await vi.advanceTimersByTimeAsync(399);
       expect(input.value).to.be.equal('<p>Initial content</p>');
 
-      await vi.advanceTimersByTimeAsync(1);
+      await vi.advanceTimersByTimeAsync(20);
       expect(input.value).to.be.equal('<p>Debounce test</p>');
     });
   });
@@ -667,12 +669,45 @@ describe('editor component', () => {
       const originalEditor = await waitForTestEditor('editor-with-watchdog');
       const watchdog = unwrapEditorWatchdog(originalEditor)!;
 
+      (watchdog as any)._fire('error', {
+        error: new Error('Mock'),
+        causesRestart: true,
+      });
+
       (watchdog as any)._restart();
 
       await vi.waitFor(async () => {
         const newEditor = await waitForTestEditor('editor-with-watchdog');
 
         expect(newEditor).not.equals(originalEditor);
+      });
+    });
+
+    it('should not restart editor if only `causesRestart: false` error occurs', async () => {
+      livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+        name: 'ckeditor5',
+        el: createEditorHtmlElement({
+          id: 'editor-with-watchdog',
+        }),
+        canonical: {
+          ...createEditorSnapshot(),
+          editorId: 'editor-with-watchdog',
+          watchdog: true,
+        },
+      });
+
+      const originalEditor = await waitForTestEditor('editor-with-watchdog');
+      const watchdog = unwrapEditorWatchdog(originalEditor)!;
+
+      (watchdog as any)._fire('error', {
+        error: new Error('Mock'),
+        causesRestart: false,
+      });
+
+      await vi.waitFor(async () => {
+        const newEditor = await waitForTestEditor('editor-with-watchdog');
+
+        expect(newEditor).to.be.equal(originalEditor);
       });
     });
   });
@@ -718,7 +753,7 @@ describe('editor component', () => {
         vi.mocked($wire.set).mockClear();
         editor.setData('<p>New content</p>');
 
-        await vi.advanceTimersByTimeAsync(1);
+        await vi.advanceTimersByTimeAsync(20);
 
         expect($wire.set).toHaveBeenCalledWith('content', { main: '<p>New content</p>' });
         vi.useRealTimers();
@@ -743,7 +778,7 @@ describe('editor component', () => {
         editor.setData('<p>Updated content</p>');
         focusTracker.isFocused = true;
 
-        await vi.advanceTimersByTimeAsync(1);
+        await vi.advanceTimersByTimeAsync(20);
 
         expect($wire.set).toHaveBeenCalledWith('content', { main: '<p>Updated content</p>' });
         expect($wire.set).toHaveBeenCalledWith('focused', true);
@@ -769,7 +804,7 @@ describe('editor component', () => {
         vi.mocked($wire.set).mockClear();
         editor.setData('<p>New content</p>');
 
-        await vi.advanceTimersByTimeAsync(1);
+        await vi.advanceTimersByTimeAsync(20);
 
         expect($wire.set).toHaveBeenCalledWith('content', { main: '<p>New content</p>' });
         vi.useRealTimers();
@@ -830,7 +865,7 @@ describe('editor component', () => {
         vi.mocked($wire.dispatch).mockClear();
         editor.setData('<p>Content change event test</p>');
 
-        await vi.advanceTimersByTimeAsync(1);
+        await vi.advanceTimersByTimeAsync(20);
 
         expect($wire.dispatch).toHaveBeenCalledExactlyOnceWith('editor-content-changed', {
           editorId: DEFAULT_TEST_EDITOR_ID,
@@ -1071,7 +1106,7 @@ describe('editor component', () => {
       const input = getTestEditorInput();
 
       editor.setData('<p>Form integration test</p>');
-      await vi.advanceTimersByTimeAsync(1);
+      await vi.advanceTimersByTimeAsync(20);
 
       expect(input.value).to.be.equal('<p>Form integration test</p>');
     });
@@ -1123,7 +1158,7 @@ describe('editor component', () => {
 
       // Submit the form.
       input.closest('form')!.dispatchEvent(new Event('submit', { bubbles: true }));
-      await vi.advanceTimersByTimeAsync(1);
+      await vi.advanceTimersByTimeAsync(20);
 
       // Value should be synced immediately on form submit.
       expect(input.value).to.be.equal('<p>Form integration test</p>');

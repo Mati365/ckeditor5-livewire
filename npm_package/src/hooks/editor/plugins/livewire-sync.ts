@@ -108,7 +108,9 @@ export async function createLivewireSyncPlugin(
      * Setups the content sync from Livewire to the editor when Livewire emits an event.
      */
     private setupSetEditorContentHandler() {
-      Livewire.on('set-editor-content', ({ editorId, content }: SetContentPayload) => {
+      const { editor } = this;
+
+      const handler = ({ editorId, content }: SetContentPayload) => {
         if (editorId !== component.canonical.editorId) {
           return;
         }
@@ -116,9 +118,16 @@ export async function createLivewireSyncPlugin(
         const currentValues = this.getEditorRootsValues();
 
         if (!shallowEqual(currentValues, content)) {
-          this.editor.setData(content);
+          editor.setData(content);
         }
-      });
+      };
+
+      const clean: any = Livewire.on('set-editor-content', handler);
+
+      /* v8 ignore next if -- @preserve */
+      if (typeof clean === 'function') {
+        editor.once('destroy', clean);
+      }
     }
 
     /**
@@ -150,21 +159,21 @@ export async function createLivewireSyncPlugin(
       };
 
       const debouncedSync = debounce(saveDebounceMs, syncContentChange);
-      const onChangeData = () => {
+
+      // Apply small debounce to avoid race conditions during re-mount of editables during watchdog restart.
+      // CKEditor tends to reset roots map and re-assign value in the same tick which may confuse two way binding.
+      model.document.on('change:data', debounce(10, () => {
         if (ui.focusTracker.isFocused) {
           debouncedSync();
         }
         else {
           syncContentChange();
         }
-      };
-
-      model.document.on('change:data', onChangeData);
+      }));
 
       editor.once('ready', syncContentChange);
       editor.once('destroy', () => {
         isDestroyed = true;
-        model.document.off('change:data', onChangeData);
       });
     }
 

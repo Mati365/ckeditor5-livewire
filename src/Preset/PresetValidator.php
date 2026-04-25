@@ -44,6 +44,10 @@ final class PresetValidator
             $errors[] = 'customTranslations must be an array';
         }
 
+        if (isset($data['watchdogConfig']) && !is_array($data['watchdogConfig'])) {
+            $errors[] = 'watchdogConfig must be an array';
+        }
+
         if ($errors !== []) {
             throw new InvalidArgumentException('Preset config validation failed: ' . implode(', ', $errors));
         }

@@ -1098,7 +1098,7 @@ The package provides two registries: `EditorsRegistry` and `ContextsRegistry`. T
 - **`mountEffect(id, callback)`** — executes logic whenever the editor is initialized or restarted. This is the recommended way to implement integrations that must be re-initialized throughout the editor's lifecycle.
 
   ```javascript
-  import { EditorsRegistry } from 'ckeditor5-blazor';
+  import { EditorsRegistry } from 'ckeditor5-livewire';
 
   EditorsRegistry.the.mountEffect('editor1', (editor) => {
     const watcher = () => {

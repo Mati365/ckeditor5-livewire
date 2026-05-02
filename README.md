@@ -1095,6 +1095,25 @@ CustomEditorPluginsRegistry.the.unregisterAll();
 
 The package provides two registries: `EditorsRegistry` and `ContextsRegistry`. They allow you to watch for changes in registered editors and contexts, get instances directly, or execute logic when a specific editor or context appears.
 
+- **`mountEffect(id, callback)`** — executes logic whenever the editor is initialized or restarted. This is the recommended way to implement integrations that must be re-initialized throughout the editor's lifecycle.
+
+  ```javascript
+  import { EditorsRegistry } from 'ckeditor5-blazor';
+
+  EditorsRegistry.the.mountEffect('editor1', (editor) => {
+    const watcher = () => {
+      console.info('Changed data:', editor.getData());
+    };
+
+    editor.model.document.on('change:data', watcher);
+
+    // Cleanup: This will be executed when the editor is unmounted.
+    return () => {
+      editor.model.document.off('change:data', watcher);
+    };
+  });
+  ```
+
 - **`watch(callback)`** — react whenever registry state changes.
 
     ```javascript

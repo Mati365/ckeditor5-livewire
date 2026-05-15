@@ -2,6 +2,10 @@ name: Code checks
 
 on:
   push:
+  pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   js_checks:
@@ -11,9 +15,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
         with:
-          version: 10
+          node-version: '24'
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11
 
       - name: Install dependencies
         run: pnpm install

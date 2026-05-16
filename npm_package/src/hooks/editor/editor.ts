@@ -13,6 +13,8 @@ import {
   createSyncEditorWithInputPlugin,
 } from './plugins';
 import {
+  assignInitialDataToEditorConfig,
+  assignSourceElementsToEditorConfig,
   cleanupOrphanEditorElements,
   createEditorInContext,
   isSingleRootEditor,
@@ -228,16 +230,17 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
           sourceElements = sourceElements['main'];
         }
 
-        // Construct parsed config. First resolve DOM element references in the provided configuration.
-        let resolvedConfig = resolveEditorConfigElementReferences(config);
+        let resolvedConfig = { ...config };
 
-        // Then resolve translation references in the provided configuration, using the mixed translations.
+        // Do some postprocessing on received configuration.
+        resolvedConfig = resolveEditorConfigElementReferences(resolvedConfig);
         resolvedConfig = resolveEditorConfigTranslations([...mixedTranslations].reverse(), language.ui, resolvedConfig);
+        resolvedConfig = assignSourceElementsToEditorConfig(Constructor, sourceElements, resolvedConfig);
+        resolvedConfig = assignInitialDataToEditorConfig(initialData, resolvedConfig);
 
         // Construct parsed config.
         const parsedConfig = {
           ...resolvedConfig,
-          initialData,
           licenseKey,
           plugins: loadedPlugins,
           language,
@@ -247,12 +250,11 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
         };
 
         if (!context || !(sourceElements instanceof HTMLElement)) {
-          return Constructor.create(sourceElements as any, parsedConfig);
+          return Constructor.create(parsedConfig);
         }
 
         const result = await createEditorInContext({
           context,
-          element: sourceElements,
           creator: Constructor,
           config: parsedConfig,
         });

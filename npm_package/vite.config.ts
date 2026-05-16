@@ -64,7 +64,7 @@ export default defineConfig({
         ...configDefaults.exclude,
         '**/node_modules/**',
         '**/dist/**',
-        './src/types/*.type.ts',
+        './**/*.type.ts',
         './src/**/index.ts',
         './src/**/*.d.ts',
         '**/test-utils/**',

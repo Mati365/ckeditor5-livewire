@@ -57,7 +57,7 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
         editor.addRoot(rootName, {
           isUndoable: false,
           ...content !== null && {
-            data: content,
+            initialData: content,
           },
         });
 

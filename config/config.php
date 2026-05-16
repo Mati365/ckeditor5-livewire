@@ -8,7 +8,7 @@ return [
         "default" => [
             "editorType" => "classic",
             "cloud" => [
-                "editorVersion" => "47.6.0",
+                "editorVersion" => "48.1.0",
                 "premium" => false,
                 "translations" => ["en"],
             ],

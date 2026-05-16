@@ -183,31 +183,6 @@ Load CKEditor 5 directly from CKSource's CDN - no build configuration required. 
 
    <!-- Use editor anywhere in <body> -->
    <livewire:ckeditor5 content="<p>Hello world!</p>" />
-
-   <!-- Or... -->
-
-   <livewire:ckeditor5
-       content="<p>Hello world!</p>"
-       editorId="my-editor"
-       presetName="default"
-       editorType="classic"
-       :editableHeight="300"
-       locale="pl"
-       :saveDebounceMs="300"
-       :watchdog="true"
-       name="content"
-       :required="true"
-       contextId="my-context"
-       :config="['toolbar' => ['bold']]"
-       :mergeConfig="['toolbar' => ['italic']]"
-       :customTranslations="[
-           'en' => ['Bold' => 'Strong'],
-           'pl' => ['Bold' => 'Pogrubienie'],
-       ]"
-       :rootAttributes="['data-foo' => 'bar']"
-       class="my-editor"
-       style="border: 1px solid #ccc"
-   />
    ```
 
 That's it! 🎉
@@ -232,6 +207,31 @@ Create a basic editor with default toolbar and features. Perfect for simple cont
 
 <!-- You can also use Livewire model binding for real-time sync -->
 <livewire:ckeditor5 wire:model.live="content" />
+
+<!-- All parameters -->
+
+<livewire:ckeditor5
+    content="<p>Hello world!</p>"
+    editorId="my-editor"
+    presetName="default"
+    editorType="classic"
+    :editableHeight="300"
+    locale="pl"
+    :saveDebounceMs="300"
+    :watchdog="true"
+    name="content"
+    :required="true"
+    contextId="my-context"
+    :config="['toolbar' => ['bold']]"
+    :mergeConfig="['toolbar' => ['italic']]"
+    :customTranslations="[
+        'en' => ['Bold' => 'Strong'],
+        'pl' => ['Bold' => 'Pogrubienie'],
+    ]"
+    :rootAttributes="['data-foo' => 'bar']"
+    class="my-editor"
+    style="border: 1px solid #ccc"
+/>
 ```
 
 ## Configuration ⚙️

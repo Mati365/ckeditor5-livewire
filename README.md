@@ -187,26 +187,26 @@ Load CKEditor 5 directly from CKSource's CDN - no build configuration required. 
    <!-- Or... -->
 
    <livewire:ckeditor5
-       content="<p>Hello world!</p>"    <!-- initial HTML content; pass array for multiroot: ['header' => '<h1>...</h1>'] -->
-       editorId="my-editor"             <!-- unique ID; auto-generated with "ckeditor-" prefix if omitted -->
-       presetName="default"             <!-- preset name from config/ckeditor5.php, or a Preset object -->
-       editorType="classic"             <!-- classic | inline | balloon | decoupled | multiroot -->
-       :editableHeight="300"            <!-- fixed height in px; editor grows with content if omitted -->
-       locale="pl"                      <!-- UI language; pass array for advanced config: ['ui' => 'pl', 'content' => 'en'] -->
-       :saveDebounceMs="300"            <!-- debounce in ms for syncing content changes (default: 300) -->
-       :watchdog="true"                 <!-- auto-restart the editor on crash (default: true) -->
-       name="content"                   <!-- name attr on the hidden input field (for standard HTML form submission) -->
-       :required="true"                 <!-- adds required attr to the hidden input field -->
-       contextId="my-context"           <!-- ties this editor to a shared CKEditor context instance -->
-       :config="['toolbar' => ['bold']]"        <!-- shallow-replaces the preset's editor.config -->
-       :mergeConfig="['toolbar' => ['italic']]" <!-- deep-merges into the preset's editor.config -->
-       :customTranslations="[           <!-- override built-in UI strings per language -->
+       content="<p>Hello world!</p>"
+       editorId="my-editor"
+       presetName="default"
+       editorType="classic"
+       :editableHeight="300"
+       locale="pl"
+       :saveDebounceMs="300"
+       :watchdog="true"
+       name="content"
+       :required="true"
+       contextId="my-context"
+       :config="['toolbar' => ['bold']]"
+       :mergeConfig="['toolbar' => ['italic']]"
+       :customTranslations="[
            'en' => ['Bold' => 'Strong'],
            'pl' => ['Bold' => 'Pogrubienie'],
        ]"
-       :rootAttributes="['data-foo' => 'bar']"  <!-- HTML attributes applied to the main editor root -->
-       class="my-editor"                <!-- CSS classes on the outer wrapper element -->
-       style="border: 1px solid #ccc"   <!-- inline styles on the outer wrapper element -->
+       :rootAttributes="['data-foo' => 'bar']"
+       class="my-editor"
+       style="border: 1px solid #ccc"
    />
    ```
 

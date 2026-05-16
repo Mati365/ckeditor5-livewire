@@ -230,17 +230,9 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
           sourceElements = sourceElements['main'];
         }
 
-        let resolvedConfig = { ...config };
-
         // Do some postprocessing on received configuration.
-        resolvedConfig = resolveEditorConfigElementReferences(resolvedConfig);
-        resolvedConfig = resolveEditorConfigTranslations([...mixedTranslations].reverse(), language.ui, resolvedConfig);
-        resolvedConfig = assignSourceElementsToEditorConfig(Constructor, sourceElements, resolvedConfig);
-        resolvedConfig = assignInitialDataToEditorConfig(initialData, resolvedConfig);
-
-        // Construct parsed config.
-        const parsedConfig = {
-          ...resolvedConfig,
+        let resolvedConfig = {
+          ...config,
           licenseKey,
           plugins: loadedPlugins,
           language,
@@ -249,14 +241,19 @@ export class EditorComponentHook extends ClassHook<Snapshot> {
           },
         };
 
-        if (!context || !(sourceElements instanceof HTMLElement)) {
-          return Constructor.create(parsedConfig);
+        resolvedConfig = resolveEditorConfigElementReferences(resolvedConfig);
+        resolvedConfig = resolveEditorConfigTranslations([...mixedTranslations].reverse(), language.ui, resolvedConfig);
+        resolvedConfig = assignSourceElementsToEditorConfig(Constructor, sourceElements, resolvedConfig);
+        resolvedConfig = assignInitialDataToEditorConfig(initialData, resolvedConfig);
+
+        if (!context) {
+          return Constructor.create(resolvedConfig);
         }
 
         const result = await createEditorInContext({
           context,
           creator: Constructor,
-          config: parsedConfig,
+          config: resolvedConfig,
         });
 
         return result.editor;

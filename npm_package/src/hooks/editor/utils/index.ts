@@ -1,5 +1,4 @@
-export * from './assign-initial-data-to-editor-config';
-export * from './assign-source-elements-to-editor-config';
+export * from './assign-editor-roots-to-config';
 export * from './cleanup-orphan-editor-elements';
 export * from './create-editor-in-context';
 export * from './get-editor-roots-values';
@@ -9,7 +8,7 @@ export * from './load-editor-constructor';
 export * from './load-editor-plugins';
 export * from './load-editor-translations';
 export * from './normalize-custom-translations';
-export * from './query-editor-editables';
+export * from './query-all-editor-editables';
 export * from './resolve-editor-config-elements-references';
 export * from './resolve-editor-config-translations';
 export * from './set-editor-editable-height';

@@ -25,7 +25,7 @@ export function queryAllEditorEditables(editorId: EditorId): Record<string, Edit
       };
 
       return acc;
-    }, Object.create({}));
+    }, Object.create(null));
 
   const rootHook = window.Livewire
     .all()

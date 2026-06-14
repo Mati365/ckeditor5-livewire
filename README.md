@@ -47,6 +47,9 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
     - [Balloon editor 🎈](#balloon-editor-)
     - [Decoupled editor 🌐](#decoupled-editor-)
     - [Multiroot editor 🌳](#multiroot-editor-)
+    - [Paragraph-like editing 📄](#paragraph-like-editing-)
+      - [Classic / Balloon / Inline editor](#classic--balloon--inline-editor)
+      - [Multiroot editor](#multiroot-editor)
   - [Advanced configuration ⚙️](#advanced-configuration-️)
     - [Livewire Sync 🔄](#livewire-sync-)
       - [Two way binding using `wire:model` ⛓️](#two-way-binding-using-wiremodel-️)
@@ -167,10 +170,10 @@ Load CKEditor 5 directly from CKSource's CDN - no build configuration required. 
 6. **Use in Blade templates:**
 
    ```blade
-   <!-- Load CDN assets in <head> (based on `default` preset) -->
-   <x-ckeditor5-assets />
+   {{-- Load CDN assets in <head> (based on `default` preset) --}}
+   <x-ckeditor5-assets/>
 
-   <!-- or with specific features (overrides `default` preset) -->
+   {{-- or with specific features (overrides `default` preset) --}}
    <x-ckeditor5-assets
        preset="default"
        editorVersion="43.0.0"
@@ -178,10 +181,9 @@ Load CKEditor 5 directly from CKSource's CDN - no build configuration required. 
        ckboxVersion="2.6.0"
        ckboxTheme="lark"
        nonce="csp-nonce"
-       premium
-   />
+       premium/>
 
-   <!-- Use editor anywhere in <body> -->
+   {{-- Use editor anywhere in <body> --}}
    <livewire:ckeditor5 content="<p>Hello world!</p>" />
    ```
 
@@ -196,20 +198,19 @@ Get started with the most common usage patterns. These examples show how to rend
 Create a basic editor with default toolbar and features. Perfect for simple content editing without server synchronization.
 
 ```blade
-<!-- CDN only: Load assets in <head> -->
+{{-- CDN only: Load assets in <head> --}}
 <x-ckeditor5-assets />
 
-<!-- Render editor with initial content -->
+{{-- Render editor with initial content --}}
 <livewire:ckeditor5
     content="<p>Initial content</p>"
     editableHeight="300px"
 />
 
-<!-- You can also use Livewire model binding for real-time sync -->
+{{-- You can also use Livewire model binding for real-time sync --}}
 <livewire:ckeditor5 wire:model.live="content" />
 
-<!-- All parameters -->
-
+{{-- All parameters --}}
 <livewire:ckeditor5
     content="<p>Hello world!</p>"
     editorId="my-editor"
@@ -236,7 +237,7 @@ Create a basic editor with default toolbar and features. Perfect for simple cont
 
 ## Configuration ⚙️
 
-You can configure the editor _presets_ in your `config/ckeditor5.php` file. The default preset is `default`, which provides a basic configuration with a toolbar and essential plugins. The preset is an array that contains the editor configuration, including the toolbar items and plugins. There can be multiple presets, and you can switch between them by passing the `preset` attribute to the component.
+You can configure the editor *presets* in your `config/ckeditor5.php` file. The default preset is `default`, which provides a basic configuration with a toolbar and essential plugins. The preset is an array that contains the editor configuration, including the toolbar items and plugins. There can be multiple presets, and you can switch between them by passing the `preset` attribute to the component.
 
 ### Override default preset configuration 🧑‍💻
 
@@ -329,34 +330,17 @@ return [
             'config' => [
                 'toolbar' => [
                     'items' => [
-                        'heading',
-                        '|',
-                        'bold',
-                        'italic',
-                        'underline',
-                        '|',
-                        'link',
-                        'insertImage',
-                        'insertTable',
-                        '|',
-                        'bulletedList',
-                        'numberedList',
-                        'blockQuote'
+                        'heading', '|',
+                        'bold', 'italic', 'underline', '|',
+                        'link', 'insertImage', 'insertTable', '|',
+                        'bulletedList', 'numberedList', 'blockQuote'
                     ]
                 ],
                 'plugins' => [
-                    'Heading',
-                    'Bold',
-                    'Italic',
-                    'Underline',
-                    'Link',
-                    'ImageBlock',
-                    'ImageUpload',
-                    'Table',
-                    'List',
-                    'BlockQuote',
-                    'Essentials',
-                    'Paragraph'
+                    'Heading', 'Bold', 'Italic', 'Underline',
+                    'Link', 'ImageBlock', 'ImageUpload',
+                    'Table', 'List', 'BlockQuote',
+                    'Essentials', 'Paragraph'
                 ]
             ]
         ]
@@ -436,7 +420,7 @@ CKEditor 5 requires a license key when using the official CDN or premium feature
 
 1. **Environment variable**: Set the `CKEDITOR5_LICENSE_KEY` environment variable in your `.env` file:
 
-   ```env
+   ```
    CKEDITOR5_LICENSE_KEY=your-license-key-here
    ```
 
@@ -463,7 +447,7 @@ Support multiple languages in the editor UI and content. Learn how to load trans
 Depending on your setup, you can preload translations via CDN or let your bundler handle them automatically using lazy imports.
 
 ```blade
-<!-- CDN only: Load specific translations -->
+{{-- CDN only: Load specific translations --}}
 <x-ckeditor5-assets :translations="['pl', 'de', 'fr']" />
 
 <livewire:ckeditor5
@@ -517,12 +501,7 @@ return [
 
 #### Translation references using `$translation` ✨
 
-In addition to supplying full translation maps, configuration objects may
-contain reference helpers that point to existing translation keys. This is
-particularly handy when you want to reuse an existing label or avoid repeating
-the same string in multiple places. Use the special `$translation` object in
-any part of your editor/context config and the package will automatically
-replace it with the correct localized string during initialization.
+In addition to supplying full translation maps, configuration objects may contain reference helpers that point to existing translation keys. This is particularly handy when you want to reuse an existing label or avoid repeating the same string in multiple places. Use the special `$translation` object in any part of your editor/context config and the package will automatically replace it with the correct localized string during initialization.
 
 ```php
 // config/ckeditor5.php
@@ -544,9 +523,7 @@ return [
 ];
 ```
 
-When the editor or context is created the helper will be resolved against the
-loaded translations (including any custom translations you provided). If the
-key is not found a warning is printed and `null` will be used instead.
+When the editor or context is created the helper will be resolved against the loaded translations (including any custom translations you provided). If the key is not found a warning is printed and `null` will be used instead.
 
 ## Editor Types 🖊️
 
@@ -559,10 +536,10 @@ Traditional WYSIWYG editor with a fixed toolbar above the editing area. Best for
 ![CKEditor 5 Classic Editor in Livewire application](docs/classic.png)
 
 ```blade
-<!-- CDN assets in <head> -->
+{{-- CDN assets in <head> --}}
 <x-ckeditor5-assets />
 
-<!-- Classic editor in <body> -->
+{{-- Classic editor in <body> --}}
 <livewire:ckeditor5
     editorType="classic"
     content="<p>Initial content here</p>"
@@ -577,10 +554,10 @@ Minimalist editor that appears directly within content when clicked. Ideal for i
 ![CKEditor 5 Inline Editor in Livewire application](docs/inline-editor.png)
 
 ```blade
-<!-- CDN assets in <head> -->
+{{-- CDN assets in <head> --}}
 <x-ckeditor5-assets />
 
-<!-- Inline editor -->
+{{-- Inline editor --}}
 <livewire:ckeditor5
     editorType="inline"
     content="<p>Click here to edit this content</p>"
@@ -597,10 +574,10 @@ Contextual editor that displays a floating toolbar near the selected text. Great
 ![CKEditor 5 Balloon Editor in Livewire application](docs/balloon-editor.png)
 
 ```blade
-<!-- CDN assets in <head> -->
+{{-- CDN assets in <head> --}}
 <x-ckeditor5-assets />
 
-<!-- Balloon editor -->
+{{-- Balloon editor --}}
 <livewire:ckeditor5
     editorType="balloon"
     content="<p>Select some text to see the balloon toolbar.</p>"
@@ -615,24 +592,24 @@ Flexible editor where toolbar and editing area are completely separated. Provide
 ![CKEditor 5 Decoupled Editor in Livewire application](docs/decoupled-editor.png)
 
 ```blade
-<!-- CDN assets in <head> -->
+{{-- CDN assets in <head> --}}
 <x-ckeditor5-assets />
 
-<!-- Editor instance -->
+{{-- Editor instance --}}
 <livewire:ckeditor5
     editorId="decoupled-editor"
     editorType="decoupled"
     :content="['main' => '<p>This is the initial content of the decoupled editor.</p>']"
 />
 
-<!-- Separate toolbar -->
+{{-- Separate toolbar --}}
 <livewire:ckeditor5-ui-part
     name="toolbar"
     editorId="decoupled-editor"
     class="my-4"
 />
 
-<!-- Separate editable area -->
+{{-- Separate editable area --}}
 <livewire:ckeditor5-editable
     editorId="decoupled-editor"
     class="border border-gray-300 rounded-xs"
@@ -648,28 +625,28 @@ Advanced editor supporting multiple separate editing areas (roots) with a shared
 ![CKEditor 5 Multiroot Editor in Livewire application](docs/multiroot-editor.png)
 
 ```blade
-<!-- CDN assets in <head> -->
+{{-- CDN assets in <head> --}}
 <x-ckeditor5-assets />
 
-<!-- Editor instance with multiple roots -->
+{{-- Editor instance with multiple roots --}}
 <livewire:ckeditor5
     editorId="multiroot-editor"
     editorType="multiroot"
     :content="[
-        'header' => '<h1>Document Header</h1>',
+        'header'  => '<h1>Document Header</h1>',
         'content' => '<p>Main document content goes here.</p>',
-        'footer' => '<p>Document footer</p>'
+        'footer'  => '<p>Document footer</p>'
     ]"
 />
 
-<!-- Shared toolbar -->
+{{-- Shared toolbar --}}
 <livewire:ckeditor5-ui-part
     name="toolbar"
     editorId="multiroot-editor"
     class="mb-4"
 />
 
-<!-- Header root -->
+{{-- Header root --}}
 <livewire:ckeditor5-editable
     editorId="multiroot-editor"
     rootName="header"
@@ -677,7 +654,7 @@ Advanced editor supporting multiple separate editing areas (roots) with a shared
     editableClass="p-4"
 />
 
-<!-- Main content root -->
+{{-- Main content root --}}
 <livewire:ckeditor5-editable
     editorId="multiroot-editor"
     rootName="content"
@@ -685,13 +662,167 @@ Advanced editor supporting multiple separate editing areas (roots) with a shared
     editableClass="p-4"
 />
 
-<!-- Footer root -->
+{{-- Footer root --}}
 <livewire:ckeditor5-editable
     editorId="multiroot-editor"
     rootName="footer"
     class="border border-gray-300 rounded"
     editableClass="p-4"
 />
+```
+
+### Paragraph-like editing 📄
+
+Paragraph-like editing mode restricts the editor's root to a single block element — by default a `<p>` — preventing users from inserting multiple top-level block elements (headings, lists, etc.). This is ideal for short-text fields such as article titles, captions, or descriptions: fields where you want the richness of inline formatting (bold, italic, links) but a single-paragraph constraint.
+
+The feature is enabled by passing `modelElement="$inlineRoot"` to the editor or editable component. This maps the CKEditor 5 model root to the `$inlineRoot` schema element, which allows only inline content.
+
+#### Classic / Balloon / Inline editor
+
+For single-root editor types, pass `modelElement` directly on the `<livewire:ckeditor5>` component:
+
+```blade
+{{-- CDN assets in <head> --}}
+<x-ckeditor5-assets />
+
+{{-- Paragraph-like classic editor — single <p>, inline formatting only --}}
+<livewire:ckeditor5
+    editorId="title-editor"
+    editorType="classic"
+    modelElement="$inlineRoot"
+    content="<p>Article title goes here</p>"
+/>
+```
+
+The same attribute works with `balloon` and `inline` editor types:
+
+```blade
+{{-- Paragraph-like balloon editor — ideal for image captions --}}
+<livewire:ckeditor5
+    editorId="caption-editor"
+    editorType="balloon"
+    modelElement="$inlineRoot"
+    content="<p>Image caption</p>"
+/>
+```
+
+If you want to apply this mode through a reusable preset, define a dedicated preset without block-level plugins:
+
+```php
+// config/ckeditor5.php
+return [
+    'presets' => [
+        'inline_text' => [
+            'config' => [
+                'toolbar' => [
+                    'items' => ['bold', 'italic', 'link']
+                ],
+                'plugins' => [
+                    'Bold', 'Italic', 'Link', 'Essentials'
+                ]
+            ]
+        ]
+    ]
+];
+```
+
+```blade
+<livewire:ckeditor5
+    wire:model.live="title"
+    preset="inline_text"
+    modelElement="$inlineRoot"
+/>
+```
+
+You can also use `wire:model` to bind the content to a Livewire property:
+
+```php
+// app/Livewire/ArticleForm.php
+namespace App\Livewire;
+
+use Livewire\Component;
+
+class ArticleForm extends Component
+{
+    // Content is stored as ['main' => '<p>…</p>']
+    // because modelElement applies to the implicit 'main' root.
+    public array $title   = ['main' => '<p>My Article Title</p>'];
+    public array $caption = ['main' => '<p>Photo caption</p>'];
+
+    public function save(): void
+    {
+        // $this->title['main'] and $this->caption['main']
+        // each contain a single <p> with inline HTML only.
+    }
+
+    public function render()
+    {
+        return view('livewire.article-form');
+    }
+}
+```
+
+#### Multiroot editor
+
+In a multiroot setup each `<livewire:ckeditor5-editable>` can independently decide whether it uses paragraph-like mode. Pass `modelElement="$inlineRoot"` only on the roots that should be restricted; leave the others without it (they default to the standard `$root`):
+
+```blade
+{{-- CDN assets in <head> --}}
+<x-ckeditor5-assets />
+
+{{-- Multiroot editor container — no modelElement here --}}
+<livewire:ckeditor5
+    editorId="page-editor"
+    editorType="multiroot"
+/>
+
+{{-- Shared toolbar --}}
+<livewire:ckeditor5-ui-part
+    name="toolbar"
+    editorId="page-editor"
+    class="mb-4"
+/>
+
+<div class="flex flex-col gap-4">
+    {{-- Title root: paragraph-like, only inline content allowed --}}
+    <livewire:ckeditor5-editable
+        editorId="page-editor"
+        rootName="title"
+        modelElement="$inlineRoot"
+        wire:model.live="content.title"
+        class="text-2xl font-bold border border-gray-300 p-2"
+    />
+
+    {{-- Lead root: paragraph-like, only inline content allowed --}}
+    <livewire:ckeditor5-editable
+        editorId="page-editor"
+        rootName="lead"
+        modelElement="$inlineRoot"
+        wire:model.live="content.lead"
+        class="italic border border-gray-300 p-2"
+    />
+
+    {{-- Body root: normal editing, full block content allowed --}}
+    <livewire:ckeditor5-editable
+        editorId="page-editor"
+        rootName="body"
+        wire:model.live="content.body"
+        class="border border-gray-300 p-2"
+    />
+</div>
+```
+
+When the editor initialises, each root whose `modelElement` is set to `"$inlineRoot"` is registered with that model element name. You can verify this at runtime via the JavaScript `EditorsRegistry`:
+
+```javascript
+import { EditorsRegistry } from 'ckeditor5-livewire';
+
+EditorsRegistry.the.waitFor('page-editor').then((editor) => {
+  // '$inlineRoot' for restricted roots, '$root' for unrestricted ones
+  console.log(editor.model.document.getRoot('title')?.name); // '$inlineRoot'
+  console.log(editor.model.document.getRoot('lead')?.name); // '$inlineRoot'
+  console.log(editor.model.document.getRoot('body')?.name); // '$root'
+});
 ```
 
 ## Advanced configuration ⚙️
@@ -752,7 +883,7 @@ class MultirootDemo extends Component
 
     public array $content = [
         'header' => '<h2>Document Header</h2>',
-        'body' => '<p>Initial body content.</p>',
+        'body'   => '<p>Initial body content.</p>',
     ];
 
     public function render()
@@ -862,7 +993,7 @@ class EditorDemo extends Component
 ```
 
 ```blade
-<!-- resources/views/livewire/editor-demo.blade.php -->
+{{-- resources/views/livewire/editor-demo.blade.php --}}
 <div>
     <button wire:click="loadContent">Load Content</button>
 
@@ -875,9 +1006,7 @@ class EditorDemo extends Component
 
 ### Editor → Livewire: Editor Ready Event ✅
 
-An event is fired when the editor has finished initializing and is fully ready.
-This can be useful for triggering UI updates, focusing related components, or
-performing any logic that must wait until the editor is available.
+An event is fired when the editor has finished initializing and is fully ready. This can be useful for triggering UI updates, focusing related components, or performing any logic that must wait until the editor is available.
 
 ```php
 #[On('editor-ready')]
@@ -921,7 +1050,7 @@ class FocusDemo extends Component
 ```
 
 ```blade
-<!-- resources/views/livewire/focus-demo.blade.php -->
+{{-- resources/views/livewire/focus-demo.blade.php --}}
 <div>
     <p class="mb-4">
         Editor focus state:
@@ -987,7 +1116,7 @@ The watchdog is enabled by default. To disable it, set the `watchdog` attribute 
 
 ## Context 🤝
 
-The **context** feature is designed to group multiple editor instances together, allowing them to share a common context. This is particularly useful in collaborative editing scenarios, where users can work together in real time. By sharing a context, editors can synchronize features such as comments, track changes, and presence indicators across different editor instances. This enables seamless collaboration and advanced workflows in your Phoenix application.
+The **context** feature is designed to group multiple editor instances together, allowing them to share a common context. This is particularly useful in collaborative editing scenarios, where users can work together in real time. By sharing a context, editors can synchronize features such as comments, track changes, and presence indicators across different editor instances.
 
 For more information about the context feature, see the [CKEditor 5 Context documentation](https://ckeditor.com/docs/ckeditor5/latest/features/collaboration/context-and-collaboration-features.html).
 
@@ -1020,16 +1149,16 @@ return [
 And use it in your Blade template:
 
 ```blade
-<!-- Create a context -->
+{{-- Create a context --}}
 <livewire:ckeditor5-context contextId="my-context" />
 
-<!-- Editor 1 using the context -->
+{{-- Editor 1 using the context --}}
 <livewire:ckeditor5
     contextId="my-context"
     content="Content 1"
 />
 
-<!-- Editor 2 using the same context -->
+{{-- Editor 2 using the same context --}}
 <livewire:ckeditor5
     class="mt-6"
     contextId="my-context"
@@ -1065,7 +1194,7 @@ These translations will be used in the context's editors, overriding the default
 
 ## Custom plugins 🧩
 
-To register a custom plugin, use the `registerCustomEditorPlugin` function. This function takes the plugin name and the plugin _reader_ that returns a class extending `Plugin`.
+To register a custom plugin, use the `registerCustomEditorPlugin` function. This function takes the plugin name and the plugin *reader* that returns a class extending `Plugin`.
 
 ```javascript
 import { CustomEditorPluginsRegistry as Registry } from 'ckeditor5-livewire';
@@ -1088,7 +1217,7 @@ const unregister = Registry.the.register('MyCustomPlugin', async () => {
 });
 ```
 
-In order to use the plugin you need to extend your config in `config/config.php`:
+In order to use the plugin you need to extend your config in `config/ckeditor5.php`:
 
 ```php
 'presets' => [
@@ -1149,52 +1278,52 @@ The package provides two registries: `EditorsRegistry` and `ContextsRegistry`. T
 
 - **`watch(callback)`** — react whenever registry state changes.
 
-    ```javascript
-    import { EditorsRegistry } from 'ckeditor5-livewire';
+  ```javascript
+  import { EditorsRegistry } from 'ckeditor5-livewire';
 
-    const unregisterWatcher = EditorsRegistry.the.watch((editors) => {
-      console.log('Registered editors changed:', editors);
-    });
+  const unregisterWatcher = EditorsRegistry.the.watch((editors) => {
+    console.log('Registered editors changed:', editors);
+  });
 
-    // Later, you can unregister the watcher
-    unregisterWatcher();
-    ```
+  // Later, you can unregister the watcher
+  unregisterWatcher();
+  ```
 
 - **`waitFor(id)`** — get the instance directly. If it is already registered, the promise resolves immediately.
 
-    ```javascript
-    import { EditorsRegistry } from 'ckeditor5-livewire';
+  ```javascript
+  import { EditorsRegistry } from 'ckeditor5-livewire';
 
-    EditorsRegistry.the.waitFor('editor1').then((editor) => {
-      console.log('Editor "editor1" is registered:', editor);
-    });
+  EditorsRegistry.the.waitFor('editor1').then((editor) => {
+    console.log('Editor "editor1" is registered:', editor);
+  });
 
-    // ... init editor somewhere later
-    ```
+  // ... init editor somewhere later
+  ```
 
 - **`execute(id, callback)`** — run logic immediately if the instance already exists, or later when it appears.
 
-    ```javascript
-    import { EditorsRegistry } from 'ckeditor5-livewire';
+  ```javascript
+  import { EditorsRegistry } from 'ckeditor5-livewire';
 
-    EditorsRegistry.the.execute('editor1', (editor) => {
-      console.log('Current data:', editor.getData());
-    });
-    ```
+  EditorsRegistry.the.execute('editor1', (editor) => {
+    console.log('Current data:', editor.getData());
+  });
+  ```
 
 - The same methods are available on `ContextsRegistry` for shared contexts:
 
-    ```javascript
-    import { ContextsRegistry } from 'ckeditor5-livewire';
+  ```javascript
+  import { ContextsRegistry } from 'ckeditor5-livewire';
 
-    ContextsRegistry.the.waitFor('shared-context').then((watchdog) => {
-      console.log('Context is ready:', watchdog.context);
-    });
+  ContextsRegistry.the.waitFor('shared-context').then((watchdog) => {
+    console.log('Context is ready:', watchdog.context);
+  });
 
-    ContextsRegistry.the.execute('shared-context', (watchdog) => {
-      console.log('Context state:', watchdog.state);
-    });
-    ```
+  ContextsRegistry.the.execute('shared-context', (watchdog) => {
+    console.log('Context state:', watchdog.state);
+  });
+  ```
 
 ## Development ⚙️
 
@@ -1204,7 +1333,7 @@ To start the development environment, run:
 pnpm run dev
 ```
 
-The playground app will be available at [http://localhost:8000](http://localhost:8000).
+The playground app will be available at <http://localhost:8000>.
 
 ### Running Tests 🧪
 

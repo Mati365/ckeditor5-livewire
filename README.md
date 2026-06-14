@@ -734,34 +734,6 @@ return [
 />
 ```
 
-You can also use `wire:model` to bind the content to a Livewire property:
-
-```php
-// app/Livewire/ArticleForm.php
-namespace App\Livewire;
-
-use Livewire\Component;
-
-class ArticleForm extends Component
-{
-    // Content is stored as ['main' => '<p>…</p>']
-    // because modelElement applies to the implicit 'main' root.
-    public array $title   = ['main' => '<p>My Article Title</p>'];
-    public array $caption = ['main' => '<p>Photo caption</p>'];
-
-    public function save(): void
-    {
-        // $this->title['main'] and $this->caption['main']
-        // each contain a single <p> with inline HTML only.
-    }
-
-    public function render()
-    {
-        return view('livewire.article-form');
-    }
-}
-```
-
 #### Multiroot editor
 
 In a multiroot setup each `<livewire:ckeditor5-editable>` can independently decide whether it uses paragraph-like mode. Pass `modelElement="$inlineRoot"` only on the roots that should be restricted; leave the others without it (they default to the standard `$root`):

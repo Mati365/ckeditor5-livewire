@@ -5,6 +5,7 @@ namespace Mati365\CKEditor5Livewire\Tests\Feature\Components;
 use Livewire\Livewire;
 use Mati365\CKEditor5Livewire\Tests\TestCase;
 use Mati365\CKEditor5Livewire\Components\CKEditor5;
+use Mati365\CKEditor5Livewire\Preset\EditorType;
 
 class CKEditor5Test extends TestCase
 {
@@ -96,6 +97,20 @@ class CKEditor5Test extends TestCase
 
         $component = Livewire::test(CKEditor5::class, [
             'editorType' => 'inline',
+        ]);
+
+        $this->assertSame('inline', $component->preset['editorType']);
+    }
+
+    public function testComponentMountWithEnumEditorType(): void
+    {
+        config(['ckeditor5.presets.default' => [
+            'config' => ['toolbar' => ['bold']],
+            'editorType' => 'classic',
+        ]]);
+
+        $component = Livewire::test(CKEditor5::class, [
+            'editorType' => EditorType::INLINE,
         ]);
 
         $this->assertSame('inline', $component->preset['editorType']);

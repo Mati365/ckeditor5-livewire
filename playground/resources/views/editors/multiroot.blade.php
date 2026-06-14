@@ -40,6 +40,7 @@
                     <livewire:ckeditor5-editable
                         editorId="multiroot-editor"
                         rootName="header"
+                        modelElement="$inlineRoot"
                         class="border border-gray-300 dark:border-gray-600 rounded"
                         editableClass="p-4"
                     />
@@ -115,6 +116,7 @@
                         <livewire:ckeditor5-editable
                             editorId="multiroot-editor-2"
                             rootName="title"
+                            modelElement="$inlineRoot"
                             class="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded"
                             editableClass="p-4"
                         />
@@ -125,6 +127,7 @@
                         <livewire:ckeditor5-editable
                             editorId="multiroot-editor-2"
                             rootName="lead"
+                            modelElement="$inlineRoot"
                             class="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 rounded"
                             editableClass="p-4"
                         />

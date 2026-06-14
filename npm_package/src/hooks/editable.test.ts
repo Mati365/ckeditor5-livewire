@@ -71,6 +71,40 @@ describe('editable component', () => {
       expect(root.getAttribute('data-test')).toBe('initial');
     });
 
+    it('should set proper root element name on initial added root', async () => {
+      livewireStub.$internal.appendComponentToDOM({
+        name: 'ckeditor5-editable',
+        el: createEditableHtmlElement(),
+        canonical: {
+          ...createEditableSnapshot('foo', '<p>Initial foo component</p>'),
+          modelElement: '$inlineRoot',
+        },
+      });
+
+      appendMultirootEditor();
+
+      const editor = await waitForTestEditor();
+
+      expect(editor.model.document.getRoot('foo')?.name).to.be.equal('$inlineRoot');
+    });
+
+    it('should set proper root element name on lazy added root', async () => {
+      appendMultirootEditor();
+
+      const editor = await waitForTestEditor();
+
+      livewireStub.$internal.appendComponentToDOM({
+        name: 'ckeditor5-editable',
+        el: createEditableHtmlElement(),
+        canonical: {
+          ...createEditableSnapshot('foo', '<p>Initial foo component</p>'),
+          modelElement: '$inlineRoot',
+        },
+      });
+
+      expect(editor.model.document.getRoot('foo')?.name).to.be.equal('$inlineRoot');
+    });
+
     it('should update root attributes after commit', async () => {
       appendMultirootEditor();
 

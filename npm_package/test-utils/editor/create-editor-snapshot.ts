@@ -15,6 +15,7 @@ export function createEditorSnapshot(overrides: Partial<Snapshot> = {}): Snapsho
     preset: createEditorPreset(),
     contextId: null,
     editableHeight: null,
+    modelElement: null,
     language: {
       ui: 'en',
       content: 'en',

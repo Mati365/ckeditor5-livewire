@@ -16,6 +16,7 @@ export function createEditableSnapshot(
   return {
     rootName,
     editorId: DEFAULT_TEST_EDITOR_ID,
+    modelElement: null,
     content,
     saveDebounceMs: 100,
   };

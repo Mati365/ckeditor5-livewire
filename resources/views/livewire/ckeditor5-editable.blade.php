@@ -1,9 +1,6 @@
 <div
     wire:ignore
     id="{{ $id }}"
-    data-cke-editable-editor-id="{{ $editorId }}"
-    data-cke-editable-root-name="{{ $rootName }}"
-    data-cke-editable-initial-content="{{ htmlspecialchars($content, ENT_QUOTES, 'UTF-8') }}"
     style="position: relative; {{ $style }}"
     @if($class) class="{{ $class }}" @endif
 >

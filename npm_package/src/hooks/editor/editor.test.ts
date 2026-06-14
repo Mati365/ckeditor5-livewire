@@ -28,6 +28,7 @@ import {
 import type { Snapshot as EditorSnapshot } from './editor';
 
 import { timeout } from '../../shared/timeout';
+import { EditableComponentHook } from '../editable';
 import { registerLivewireComponentHook } from '../hook';
 import { CustomEditorPluginsRegistry } from './custom-editor-plugins';
 import { EditorComponentHook } from './editor';
@@ -42,6 +43,7 @@ describe('editor component', () => {
     livewireStub = window.Livewire = new LivewireStub();
 
     registerLivewireComponentHook('ckeditor5', EditorComponentHook);
+    registerLivewireComponentHook('ckeditor5-editable', EditableComponentHook);
   });
 
   afterEach(async () => {
@@ -134,6 +136,20 @@ describe('editor component', () => {
         const editor = await waitForTestEditor();
 
         expect(editor.getData()).toBe('');
+      });
+
+      it('should be possible to specify root element name', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement(),
+          canonical: createEditorSnapshot({
+            modelElement: '$inlineRoot',
+          }),
+        });
+
+        const editor = await waitForTestEditor();
+
+        expect(editor.model.document.getRoot()?.name).toBe('$inlineRoot');
       });
     });
 
@@ -234,9 +250,85 @@ describe('editor component', () => {
           },
         });
 
-        await expect(waitForTestEditor()).rejects.toThrowError(
+        await expect(waitForTestEditor()).rejects.toThrow(
           /It looks like not all required root elements are present yet/,
         );
+      });
+
+      it('should be possible to specify root element name using editable config alone', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement({ editorType: 'decoupled' }),
+          canonical: {
+            ...createEditorSnapshot(),
+            preset: createEditorPreset('decoupled'),
+          },
+        });
+
+        livewireStub.$internal.appendComponentToDOM({
+          name: 'ckeditor5-editable',
+          el: createEditableHtmlElement(),
+          canonical: {
+            ...createEditableSnapshot('main'),
+            modelElement: '$inlineRoot',
+          },
+        });
+
+        const editor = await waitForTestEditor<DecoupledEditor>();
+
+        await vi.waitFor(() => {
+          expect(editor.model.document.getRoot()?.name).toEqual('$inlineRoot');
+        });
+      });
+
+      it('should use editable root element name config if both specified', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement({ editorType: 'decoupled' }),
+          canonical: createEditorSnapshot({
+            preset: createEditorPreset('decoupled'),
+            modelElement: '$miaMia',
+          }),
+        });
+
+        livewireStub.$internal.appendComponentToDOM({
+          name: 'ckeditor5-editable',
+          el: createEditableHtmlElement(),
+          canonical: {
+            ...createEditableSnapshot('main'),
+            modelElement: '$inlineRoot',
+          },
+        });
+
+        const editor = await waitForTestEditor<DecoupledEditor>();
+
+        await vi.waitFor(() => {
+          expect(editor.model.document.getRoot()?.name).toEqual('$inlineRoot');
+        });
+      });
+
+      it('should use root editor element if editable root name is not specified', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement({ editorType: 'decoupled' }),
+          canonical: createEditorSnapshot({
+            preset: createEditorPreset('decoupled'),
+            modelElement: '$inlineRoot',
+            content: {},
+          }),
+        });
+
+        livewireStub.$internal.appendComponentToDOM({
+          name: 'ckeditor5-editable',
+          el: createEditableHtmlElement(),
+          canonical: createEditableSnapshot('main'),
+        });
+
+        const editor = await waitForTestEditor<DecoupledEditor>();
+
+        await vi.waitFor(() => {
+          expect(editor.model.document.getRoot()?.name).toEqual('$inlineRoot');
+        });
       });
     });
 
@@ -273,6 +365,78 @@ describe('editor component', () => {
         const editor = await waitForTestEditor();
 
         expect(editor).toBeInstanceOf(MultiRootEditor);
+      });
+
+      it('should create a multiroot editor with lazy added inline editables', async () => {
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement({ editorType: 'multiroot' }),
+          canonical: {
+            ...createEditorSnapshot(),
+            preset: createEditorPreset('multiroot'),
+            content: {},
+          },
+        });
+
+        const editor = await waitForTestEditor();
+
+        await timeout(500); // Simulate some delay before adding the root.
+
+        livewireStub.$internal.appendComponentToDOM({
+          name: 'ckeditor5-editable',
+          el: createEditableHtmlElement(),
+          canonical: {
+            ...createEditableSnapshot('header', 'Head'),
+            modelElement: '$inlineRoot',
+          },
+        });
+
+        livewireStub.$internal.appendComponentToDOM({
+          name: 'ckeditor5-editable',
+          el: createEditableHtmlElement(),
+          canonical: {
+            ...createEditableSnapshot('footer', 'Footer'),
+            modelElement: '$inlineRoot',
+          },
+        });
+
+        expect(editor.model.document.getRoot('header')?.name).toEqual('$inlineRoot');
+        expect(editor.model.document.getRoot('footer')?.name).toEqual('$inlineRoot');
+      });
+
+      it('should create a multiroot editor with initially added inline editables', async () => {
+        livewireStub.$internal.appendComponentToDOM({
+          name: 'ckeditor5-editable',
+          el: createEditableHtmlElement(),
+          canonical: {
+            ...createEditableSnapshot('header', 'Head'),
+            modelElement: '$inlineRoot',
+          },
+        });
+
+        livewireStub.$internal.appendComponentToDOM({
+          name: 'ckeditor5-editable',
+          el: createEditableHtmlElement(),
+          canonical: {
+            ...createEditableSnapshot('footer', 'Footer'),
+            modelElement: '$inlineRoot',
+          },
+        });
+
+        livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+          name: 'ckeditor5',
+          el: createEditorHtmlElement({ editorType: 'multiroot' }),
+          canonical: {
+            ...createEditorSnapshot(),
+            preset: createEditorPreset('multiroot'),
+            content: {},
+          },
+        });
+
+        const editor = await waitForTestEditor();
+
+        expect(editor.model.document.getRoot('header')?.name).toEqual('$inlineRoot');
+        expect(editor.model.document.getRoot('footer')?.name).toEqual('$inlineRoot');
       });
 
       it('should wait and for root elements to be present in DOM if they are not (with content=null value)', async () => {

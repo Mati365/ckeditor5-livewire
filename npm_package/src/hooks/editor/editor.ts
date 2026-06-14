@@ -357,6 +357,11 @@ export type Snapshot = {
   editableHeight: number | null;
 
   /**
+   * Root element name.
+   */
+  modelElement: string | null;
+
+  /**
    * The language of the editor UI and content.
    */
   language: EditorLanguage;

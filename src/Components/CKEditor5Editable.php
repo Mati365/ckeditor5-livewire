@@ -26,7 +26,7 @@ final class CKEditor5Editable extends Component
      * The name of the root element in the editor.
      * This is used to identify the editable root in the multi-root editor.
      */
-    public string $rootName;
+    public string $rootName = 'main';
 
     /**
      * The initial content value for the editable.
@@ -76,6 +76,7 @@ final class CKEditor5Editable extends Component
      */
     #[Reactive]
     public ?string $editableStyle = null;
+
     /**
      * Root attributes to apply to the editable root.
      *
@@ -83,6 +84,13 @@ final class CKEditor5Editable extends Component
      */
     #[Reactive]
     public ?array $rootAttributes = null;
+
+    /**
+     * The root model element name for editable. Setting `$inlineRoot`
+     * allows to use editor in paragraph-like mode.
+     */
+    public string $modelElement = '$root';
+
     /**
      * The debounce time in milliseconds for saving content changes.
      * Prevents excessive updates by delaying the save operation.
@@ -93,44 +101,47 @@ final class CKEditor5Editable extends Component
      * Mount method called when the component is initialized.
      *
      * @param string $editorId The identifier of the editor instance
-     * @param string $rootName The name of the root element
+     * @param ?string $rootName The name of the root element
      * @param ?string $content The initial content for the editable
      * @param ?string $id Unique identifier for the editable instance
      * @param ?string $name Name attribute for the hidden input field
-     * @param bool $required Whether the hidden input is required
+     * @param ?bool $required Whether the hidden input is required
      * @param ?string $class CSS class for the wrapper element
      * @param ?string $style Inline styles for the wrapper element
      * @param ?string $editableClass CSS class for the editable content element
      * @param ?string $editableStyle Inline styles for the editable content element
-     * @param int $saveDebounceMs Debounce time in milliseconds for saving content changes
+     * @param ?int $saveDebounceMs Debounce time in milliseconds for saving content changes
      * @param ?array<string, mixed> $rootAttributes Root attributes to apply to the editable root
+     * @param ?string $modelElement Root model element name for root.
      * @return void
      */
     public function mount(
         string $editorId,
-        string $rootName = 'main',
+        ?string $rootName = null,
         ?string $content = null,
         ?string $id = null,
         ?string $name = null,
-        bool $required = false,
+        ?bool $required = null,
         ?string $class = null,
         ?string $style = null,
         ?string $editableClass = null,
         ?string $editableStyle = null,
         ?array $rootAttributes = null,
-        int $saveDebounceMs = 300,
+        ?string $modelElement = null,
+        ?int $saveDebounceMs = null,
     ): void {
         $this->id = $id ?? 'ckeditor-editable-' . uniqid();
         $this->editorId = $editorId;
-        $this->rootName = $rootName;
+        $this->rootName = $rootName ?? $this->rootName;
         $this->name = $name;
-        $this->required = $required;
+        $this->required = $required ?? $this->required;
         $this->class = $class;
         $this->style = $style;
         $this->editableClass = $editableClass;
         $this->editableStyle = $editableStyle;
         $this->rootAttributes = $rootAttributes;
-        $this->saveDebounceMs = $saveDebounceMs;
+        $this->saveDebounceMs = $saveDebounceMs ?? $this->saveDebounceMs;
+        $this->modelElement = $modelElement ?? $this->modelElement;
 
         if ($content !== null) {
             $this->content = $content;

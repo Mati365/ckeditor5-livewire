@@ -26,7 +26,7 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
    * Mounts the editable component.
    */
   override mounted() {
-    const { editorId, rootName, content } = this.canonical;
+    const { editorId, rootName, content, modelElement } = this.canonical;
 
     const unmountEffect = EditorsRegistry.the.mountEffect(editorId, (editor: MultiRootEditor | DecoupledEditor) => {
       /* v8 ignore next if -- @preserve */
@@ -56,6 +56,7 @@ export class EditableComponentHook extends ClassHook<Snapshot> {
 
         editor.addRoot(rootName, {
           isUndoable: false,
+          modelElement: modelElement ?? '$root',
           ...content !== null && {
             initialData: content,
           },
@@ -266,6 +267,11 @@ export type Snapshot = {
    * The name of the root element in the editor.
    */
   rootName: string;
+
+  /**
+   * The name of the model element.
+   */
+  modelElement: string | null;
 
   /**
    * The initial content value for the editable.

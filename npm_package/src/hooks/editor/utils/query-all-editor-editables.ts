@@ -18,10 +18,12 @@ export function queryAllEditorEditables(editorId: EditorId): Record<string, Edit
     .filter(({ name, canonical }) => name === 'ckeditor5-editable' && canonical['editorId'] === editorId)
     .reduce<Record<string, EditableItem>>((acc, { canonical, el }) => {
       const rootName = canonical['rootName'] as string;
+      const modelElement = (canonical['modelElement'] || null) as string | null;
 
       acc[rootName] = {
         element: el.querySelector<HTMLElement>('[data-cke-editable-content]'),
         content: canonical['content'],
+        modelElement,
       };
 
       return acc;
@@ -38,12 +40,17 @@ export function queryAllEditorEditables(editorId: EditorId): Record<string, Edit
 
   // v8 ignore next -- @preserve
   const editorContent: Record<string, string> = (rootHook.canonical.content as Record<string, string>) ?? {};
+  const rootEditorModelElement = (rootHook.canonical.modelElement || null) as string || null;
   const classicMainElement = document.querySelector<HTMLElement>(`#${editorId}_editor`);
 
-  if (classicMainElement && !acc['main']) {
+  if ('main' in acc) {
+    acc['main'].modelElement ??= rootEditorModelElement;
+  }
+  else if (classicMainElement) {
     acc['main'] = {
       element: classicMainElement,
       content: editorContent['main'] ?? '',
+      modelElement: rootEditorModelElement,
     };
   }
 
@@ -53,6 +60,7 @@ export function queryAllEditorEditables(editorId: EditorId): Record<string, Edit
       acc[rootName] = {
         ...acc[rootName],
         content: acc[rootName].content ?? rootContent,
+        modelElement: acc[rootName].modelElement ?? rootEditorModelElement,
       };
     }
     else {
@@ -60,6 +68,7 @@ export function queryAllEditorEditables(editorId: EditorId): Record<string, Edit
       acc[rootName] = {
         element: null,
         content: rootContent,
+        modelElement: rootEditorModelElement,
       };
     }
   }
@@ -74,4 +83,5 @@ export function queryAllEditorEditables(editorId: EditorId): Record<string, Edit
 export type EditableItem = {
   element: HTMLElement | null;
   content: string | null;
+  modelElement: string | null;
 };

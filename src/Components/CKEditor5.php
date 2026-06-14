@@ -95,6 +95,12 @@ final class CKEditor5 extends Component
     public ?array $rootAttributes = null;
 
     /**
+     * The root model element name for main editable. Setting `$inlineRoot`
+     * allows to use editor in paragraph-like mode.
+     */
+    public string $modelElement = '$root';
+
+    /**
      * The language configuration for the editor UI and content.
      *
      * @var array{ui: string, content: string}
@@ -134,17 +140,18 @@ final class CKEditor5 extends Component
      * @param ?array $config Configuration array for CKEditor5. It'll override the preset config if provided.
      * @param ?array $mergeConfig Configuration array to be merged with the preset config if provided.
      * @param ?array $customTranslations Custom translations dictionary. It'll override the preset customTranslations if provided.
-     * @param string|null $editorType Editor type. It'll override the preset editorType if provided.
-     * @param bool $watchdog Whether to use watchdog for automatic crash recovery
+     * @param EditorType|string|null $editorType Editor type. It'll override the preset editorType if provided.
+     * @param ?bool $watchdog Whether to use watchdog for automatic crash recovery
      * @param ?string $contextId Identifier of the CKEditor context for shared contexts
-     * @param int $saveDebounceMs Debounce time in milliseconds for saving content changes
+     * @param ?int $saveDebounceMs Debounce time in milliseconds for saving content changes
      * @param ?int $editableHeight Fixed height for the editor's content area in pixels
      * @param array{ui?: string, content?: string}|string|null $locale Language configuration for UI and content
      * @param ?string $name Name attribute for the hidden input field (if form submission is needed)
-     * @param bool $required Whether the hidden input is required
+     * @param ?bool $required Whether the hidden input is required
      * @param ?string $class CSS class for the main wrapper element
      * @param ?string $style Inline styles for the main wrapper element
      * @param ?array<string, mixed> $rootAttributes Root attributes to apply to the `main` editor root
+     * @param ?string $modelElement Root model element name for `main` root.
      * @return void
      */
     public function mount(
@@ -155,16 +162,17 @@ final class CKEditor5 extends Component
         ?array $mergeConfig = null,
         ?array $customTranslations = null,
         EditorType|string|null $editorType = null,
-        bool $watchdog = true,
+        ?bool $watchdog = null,
         ?string $contextId = null,
-        int $saveDebounceMs = 300,
+        ?int $saveDebounceMs = null,
         ?int $editableHeight = null,
         array|string|null $locale = null,
         ?string $name = null,
-        bool $required = false,
+        ?bool $required = null,
         ?string $class = null,
         ?string $style = null,
-        ?array $rootAttributes = null
+        ?array $rootAttributes = null,
+        ?string $modelElement = null,
     ): void {
         $resolvedPreset = $this->configService->resolvePresetOrThrow($presetName);
 
@@ -182,30 +190,31 @@ final class CKEditor5 extends Component
 
         if ($editorType !== null) {
             $resolvedPreset = $resolvedPreset->ofEditorType(
-                EditorType::from($editorType)
+                $editorType instanceof EditorType
+                    ? $editorType
+                    : EditorType::from($editorType)
             );
         }
 
         if ($content !== null) {
-            if (is_string($content)) {
-                $this->content = [ 'main' => $content ];
-            } else {
-                $this->content = $content;
-            }
+            $this->content = is_string($content)
+                ? ['main' => $content]
+                : $content;
         }
 
         $this->editorId = $editorId ?? 'ckeditor-' . uniqid();
         $this->preset = PresetParser::dump($resolvedPreset);
-        $this->watchdog = $watchdog;
+        $this->watchdog = $watchdog ?? $this->watchdog;
         $this->contextId = $contextId;
-        $this->saveDebounceMs = $saveDebounceMs;
+        $this->saveDebounceMs = $saveDebounceMs ?? $this->saveDebounceMs;
         $this->editableHeight = $editableHeight;
         $this->name = $name;
-        $this->required = $required;
+        $this->required = $required ?? $this->required;
         $this->language = LanguageNormalizer::normalize($locale);
         $this->class = $class;
         $this->style = $style;
         $this->rootAttributes = $rootAttributes;
+        $this->modelElement = $modelElement ?? $this->modelElement;
     }
 
     /**

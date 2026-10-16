@@ -6,6 +6,7 @@ export * from './deep-camel-case-keys';
 export * from './filter-object-values';
 export * from './is-empty-object';
 export * from './is-plain-object';
+export * from './make-destroy-idempotent';
 export * from './map-object-values';
 export * from './once';
 export * from './shallow-equal';

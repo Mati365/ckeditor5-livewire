@@ -160,7 +160,7 @@ export async function createLivewireSyncPlugin(
 
       const debouncedSync = debounce(saveDebounceMs, syncContentChange);
 
-      // Apply small debounce to avoid race conditions during re-mount of editables during watchdog restart.
+      // Apply small debounce to avoid race conditions during re-mount of editables.
       // CKEditor tends to reset roots map and re-assign value in the same tick which may confuse two way binding.
       model.document.on('change:data', debounce(10, () => {
         if (ui.focusTracker.isFocused) {

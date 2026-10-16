@@ -70,21 +70,6 @@ class CKEditor5ContextTest extends TestCase
         $this->assertSame($customConfig, $component->context['config']);
     }
 
-    public function testComponentMountWithWatchdogConfig(): void
-    {
-        config(['ckeditor5.contexts.default' => [
-            'config' => ['plugins' => []],
-        ]]);
-
-        $watchdogConfig = ['crashNumberLimit' => 5];
-
-        $component = Livewire::test(CKEditor5Context::class, [
-            'watchdogConfig' => $watchdogConfig,
-        ]);
-
-        $this->assertSame($watchdogConfig, $component->context['watchdogConfig']);
-    }
-
     public function testComponentMountWithCustomTranslations(): void
     {
         config(['ckeditor5.contexts.default' => [

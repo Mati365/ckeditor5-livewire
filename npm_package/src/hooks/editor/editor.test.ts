@@ -2,6 +2,7 @@ import type { LanguageConfig } from 'ckeditor5';
 
 import {
   BalloonEditor,
+  CKEditorError,
   ClassicEditor,
   DecoupledEditor,
   Editor,
@@ -33,7 +34,6 @@ import { registerLivewireComponentHook } from '../hook';
 import { CustomEditorPluginsRegistry } from './custom-editor-plugins';
 import { EditorComponentHook } from './editor';
 import { EditorsRegistry } from './editors-registry';
-import { unwrapEditorWatchdog } from './utils';
 
 describe('editor component', () => {
   let livewireStub: LivewireStub;
@@ -49,7 +49,23 @@ describe('editor component', () => {
   afterEach(async () => {
     CustomEditorPluginsRegistry.the.unregisterAll();
     await livewireStub.$internal.destroy();
+    vi.restoreAllMocks();
   });
+
+  /**
+   * Mounts the editor component with the given editor ID and optional snapshot overrides.
+   */
+  function appendEditor(editorId: string, snapshot: Partial<EditorSnapshot> = {}) {
+    return livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
+      name: 'ckeditor5',
+      el: createEditorHtmlElement({ id: editorId }),
+      canonical: {
+        ...createEditorSnapshot(),
+        editorId,
+        ...snapshot,
+      },
+    });
+  }
 
   it('should save the editor instance in the registry with provided editorId', async () => {
     livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
@@ -800,79 +816,86 @@ describe('editor component', () => {
     });
   });
 
-  describe('`watchdog` snapshot parameter`', () => {
-    it('should not wrap editor with watchdog if `watchdog` is false', async () => {
-      livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
-        name: 'ckeditor5',
-        el: createEditorHtmlElement(),
-        canonical: {
-          ...createEditorSnapshot(),
-          watchdog: false,
-        },
-      });
-
-      const editor = await waitForTestEditor();
-      const watchdog = unwrapEditorWatchdog(editor);
-
-      expect(watchdog).toBeNull();
+  describe('initialization errors', () => {
+    beforeEach(() => {
+      vi.spyOn(console, 'error').mockImplementation(() => {});
     });
 
-    it('should resurrect editor after crashing and broadcast the new instance when `watchdog` is enabled', async () => {
-      livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
-        name: 'ckeditor5',
-        el: createEditorHtmlElement({
-          id: 'editor-with-watchdog',
-        }),
-        canonical: {
-          ...createEditorSnapshot(),
-          editorId: 'editor-with-watchdog',
-          watchdog: true,
-        },
-      });
-
-      const originalEditor = await waitForTestEditor('editor-with-watchdog');
-      const watchdog = unwrapEditorWatchdog(originalEditor)!;
-
-      (watchdog as any)._fire('error', {
-        error: new Error('Mock'),
-        causesRestart: true,
-      });
-
-      (watchdog as any)._restart();
-
-      await vi.waitFor(async () => {
-        const newEditor = await waitForTestEditor('editor-with-watchdog');
-
-        expect(newEditor).not.equals(originalEditor);
-      });
+    afterEach(() => {
+      // Errors are not cleared between tests. Clearing them also clears the default (`null`) error,
+      // so they do not leak into tests that wait for the default editor.
+      EditorsRegistry.the.resetErrors('failing-init-editor');
     });
 
-    it('should not restart editor if only `causesRestart: false` error occurs', async () => {
-      livewireStub.$internal.appendComponentToDOM<EditorSnapshot>({
-        name: 'ckeditor5',
-        el: createEditorHtmlElement({
-          id: 'editor-with-watchdog',
+    it('should log and register the error if the editor cannot be created', async () => {
+      class FailingPlugin extends Plugin {
+        static pluginName = 'FailingPlugin';
+
+        init() {
+          throw new Error('Plugin initialization failed');
+        }
+      }
+
+      CustomEditorPluginsRegistry.the.register('FailingPlugin', () => FailingPlugin);
+
+      appendEditor('failing-init-editor', {
+        preset: createEditorPreset('classic', {
+          toolbar: [],
+          plugins: ['FailingPlugin'],
         }),
-        canonical: {
-          ...createEditorSnapshot(),
-          editorId: 'editor-with-watchdog',
-          watchdog: true,
-        },
       });
 
-      const originalEditor = await waitForTestEditor('editor-with-watchdog');
-      const watchdog = unwrapEditorWatchdog(originalEditor)!;
+      await expect(EditorsRegistry.the.waitFor('failing-init-editor')).rejects.toThrow('Plugin initialization failed');
 
-      (watchdog as any)._fire('error', {
-        error: new Error('Mock'),
-        causesRestart: false,
-      });
+      expect(console.error).toHaveBeenCalledWith(
+        'Error initializing CKEditor5 instance with ID "failing-init-editor":',
+        expect.any(Error),
+      );
+    });
+  });
 
-      await vi.waitFor(async () => {
-        const newEditor = await waitForTestEditor('editor-with-watchdog');
+  describe('errors of the running editor', () => {
+    /**
+     * Reports an error attributed to the given editor the same way the browser does for an uncaught error.
+     */
+    const reportEditorError = (editor: Editor) => {
+      const error = new CKEditorError('test-editor-error', editor);
 
-        expect(newEditor).to.be.equal(originalEditor);
-      });
+      window.dispatchEvent(new ErrorEvent('error', { error }));
+
+      return error;
+    };
+
+    beforeEach(() => {
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
+    it('should log the error and switch the editor to read-only mode', async () => {
+      appendEditor('failing-editor');
+
+      const editor = await waitForTestEditor('failing-editor');
+
+      expect(editor.isReadOnly).toBe(false);
+
+      const error = reportEditorError(editor);
+
+      expect(console.error).toHaveBeenCalledWith('CKEditor5 instance with ID "failing-editor" failed.', error);
+      expect(editor.isReadOnly).toBe(true);
+    });
+
+    it('should ignore errors attributed to other editors', async () => {
+      appendEditor('healthy-editor');
+      appendEditor('other-failing-editor');
+
+      const healthyEditor = await waitForTestEditor('healthy-editor');
+      const failingEditor = await waitForTestEditor('other-failing-editor');
+
+      reportEditorError(failingEditor);
+
+      expect(console.error).toHaveBeenCalledWith('CKEditor5 instance with ID "other-failing-editor" failed.', expect.anything());
+      expect(console.error).not.toHaveBeenCalledWith('CKEditor5 instance with ID "healthy-editor" failed.', expect.anything());
+      expect(healthyEditor.isReadOnly).toBe(false);
+      expect(failingEditor.isReadOnly).toBe(true);
     });
   });
 
@@ -1344,6 +1367,90 @@ describe('editor component', () => {
       await vi.waitFor(() => {
         expect(editor.state).toBe('destroyed');
       });
+    });
+
+    it('should destroy the editor and skip registration if component is unmounted during creation', async () => {
+      const registerSpy = vi.spyOn(EditorsRegistry.the, 'register');
+
+      let releaseInit!: () => void;
+      const initGate = new Promise<void>((resolve) => {
+        releaseInit = resolve;
+      });
+
+      let createdEditor: Editor | null = null;
+
+      // Keeps the editor in the `initializing` state until the component is unmounted.
+      class SlowPlugin extends Plugin {
+        static pluginName = 'SlowPlugin';
+
+        async init() {
+          createdEditor = this.editor;
+          await initGate;
+        }
+      }
+
+      CustomEditorPluginsRegistry.the.register('SlowPlugin', () => SlowPlugin);
+
+      const component = appendEditor('short-lived-editor', {
+        preset: createEditorPreset('classic', {
+          toolbar: [],
+          plugins: ['SlowPlugin'],
+        }),
+      });
+
+      await vi.waitFor(() => {
+        expect(createdEditor).not.toBeNull();
+      });
+
+      const unmounting = livewireStub.$internal.unmountComponent(component.id);
+
+      releaseInit();
+      await unmounting;
+
+      await vi.waitFor(() => {
+        expect(createdEditor!.state).toBe('destroyed');
+      });
+
+      expect(registerSpy).not.toHaveBeenCalled();
+      expect(EditorsRegistry.the.hasItem('short-lived-editor')).toBe(false);
+    });
+
+    it('should not destroy the editor twice if it was destroyed manually before unmount', async () => {
+      // Spied before creation, so the spy is what the idempotent `destroy()` wraps.
+      const destroySpy = vi.spyOn(ClassicEditor.prototype, 'destroy');
+      const component = appendEditor('manually-destroyed-editor');
+
+      const editor = await waitForTestEditor('manually-destroyed-editor');
+
+      await editor.destroy();
+
+      // Unregistered by the `destroy` listener, not by the hook.
+      expect(EditorsRegistry.the.hasItem('manually-destroyed-editor')).toBe(false);
+
+      await livewireStub.$internal.unmountComponent(component.id);
+      await timeout(0);
+
+      expect(destroySpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should log and swallow errors thrown while destroying the editor', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const component = appendEditor('failing-destroy-editor');
+
+      const editor = await waitForTestEditor('failing-destroy-editor');
+      const error = new Error('Destroy failed');
+      const destroySpy = vi.spyOn(editor, 'destroy').mockRejectedValueOnce(error);
+
+      // `onBeforeDestroy` callbacks are not awaited, so a rejection here would be unhandled (and fail the run).
+      await livewireStub.$internal.unmountComponent(component.id);
+
+      await vi.waitFor(() => {
+        expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to destroy CKEditor5 instance with ID "failing-destroy-editor".', error);
+      });
+
+      // The editor is not registered anymore, so the cleanup won't destroy it.
+      destroySpy.mockRestore();
+      await editor.destroy();
     });
   });
 });

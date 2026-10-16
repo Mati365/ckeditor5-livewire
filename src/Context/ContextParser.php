@@ -22,7 +22,6 @@ final class ContextParser
 
         return new Context(
             config: (array) $data['config'],
-            watchdogConfig: isset($data['watchdogConfig']) ? (array) $data['watchdogConfig'] : null,
             customTranslations: isset($data['customTranslations']) ? (array) $data['customTranslations'] : null,
         );
     }
@@ -38,10 +37,6 @@ final class ContextParser
         $result = [
             'config' => $context->config,
         ];
-
-        if ($context->watchdogConfig !== null) {
-            $result['watchdogConfig'] = $context->watchdogConfig;
-        }
 
         if ($context->customTranslations !== null) {
             $result['customTranslations'] = $context->customTranslations;

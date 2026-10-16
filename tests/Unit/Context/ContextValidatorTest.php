@@ -18,7 +18,6 @@ class ContextValidatorTest extends TestCase
     {
         ContextValidator::validate([
             'config' => [],
-            'watchdogConfig' => ['interval' => 5],
             'customTranslations' => ['Save' => 'Zapisz'],
         ]);
         $this->assertTrue(true);
@@ -36,15 +35,6 @@ class ContextValidatorTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         ContextValidator::validate(['config' => 'not-an-array']);
-    }
-
-    public function testValidateWatchdogConfigNotArrayThrows(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        ContextValidator::validate([
-            'config' => [],
-            'watchdogConfig' => 'nope',
-        ]);
     }
 
     public function testValidateCustomTranslationsNotArrayThrows(): void

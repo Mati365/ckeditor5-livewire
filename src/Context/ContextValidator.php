@@ -26,10 +26,6 @@ final class ContextValidator
             $errors[] = 'config must be an array';
         }
 
-        if (isset($data['watchdogConfig']) && !is_array($data['watchdogConfig'])) {
-            $errors[] = 'watchdogConfig must be an array';
-        }
-
         if (isset($data['customTranslations']) && !is_array($data['customTranslations'])) {
             $errors[] = 'customTranslations must be an array';
         }

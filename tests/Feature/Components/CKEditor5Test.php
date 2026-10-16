@@ -133,15 +133,6 @@ class CKEditor5Test extends TestCase
         $this->assertSame('custom-editor-123', $component->editorId);
     }
 
-    public function testComponentMountWithWatchdog(): void
-    {
-        $component = Livewire::test(CKEditor5::class, [
-            'watchdog' => true,
-        ]);
-
-        $this->assertTrue($component->watchdog);
-    }
-
     public function testComponentMountWithContextId(): void
     {
         $component = Livewire::test(CKEditor5::class, [

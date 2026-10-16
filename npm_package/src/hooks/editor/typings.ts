@@ -85,11 +85,6 @@ export type EditorPreset = {
   licenseKey: string;
 
   /**
-   * Optional watchdog configuration for error recovery.
-   */
-  watchdogConfig?: Record<string, any> | null;
-
-  /**
    * Optional custom translations for the editor.
    * This allows for localization of the editor interface.
    */

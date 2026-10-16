@@ -60,9 +60,6 @@ CKEditor 5 for Livewire — a lightweight WYSIWYG editor integration for Laravel
     - [Editor → Livewire: Editor Ready Event ✅](#editor--livewire-editor-ready-event-)
     - [Focus Tracking 👁️](#focus-tracking-️)
     - [Root Attributes 🏷️](#root-attributes-️)
-    - [Watchdog 🐶](#watchdog-)
-      - [How it works ⚙️](#how-it-works-️)
-      - [Disabling the watchdog 🚫](#disabling-the-watchdog-)
   - [Context 🤝](#context-)
     - [Basic usage 🔧](#basic-usage--1)
     - [Custom context translations 🌐](#custom-context-translations-)
@@ -83,7 +80,8 @@ Choose between two installation methods based on your needs. Both approaches pro
 | CKEditor 5 Version | Integration Version |
 |--------------------|---------------------|
 | 43.x – 47.x        | `<= 1.11.0`         |
-| >= 48.0            | `>= 1.12.0`         |
+| 48.x               | `1.12.0 - 1.13.0`   |
+| >= 49.x            | `>= 1.14.0`         |
 
 ### 🏠 Self-hosted via NPM
 
@@ -219,7 +217,6 @@ Create a basic editor with default toolbar and features. Perfect for simple cont
     :editableHeight="300"
     locale="pl"
     :saveDebounceMs="300"
-    :watchdog="true"
     name="content"
     :required="true"
     contextId="my-context"
@@ -306,7 +303,7 @@ return [
     'presets' => [
         'minimal' => [
             'cloud' => [
-                'editorVersion' => '48.1.0',
+                'editorVersion' => '49.0.0',
                 'premium' => true,
                 'translations' => ['pl'],
                 'ckbox' => [
@@ -1063,29 +1060,6 @@ For multiroot editors, each editable can carry its own independent set of root a
 > [!IMPORTANT]
 > **Always provide an explicit `wire:key`** when using `rootAttributes` on `<livewire:ckeditor5>` with dynamic values. Without it, Livewire auto-generates `wire:key` by hashing the component snapshot. The hash produced during the initial page render differs from the one produced after the first update — causing Livewire to treat the component as a new one, which destroys and remounts the editor on the very first change. From the second change onwards the snapshot is stable, so no remount occurs, which is why the flash only happens once.
 
-### Watchdog 🐶
-
-By default, the `<livewire:ckeditor5>` component uses a built-in watchdog mechanism to automatically restart the editor if it crashes (e.g., due to a JavaScript error). The watchdog periodically saves the editor's content and restores it after a crash, minimizing the risk of data loss for users.
-
-#### How it works ⚙️
-
-- If the editor crashes, it is automatically restarted without requiring a page reload.
-- The editor's content is periodically saved in the browser's memory.
-- After a restart, the last saved content is automatically restored.
-
-This feature is especially useful in applications where reliability and data safety are important.
-
-#### Disabling the watchdog 🚫
-
-The watchdog is enabled by default. To disable it, set the `watchdog` attribute to `false`:
-
-```blade
-<livewire:ckeditor5
-    content="<p>Initial content</p>"
-    :watchdog="false"
-/>
-```
-
 ## Context 🤝
 
 The **context** feature is designed to group multiple editor instances together, allowing them to share a common context. This is particularly useful in collaborative editing scenarios, where users can work together in real time. By sharing a context, editors can synchronize features such as comments, track changes, and presence indicators across different editor instances.
@@ -1106,9 +1080,6 @@ return [
                 'plugins' => [
                     'CustomContextPlugin'
                 ]
-            ],
-            'watchdogConfig' => [
-                'crashNumberLimit' => 20
             ]
         ]
     ],
@@ -1288,12 +1259,12 @@ The package provides two registries: `EditorsRegistry` and `ContextsRegistry`. T
   ```javascript
   import { ContextsRegistry } from 'ckeditor5-livewire';
 
-  ContextsRegistry.the.waitFor('shared-context').then((watchdog) => {
-    console.log('Context is ready:', watchdog.context);
+  ContextsRegistry.the.waitFor('shared-context').then((context) => {
+    console.log('Context is ready:', context);
   });
 
-  ContextsRegistry.the.execute('shared-context', (watchdog) => {
-    console.log('Context state:', watchdog.state);
+  ContextsRegistry.the.execute('shared-context', (context) => {
+    console.log('Context state:', context);
   });
   ```
 

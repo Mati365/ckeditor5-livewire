@@ -1,5 +1,3 @@
-import type { WatchdogConfig } from 'ckeditor5';
-
 import type { EditorCustomTranslationsDictionary, EditorPlugin } from '../editor';
 
 /**
@@ -11,11 +9,6 @@ export type ContextConfig = {
    * This allows for localization of the editor interface.
    */
   customTranslations?: EditorCustomTranslationsDictionary | null;
-
-  /**
-   * Watchdog configuration for the context.
-   */
-  watchdogConfig: WatchdogConfig | null;
 
   /**
    * Configuration options for the context instance.

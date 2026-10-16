@@ -37,7 +37,6 @@ class PresetParserTest extends TestCase
                 'premium' => false,
             ],
             'customTranslations' => ['Save' => 'Zapisz'],
-            'watchdogConfig' => ['crashNumberLimit' => 10],
         ];
 
         $preset = PresetParser::parse($data);
@@ -50,7 +49,6 @@ class PresetParserTest extends TestCase
         $this->assertSame('40.0.0', $preset->cloud->editorVersion);
         $this->assertFalse($preset->cloud->premium);
         $this->assertSame(['Save' => 'Zapisz'], $preset->customTranslations);
-        $this->assertSame(['crashNumberLimit' => 10], $preset->watchdogConfig);
     }
 
     public function testParseMissingConfigThrowsException(): void
@@ -127,7 +125,6 @@ class PresetParserTest extends TestCase
                 'premium' => true,
             ],
             'customTranslations' => ['Save' => 'Zapisz'],
-            'watchdogConfig' => ['crashNumberLimit' => 10],
         ];
 
         $preset = PresetParser::parse($data);
@@ -138,7 +135,6 @@ class PresetParserTest extends TestCase
         $this->assertSame($jwt, $dumped['licenseKey']);
         $this->assertArrayHasKey('cloud', $dumped);
         $this->assertSame(['Save' => 'Zapisz'], $dumped['customTranslations']);
-        $this->assertSame(['crashNumberLimit' => 10], $dumped['watchdogConfig']);
     }
 
     public function testDumpAndParseRoundTrip(): void

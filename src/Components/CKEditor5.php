@@ -51,12 +51,6 @@ final class CKEditor5 extends Component
     public bool $required = false;
 
     /**
-     * Whether to use a watchdog for the CKEditor5 instance.
-     * Watchdog helps recover from crashes by automatically restarting the editor.
-     */
-    public bool $watchdog = true;
-
-    /**
      * The identifier of the CKEditor context.
      * Allows multiple editors to share a common context for better performance.
      */
@@ -141,7 +135,6 @@ final class CKEditor5 extends Component
      * @param ?array $mergeConfig Configuration array to be merged with the preset config if provided.
      * @param ?array $customTranslations Custom translations dictionary. It'll override the preset customTranslations if provided.
      * @param EditorType|string|null $editorType Editor type. It'll override the preset editorType if provided.
-     * @param ?bool $watchdog Whether to use watchdog for automatic crash recovery
      * @param ?string $contextId Identifier of the CKEditor context for shared contexts
      * @param ?int $saveDebounceMs Debounce time in milliseconds for saving content changes
      * @param ?int $editableHeight Fixed height for the editor's content area in pixels
@@ -162,7 +155,6 @@ final class CKEditor5 extends Component
         ?array $mergeConfig = null,
         ?array $customTranslations = null,
         EditorType|string|null $editorType = null,
-        ?bool $watchdog = null,
         ?string $contextId = null,
         ?int $saveDebounceMs = null,
         ?int $editableHeight = null,
@@ -204,7 +196,6 @@ final class CKEditor5 extends Component
 
         $this->editorId = $editorId ?? 'ckeditor-' . uniqid();
         $this->preset = PresetParser::dump($resolvedPreset);
-        $this->watchdog = $watchdog ?? $this->watchdog;
         $this->contextId = $contextId;
         $this->saveDebounceMs = $saveDebounceMs ?? $this->saveDebounceMs;
         $this->editableHeight = $editableHeight;

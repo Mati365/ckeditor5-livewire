@@ -274,7 +274,9 @@ export class AsyncRegistry<T extends Destructible> {
    */
   waitFor<E extends T = T>(id: RegistryId | null): Promise<E> {
     return new Promise<E>((resolve, reject) => {
-      void this.execute(id, resolve as (value: E) => void, reject);
+      // `execute()` passes an already registered error to `reject` and also returns it as a rejected promise.
+      // That promise is handled here, otherwise it'd be reported as an unhandled rejection.
+      this.execute(id, resolve as (value: E) => void, reject).catch(() => {});
     });
   }
 
@@ -298,11 +300,12 @@ export class AsyncRegistry<T extends Destructible> {
   }
 
   /**
-   * Destroys all registered editors and removes all watchers.
+   * Destroys all registered items, removes all watchers and clears initialization errors.
    */
   async reset() {
     await this.destroyAll();
     this.watchers.clear();
+    this.initializationErrors.clear();
   }
 
   /**

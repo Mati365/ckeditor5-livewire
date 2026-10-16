@@ -18,7 +18,6 @@ class ContextParserTest extends TestCase
 
         $this->assertInstanceOf(Context::class, $context);
         $this->assertSame(['plugins' => ['Plugin1']], $context->config);
-        $this->assertNull($context->watchdogConfig);
         $this->assertNull($context->customTranslations);
     }
 
@@ -26,7 +25,6 @@ class ContextParserTest extends TestCase
     {
         $data = [
             'config' => ['plugins' => ['Plugin1', 'Plugin2']],
-            'watchdogConfig' => ['crashNumberLimit' => 5],
             'customTranslations' => ['Save' => 'Zapisz'],
         ];
 
@@ -34,7 +32,6 @@ class ContextParserTest extends TestCase
 
         $this->assertInstanceOf(Context::class, $context);
         $this->assertSame(['plugins' => ['Plugin1', 'Plugin2']], $context->config);
-        $this->assertSame(['crashNumberLimit' => 5], $context->watchdogConfig);
         $this->assertSame(['Save' => 'Zapisz'], $context->customTranslations);
     }
 
@@ -52,17 +49,6 @@ class ContextParserTest extends TestCase
         $this->expectExceptionMessage('Context config validation failed');
 
         ContextParser::parse(['config' => 'invalid']);
-    }
-
-    public function testParseInvalidWatchdogConfigTypeThrowsException(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Context config validation failed');
-
-        ContextParser::parse([
-            'config' => ['plugins' => []],
-            'watchdogConfig' => 'invalid',
-        ]);
     }
 
     public function testParseInvalidCustomTranslationsTypeThrowsException(): void
@@ -91,7 +77,6 @@ class ContextParserTest extends TestCase
     {
         $context = new Context(
             config: ['plugins' => ['Plugin1', 'Plugin2']],
-            watchdogConfig: ['crashNumberLimit' => 5],
             customTranslations: ['Save' => 'Zapisz']
         );
 
@@ -99,7 +84,6 @@ class ContextParserTest extends TestCase
 
         $expected = [
             'config' => ['plugins' => ['Plugin1', 'Plugin2']],
-            'watchdogConfig' => ['crashNumberLimit' => 5],
             'customTranslations' => ['Save' => 'Zapisz'],
         ];
 
@@ -110,7 +94,6 @@ class ContextParserTest extends TestCase
     {
         $original = new Context(
             config: ['plugins' => ['Plugin1', 'Plugin2']],
-            watchdogConfig: ['crashNumberLimit' => 5],
             customTranslations: ['Save' => 'Zapisz']
         );
 
@@ -118,35 +101,18 @@ class ContextParserTest extends TestCase
         $parsed = ContextParser::parse($dumped);
 
         $this->assertEquals($original->config, $parsed->config);
-        $this->assertEquals($original->watchdogConfig, $parsed->watchdogConfig);
         $this->assertEquals($original->customTranslations, $parsed->customTranslations);
-    }
-
-    public function testDumpContextWithNullWatchdogConfig(): void
-    {
-        $context = new Context(
-            config: ['plugins' => ['Plugin1']],
-            watchdogConfig: null,
-            customTranslations: ['Save' => 'Zapisz']
-        );
-
-        $result = ContextParser::dump($context);
-
-        $this->assertArrayNotHasKey('watchdogConfig', $result);
-        $this->assertArrayHasKey('customTranslations', $result);
     }
 
     public function testDumpContextWithNullCustomTranslations(): void
     {
         $context = new Context(
             config: ['plugins' => ['Plugin1']],
-            watchdogConfig: ['crashNumberLimit' => 5],
             customTranslations: null
         );
 
         $result = ContextParser::dump($context);
 
-        $this->assertArrayHasKey('watchdogConfig', $result);
         $this->assertArrayNotHasKey('customTranslations', $result);
     }
 }

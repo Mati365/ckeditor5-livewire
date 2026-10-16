@@ -13,12 +13,10 @@ final class Context
      * Constructor for the Context class.
      *
      * @param array $config Context configuration array containing plugins and other settings.
-     * @param array|null $watchdogConfig Optional watchdog configuration for error recovery.
      * @param array|null $customTranslations Optional custom translations dictionary.
      */
     public function __construct(
         public array $config,
-        public ?array $watchdogConfig = null,
         public ?array $customTranslations = null,
     ) {}
 
@@ -31,7 +29,6 @@ final class Context
     {
         return new self(
             config: Arrays::deepClone($this->config),
-            watchdogConfig: $this->watchdogConfig !== null ? Arrays::deepClone($this->watchdogConfig) : null,
             customTranslations: $this->customTranslations !== null ? Arrays::deepClone($this->customTranslations) : null,
         );
     }
@@ -46,19 +43,6 @@ final class Context
     {
         $clone = $this->clone();
         $clone->config = $config;
-        return $clone;
-    }
-
-    /**
-     * Creates a new Context instance with modified watchdog configuration.
-     *
-     * @param array|null $watchdogConfig New watchdog configuration.
-     * @return self A new Context instance with the specified watchdog configuration.
-     */
-    public function ofWatchdogConfig(?array $watchdogConfig): self
-    {
-        $clone = $this->clone();
-        $clone->watchdogConfig = $watchdogConfig;
         return $clone;
     }
 

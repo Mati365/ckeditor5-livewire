@@ -421,6 +421,19 @@ describe('async registry', () => {
       expect(destroyMock2).toHaveBeenCalledOnce();
     });
 
+    it('should clear initialization errors', async () => {
+      registry.error('item1', new Error('Failed to initialize'));
+
+      await registry.reset();
+
+      const item = createMockItem('item1');
+      const promise = registry.waitFor('item1');
+
+      registry.register('item1', item);
+
+      await expect(promise).resolves.toBe(item);
+    });
+
     it('should clear watchers so they are no longer called after reset', async () => {
       const watcher = vi.fn();
       registry.watch(watcher);
@@ -608,6 +621,26 @@ describe('async registry', () => {
       registry.error('item1', 'Failed to initialize');
 
       await expect(promise).rejects.toThrow('Failed to initialize');
+    });
+
+    it('should reject without an unhandled rejection if error was registered before waitFor call', async () => {
+      const onUnhandledRejection = vi.fn();
+
+      process.on('unhandledRejection', onUnhandledRejection);
+
+      try {
+        registry.error('item1', new Error('Failed to initialize'));
+
+        await expect(registry.waitFor('item1')).rejects.toThrow('Failed to initialize');
+
+        // Unhandled rejections are reported after the microtask queue is drained.
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        expect(onUnhandledRejection).not.toHaveBeenCalled();
+      }
+      finally {
+        process.off('unhandledRejection', onUnhandledRejection);
+      }
     });
   });
 

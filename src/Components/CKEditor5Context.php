@@ -71,7 +71,6 @@ final class CKEditor5Context extends Component
      * @param Context|string $context Context instance or context name
      * @param ?string $contextId Unique identifier for the context instance
      * @param ?array $config Configuration array for CKEditor5 context. It'll override the context config if provided.
-     * @param ?array $watchdogConfig Configuration for the watchdog. It'll override the context watchdogConfig if provided.
      * @param ?array $customTranslations Custom translations dictionary. It'll override the context customTranslations if provided.
      * @param array{ui?: string, content?: string}|string|null $locale Language configuration for UI and content
      * @param ?string $class CSS class for the wrapper element
@@ -82,7 +81,6 @@ final class CKEditor5Context extends Component
         Context|string $contextName = 'default',
         ?string $contextId = null,
         ?array $config = null,
-        ?array $watchdogConfig = null,
         ?array $customTranslations = null,
         array|string|null $locale = null,
         ?string $class = null,
@@ -92,10 +90,6 @@ final class CKEditor5Context extends Component
 
         if (isset($config)) {
             $resolvedContext = $resolvedContext->ofConfig($config);
-        }
-
-        if (isset($watchdogConfig)) {
-            $resolvedContext = $resolvedContext->ofWatchdogConfig($watchdogConfig);
         }
 
         if (isset($customTranslations)) {

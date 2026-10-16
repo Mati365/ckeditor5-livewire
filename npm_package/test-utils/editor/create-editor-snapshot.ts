@@ -21,7 +21,6 @@ export function createEditorSnapshot(overrides: Partial<Snapshot> = {}): Snapsho
       content: 'en',
     },
     saveDebounceMs: 500,
-    watchdog: false,
     ...overrides,
   };
 }

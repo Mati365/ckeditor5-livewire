@@ -49,19 +49,24 @@ class DistributionChannelParserTest extends TestCase
         );
     }
 
-    public function testParseListContainingBothPrefersCloud(): void
+    public function testParseListContainingBothAllowsEveryChannel(): void
     {
-        $this->assertSame(DistributionChannel::CLOUD, DistributionChannelParser::parse(['sh', 'cloud']));
+        $this->assertNull(DistributionChannelParser::parse(['sh', 'cloud']));
     }
 
-    public function testParseListWithoutKnownChannelReturnsNull(): void
+    public function testParseListWithoutKnownChannelThrowsException(): void
     {
-        $this->assertNull(DistributionChannelParser::parse(['drupal', 'unknown']));
+        $this->expectException(InvalidLicenseKey::class);
+        $this->expectExceptionMessage('Invalid distributionChannel in JWT payload');
+
+        DistributionChannelParser::parse(['drupal', 'unknown']);
     }
 
-    public function testParseEmptyListReturnsNull(): void
+    public function testParseEmptyListThrowsException(): void
     {
-        $this->assertNull(DistributionChannelParser::parse([]));
+        $this->expectException(InvalidLicenseKey::class);
+
+        DistributionChannelParser::parse([]);
     }
 
     public function testParseAssociativeArrayThrowsException(): void

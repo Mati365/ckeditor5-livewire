@@ -13,8 +13,8 @@ final class DistributionChannelParser
      * Parses the `distributionChannel` claim, which can be null, a single string or a list of strings.
      *
      * @param mixed $value Decoded claim value
-     * @return DistributionChannel|null Resolved distribution channel or null when none applies
-     * @throws InvalidLicenseKey When the claim is a string with an unknown value or has an unsupported type
+     * @return DistributionChannel|null Resolved distribution channel or null when every channel is allowed
+     * @throws InvalidLicenseKey When the claim has an unknown value, contains no known channel or has an unsupported type
      */
     public static function parse(mixed $value): ?DistributionChannel
     {
@@ -36,21 +36,33 @@ final class DistributionChannelParser
 
     /**
      * Resolves a list of channel names. Unknown entries are ignored.
-     * When the list contains both `cloud` and `sh`, CLOUD takes precedence.
      *
      * @param list<mixed> $values List of channel names
-     * @return DistributionChannel|null Resolved distribution channel or null if the list contains no known channel
+     * @return DistributionChannel|null The single listed channel, or null (every channel allowed) when both are listed
+     * @throws InvalidLicenseKey When the list contains no known channel
      */
     private static function parseList(array $values): ?DistributionChannel
     {
-        if (in_array(DistributionChannel::CLOUD->value, $values, true)) {
+        $channels = array_map(
+            static fn(string $value): ?DistributionChannel => DistributionChannel::tryFrom($value),
+            array_filter($values, 'is_string'),
+        );
+
+        $hasCloud = in_array(DistributionChannel::CLOUD, $channels, true);
+        $hasSH = in_array(DistributionChannel::SH, $channels, true);
+
+        if ($hasCloud && $hasSH) {
+            return null;
+        }
+
+        if ($hasCloud) {
             return DistributionChannel::CLOUD;
         }
 
-        if (in_array(DistributionChannel::SH->value, $values, true)) {
+        if ($hasSH) {
             return DistributionChannel::SH;
         }
 
-        return null;
+        throw new InvalidLicenseKey('Invalid distributionChannel in JWT payload');
     }
 }

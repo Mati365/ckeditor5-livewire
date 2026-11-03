@@ -41,37 +41,11 @@ final class KeyParser
         $parts = explode('.', $jwt);
         $payload = self::decodeJWTPayload($parts[1]);
 
-        $distributionChannel = isset($payload['distributionChannel']) && is_string($payload['distributionChannel'])
-            ? $payload['distributionChannel']
-            : null;
-
         return new Key(
             raw: $jwt,
             expiresAt: (int) $payload['exp'],
-            distributionChannel: self::decodeDistributionChannel($distributionChannel),
+            distributionChannel: DistributionChannelParser::parse($payload['distributionChannel'] ?? null),
         );
-    }
-
-    /**
-     * Decodes the distribution channel from a string.
-     *
-     * @param string|null $channel Distribution channel string
-     * @return DistributionChannel|null Decoded distribution channel or null
-     * @throws InvalidLicenseKey When the channel is invalid
-     */
-    private static function decodeDistributionChannel(?string $channel): ?DistributionChannel
-    {
-        if ($channel === null) {
-            return null;
-        }
-
-        $channel = DistributionChannel::tryFrom($channel);
-
-        if ($channel === null) {
-            throw new InvalidLicenseKey('Invalid distributionChannel in JWT payload');
-        }
-
-        return $channel;
     }
 
     /**
